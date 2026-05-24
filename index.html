@@ -277,7 +277,7 @@
     <div class="card" id="hotel-info">
       <div class="contact-item">
         <div class="contact-avatar">🏨</div>
-        <div id="hotel-detail"><div class="contact-name">Hotel — eintragen</div><div class="contact-role">Adresse eintragen</div></div>
+        <div id="hotel-detail"><div class="contact-name">Fabulous Village / Höffmann Bungalowpark</div><div class="contact-role">Via di Malafede 225, 00125 Rom (Latium), Italien</div><div style="margin-top:8px"><a href="https://maps.google.com/?q=Via+di+Malafede+225,+00125+Rom" target="_blank" class="tel-btn">📍 In Maps öffnen</a></div></div>
       </div>
     </div>
   </div>
@@ -298,13 +298,13 @@
 
   <!-- KARTE -->
   <div class="page" id="page-karte">
-    <div class="section-label">Karte & Navigation</div>
+    <div class="section-label">Navigation</div>
     <a href="https://maps.google.com/?q=Rom,+Italien" target="_blank" class="map-link">📍 Rom in Google Maps öffnen</a>
     <a href="https://maps.google.com/?q=Via+di+Malafede+225,+00125+Rom,+Italien" target="_blank" class="map-link" style="background:var(--accent)">🏕️ Unser Camp in Maps öffnen</a>
+
     <div class="section-label">Übersetzer</div>
-    <a href="https://translate.google.com/?sl=it&tl=de&op=translate" target="_blank" class="map-link" style="background:#1a7f4b">
-      🌐 Google Übersetzer öffnen <span style="font-size:11px;opacity:.7">Italienisch → Deutsch</span>
-    </a>
+    <a href="https://translate.google.com/?sl=it&tl=de&op=translate" target="_blank" class="map-link" style="background:#1a7f4b">🌐 Google Übersetzer (Italienisch → Deutsch)</a>
+
     <div class="section-label">Sehenswürdigkeiten</div>
     <div id="sights-list" style="margin-bottom:8px"></div>
   </div>
@@ -441,45 +441,45 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
       tipp: 'Am besten vor 8 Uhr morgens besuchen', adresse: 'Piazza di Trevi, 00187 Rom', autor: 'Frau Müller' }
   ],
   zeitplan: [
-    { tag: 'Tag 1 — Freitag (Anreise)', eintraege: [
+    { tag: 'Tag 1 — Fr. 09.10. (Anreise)', eintraege: [
       { time: '', label: 'Gottesdienst / Segen an der Schule', sub: '', highlight: true },
       { time: '', label: 'Busse beladen & Abfahrt', sub: 'Treffpunkt Schule', highlight: false }
     ]},
-    { tag: 'Tag 2 — Samstag (Ankunft)', eintraege: [
+    { tag: 'Tag 2 — Sa. 10.10. (Ankunft)', eintraege: [
       { time: 'Mittags', label: 'Ankunft in Rom', sub: '', highlight: true },
       { time: '', label: 'Imbiss & Einquartierung', sub: 'Erkundung des Platzes', highlight: false },
       { time: 'Abends', label: 'Abendessen & Eröffnungsabend', sub: 'Vorbereitung auf Projekttage', highlight: true }
     ]},
-    { tag: 'Tag 3 — Sonntag', eintraege: [
+    { tag: 'Tag 3 — So. 11.10.', eintraege: [
       { time: '', label: 'Klassen 5–7: Kleiner Stadtrundgang', sub: 'Anschließend Programmende', highlight: false },
       { time: '', label: 'Klassen 8–Q2: Kolosseum & Forum Romanum', sub: 'Ggf. Besuch St. Paul vor den Mauern', highlight: true },
       { time: 'Abends', label: 'Lichterfahrt / Trastevere', sub: 'Nur Oberstufe', highlight: false }
     ]},
-    { tag: 'Tag 4 — Montag', eintraege: [
+    { tag: 'Tag 4 — Mo. 12.10.', eintraege: [
       { time: '', label: 'Klassen 5–7: Kolosseum & Forum Romanum', sub: '', highlight: true },
       { time: '', label: 'Klassen 8–Q2: Großer Stadtrundgang & Freizeit', sub: 'Ggf. einzelne Angebote durch Lehrkräfte', highlight: false },
       { time: '', label: 'Petersdom', sub: 'Kuppelbesteigung optional', highlight: false },
       { time: '', label: 'Ggf. Gottesdienst', sub: '', highlight: false }
     ]},
-    { tag: 'Tag 5 — Dienstag (Tagesausflüge)', eintraege: [
+    { tag: 'Tag 5 — Di. 13.10. (Tagesausflüge)', eintraege: [
       { time: '', label: 'Klassen 5–7: Ostia Antica', sub: 'Inkl. Führung', highlight: true },
       { time: '', label: 'Klassen 8–Q2: Monte Cassino & Pompeji', sub: 'Ca. 15 € pro Person', highlight: true }
     ]},
-    { tag: 'Tag 6 — Mittwoch', eintraege: [
+    { tag: 'Tag 6 — Mi. 14.10.', eintraege: [
       { time: 'Morgens', label: 'Generalaudienz Papst', sub: '', highlight: true },
       { time: '', label: 'Optionale Angebote (nach Stufen / Interessen)', sub: 'Kuppel Petersdom · Olympiastadion · Katakomben · Vatikanische Museen · Villa Borghese', highlight: false },
       { time: 'Ggf.', label: 'Gottesdienst', sub: 'Ca. 2–3 € pro Person', highlight: false },
       { time: 'Abends', label: 'Abschlussparty', sub: '', highlight: true }
     ]},
-    { tag: 'Tag 7 — Donnerstag (Abreise)', eintraege: [
+    { tag: 'Tag 7 — Do. 15.10. (Abreise)', eintraege: [
       { time: 'Morgens', label: 'Frühstück & Busse beladen', sub: '', highlight: false },
       { time: '', label: 'Abfahrt', sub: '', highlight: true }
     ]},
-    { tag: 'Tag 8 — Freitag (Ankunft)', eintraege: [
+    { tag: 'Tag 8 — Fr. 16.10. (Ankunft)', eintraege: [
       { time: '', label: 'Ankunft in Mettingen', sub: '', highlight: true }
     ]}
   ],
-  teachers: [{ name: 'Sebastian Musli', role: 'Notfallkontakt', tel: '01774215984' }], hotel: { name: 'Fabulous Village / Höffmann Bungalowpark', adresse: 'Via di Malafede 225, 00125 Rom (Latium), Italien', tel: '' },
+  teachers: [{ name: 'Sebastian Musli', role: 'Lehrkraft / Notfallkontakt', tel: '01774215984' }], hotel: { name: 'Fabulous Village / Höffmann Bungalowpark', adresse: 'Via di Malafede 225, 00125 Rom (Latium), Italien', tel: '' },
   rules: [
     'Handys werden um 22:00 Uhr bei der Lehrkraft abgegeben.',
     'Das Hotel darf abends nur in Gruppen von mindestens 3 Personen verlassen werden.',
@@ -604,6 +604,7 @@ function renderSights() {
     `<a href="https://www.google.com/maps/search/${encodeURIComponent(s+', Rom, Italien')}" target="_blank" class="sight-pill">📍 ${s}</a>`
   ).join('');
 }
+
 
 function renderPolls() {
   const votedPolls = JSON.parse(localStorage.getItem('rom-voted') || '[]');
