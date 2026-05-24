@@ -298,8 +298,13 @@
 
   <!-- KARTE -->
   <div class="page" id="page-karte">
-    <div class="section-label">Karte & Sehenswürdigkeiten</div>
-    <a href="https://maps.google.com/?q=Rom,+Italien" target="_blank" class="map-link">📍 Karte in Google Maps öffnen</a>
+    <div class="section-label">Karte & Navigation</div>
+    <a href="https://maps.google.com/?q=Rom,+Italien" target="_blank" class="map-link">📍 Rom in Google Maps öffnen</a>
+    <a href="https://maps.google.com/?q=Via+di+Malafede+225,+00125+Rom,+Italien" target="_blank" class="map-link" style="background:var(--accent)">🏕️ Unser Camp in Maps öffnen</a>
+    <div class="section-label">Übersetzer</div>
+    <a href="https://translate.google.com/?sl=it&tl=de&op=translate" target="_blank" class="map-link" style="background:#1a7f4b">
+      🌐 Google Übersetzer öffnen <span style="font-size:11px;opacity:.7">Italienisch → Deutsch</span>
+    </a>
     <div class="section-label">Sehenswürdigkeiten</div>
     <div id="sights-list" style="margin-bottom:8px"></div>
   </div>
@@ -420,7 +425,7 @@ const FIREBASE_VAPID_KEY = "BFFkdNWF-1pXAQLA3pVWo6iMTAUiC4L1PZv4SA27mk1B5ytcIjwF
 // ════════════════════════════════════════════
 
 let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
-  trip: { title: 'Rom 2026', dates: 'Datum eintragen', klasse: 'Klasse eintragen' },
+  trip: { title: 'Rom 2026', dates: '09.–16. Oktober 2026', klasse: 'Klasse eintragen' },
   guides: [
     { id: 1, emoji: '🏟️', photo: null, category: 'Antikes Rom', title: 'Das Kolosseum',
       desc: 'Das Kolosseum ist das größte je erbaute Amphitheater der Antike. Es fasste bis zu 80.000 Zuschauer.',
@@ -441,7 +446,7 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
       { time: '', label: 'Busse beladen & Abfahrt', sub: 'Treffpunkt Schule', highlight: false }
     ]},
     { tag: 'Tag 2 — Samstag (Ankunft)', eintraege: [
-      { time: 'Mittag', label: 'Ankunft in Rom', sub: '', highlight: true },
+      { time: 'Mittags', label: 'Ankunft in Rom', sub: '', highlight: true },
       { time: '', label: 'Imbiss & Einquartierung', sub: 'Erkundung des Platzes', highlight: false },
       { time: 'Abends', label: 'Abendessen & Eröffnungsabend', sub: 'Vorbereitung auf Projekttage', highlight: true }
     ]},
@@ -474,7 +479,7 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
       { time: '', label: 'Ankunft in Mettingen', sub: '', highlight: true }
     ]}
   ],
-  teachers: [], hotel: { name: '', adresse: '', tel: '' },
+  teachers: [{ name: 'Sebastian Musli', role: 'Notfallkontakt', tel: '01774215984' }], hotel: { name: 'Fabulous Village / Höffmann Bungalowpark', adresse: 'Via di Malafede 225, 00125 Rom (Latium), Italien', tel: '' },
   rules: [
     'Handys werden um 22:00 Uhr bei der Lehrkraft abgegeben.',
     'Das Hotel darf abends nur in Gruppen von mindestens 3 Personen verlassen werden.',
@@ -484,7 +489,7 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
   ],
   pack: ['Reisepass / Personalausweis','Krankenversicherungskarte (EHIC)','Bargeld & EC-Karte','Sonnencreme (mind. LSF 30)','Bequeme Laufschuhe','Wasserflasche','Regenjacke','Kleidung für Kirchenbesuch','Reiseadapter','Powerbank','Notizblock & Stift','Pflaster'],
   checkedPack: [],
-  sights: ['Kolosseum','Forum Romanum','Vatikan','Trevi-Brunnen','Pantheon','Piazza Navona','Spanische Treppe','Trastevere'],
+  sights: ['Kolosseum','Forum Romanum','Vatikan','Trevi-Brunnen','Pantheon','Piazza Navona','Spanische Treppe','Trastevere','Fabulous Village Bungalowpark, Via di Malafede 225, Rom'],
   polls: [
     { id: 1, question: 'Welche Sehenswürdigkeit hat euch am besten gefallen?', options: ['Kolosseum','Vatikan','Trevi-Brunnen','Pantheon'], votes: [0,0,0,0] }
   ],
@@ -638,22 +643,36 @@ function vote(pollId, optIdx) {
 }
 
 function renderNotifications() {
-  const unread = data.notifications.filter(n=>!n.read).length;
+  const myKlasse = localStorage.getItem('rom-klasse') || 'alle';
+  // Filter: show notification if it targets 'alle', or matches user's class, or user is Lehrkraft
+  const visible = data.notifications.filter(n => {
+    const ziel = n.klasse || 'alle';
+    if (ziel === 'alle') return true;
+    if (myKlasse === 'Lehrkraft') return true;
+    // Group targets like 'Klassen 5-7'
+    if (ziel === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) return true;
+    if (ziel === 'Klassen 8-Q2' && ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'].includes(myKlasse)) return true;
+    return ziel === myKlasse;
+  });
+  const unread = visible.filter(n=>!n.read).length;
   document.getElementById('notifDot').classList.toggle('show', unread > 0);
   const list = document.getElementById('notif-list');
-  if (!data.notifications.length) {
-    list.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--text3);font-size:14px">Noch keine Mitteilungen.</div>';
+  if (!visible.length) {
+    list.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--text3);font-size:14px">Noch keine Mitteilungen für deine Klasse.</div>';
     return;
   }
-  list.innerHTML = data.notifications.slice().reverse().map((n,i) => `
-    <div class="notif-item" onclick="markRead(${data.notifications.length-1-i})">
+  list.innerHTML = visible.slice().reverse().map((n,i) => {
+    const origIdx = data.notifications.indexOf(n);
+    const klasseTag = (n.klasse && n.klasse !== 'alle') ? `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:var(--accent-light);color:var(--accent);margin-left:6px">${n.klasse}</span>` : '';
+    return `<div class="notif-item" onclick="markRead(${origIdx})">
       <div class="notif-dot-left ${n.read?'read':''}"></div>
       <div>
-        <div class="notif-title">${n.title}</div>
+        <div class="notif-title">${n.title}${klasseTag}</div>
         <div class="notif-body">${n.body}</div>
         <div class="notif-time">${n.time}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function markRead(idx) {
@@ -834,12 +853,27 @@ function showForm(type) {
       <div class="input-group"><label>Fragen-Formular URL</label><input id="f-fq" value="${data.formsLinks.fragen}" placeholder="https://forms.google.com/..."></div>
       <button class="btn-primary" onclick="saveForms()">Speichern</button>`,
 
-    push: `<div class="sheet-title">🔔 Mitteilung an alle senden</div>
+    push: `<div class="sheet-title">🔔 Mitteilung senden</div>
+      <div class="input-group">
+        <label>Empfänger</label>
+        <select id="f-pklasse">
+          <option value="alle">👥 Alle Schüler/innen</option>
+          <option value="5a">Klasse 5a</option><option value="5b">Klasse 5b</option><option value="5c">Klasse 5c</option>
+          <option value="6a">Klasse 6a</option><option value="6b">Klasse 6b</option><option value="6c">Klasse 6c</option>
+          <option value="7a">Klasse 7a</option><option value="7b">Klasse 7b</option><option value="7c">Klasse 7c</option>
+          <option value="8a">Klasse 8a</option><option value="8b">Klasse 8b</option><option value="8c">Klasse 8c</option>
+          <option value="9a">Klasse 9a</option><option value="9b">Klasse 9b</option><option value="9c">Klasse 9c</option>
+          <option value="10a">Klasse 10a</option><option value="10b">Klasse 10b</option><option value="10c">Klasse 10c</option>
+          <option value="EF">EF (Oberstufe)</option><option value="Q1">Q1</option><option value="Q2">Q2</option>
+          <option value="Klassen 5-7">Klassen 5–7 (Unterstufengruppe)</option>
+          <option value="Klassen 8-Q2">Klassen 8–Q2 (Oberstufengruppe)</option>
+        </select>
+      </div>
       <div class="input-group"><label>Titel</label><input id="f-ptitle" placeholder="z.B. Programmänderung!"></div>
       <div class="input-group"><label>Nachricht</label><textarea id="f-pbody" placeholder="Treffpunkt um 14:00 Uhr am Brunnen..."></textarea></div>
-      <button class="btn-primary" onclick="saveNotification()">In App speichern & senden</button>
+      <button class="btn-primary" onclick="saveNotification()">Mitteilung speichern & senden</button>
       <div style="background:var(--accent-light);border-radius:10px;padding:12px;margin-top:12px;font-size:12px;color:var(--text2);line-height:1.6">
-        💡 Sobald Firebase konfiguriert ist, erhalten alle Schüler/innen eine echte Push-Benachrichtigung. Bis dahin erscheint die Mitteilung beim nächsten App-Öffnen.
+        💡 Die Mitteilung erscheint bei Schülern der gewählten Klasse. Beim Öffnen der App haben alle ihre Klasse angegeben.
       </div>`,
 
     delete: `<div class="sheet-title">🗑️ Eintrag löschen</div>
@@ -954,16 +988,13 @@ function saveForms() {
 function saveNotification() {
   const title = document.getElementById('f-ptitle').value;
   const body = document.getElementById('f-pbody').value;
+  const klasse = document.getElementById('f-pklasse')?.value || 'alle';
   if (!title || !body) { alert('Bitte Titel und Nachricht eingeben.'); return; }
   const now = new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-  data.notifications.push({ title, body, time: now, read: false });
+  data.notifications.push({ title, body, time: now, read: false, klasse });
   save(); renderNotifications();
-  // Echter Firebase Push wenn konfiguriert:
-  if (fbMessaging) {
-    alert('Mitteilung gespeichert ✓\nFür echten Push: Firebase Cloud Messaging Server-Key verwenden.');
-  } else {
-    alert('Mitteilung gespeichert ✓\nSie erscheint in der App für alle Nutzer beim nächsten Öffnen.');
-  }
+  const empf = klasse === 'alle' ? 'alle Schüler/innen' : `Klasse ${klasse}`;
+  alert(`Mitteilung gespeichert ✓\nEmpfänger: ${empf}`);
   closeAdminOverlay();
 }
 
@@ -1016,6 +1047,42 @@ document.getElementById('installBtn').addEventListener('click', async () => {
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 renderAll();
+
+// ════════════════════════════════════════════
+// KLASSENABFRAGE beim ersten Start
+// ════════════════════════════════════════════
+const KLASSEN = ['5a','5b','5c','6a','6b','6c','7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2','Lehrkraft'];
+
+function showKlassenModal() {
+  const overlay = document.createElement('div');
+  overlay.id = 'klassen-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(10,10,8,.6);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:28px 20px calc(28px + env(safe-area-inset-bottom));animation:slideUp .3s ease">
+      <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 22px"></div>
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:36px;margin-bottom:8px">👋</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:6px">Willkommen!</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.5">In welcher Klasse bist du?<br>So können Lehrkräfte Mitteilungen gezielt senden.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px" id="klassen-grid">
+        ${KLASSEN.map(k => `<button onclick="selectKlasse('${k}')" style="padding:10px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--text)">${k}</button>`).join('')}
+      </div>
+      <button onclick="selectKlasse('unbekannt')" style="width:100%;padding:12px;background:none;border:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Lieber nicht angeben</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function selectKlasse(klasse) {
+  localStorage.setItem('rom-klasse', klasse);
+  const overlay = document.getElementById('klassen-overlay');
+  if (overlay) { overlay.style.opacity='0'; overlay.style.transition='opacity .2s'; setTimeout(()=>overlay.remove(), 200); }
+}
+
+// Nur beim ersten Öffnen zeigen
+if (!localStorage.getItem('rom-klasse')) {
+  setTimeout(showKlassenModal, 600);
+}
 </script>
 
 <!-- Firebase SDKs — müssen VOR initFirebase() geladen werden -->
