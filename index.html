@@ -6,401 +6,238 @@
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Rom 2025">
-  <title>Rom 2025 — Schulfahrt</title>
+  <meta name="apple-mobile-web-app-title" content="Rom 2026">
+  <title>Rom 2026 — KvG Schulfahrt</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="logo-schule.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #fafaf8;
-      --surface: #ffffff;
-      --surface2: #f4f3f0;
-      --border: #e8e6e1;
-      --text: #1a1917;
-      --text2: #6b6965;
-      --text3: #a09d98;
-      --accent: #c8361e;
-      --accent-light: #fdf1ef;
-      --accent2: #d4a853;
-      --green: #2d6a4f;
-      --green-light: #edf5f0;
-      --radius: 14px;
-      --nav-h: 68px;
-      --safe-b: env(safe-area-inset-bottom, 0px);
+      --bg: #fafaf8; --surface: #ffffff; --surface2: #f4f3f0;
+      --border: #e8e6e1; --text: #1a1917; --text2: #6b6965; --text3: #a09d98;
+      --accent: #1a3a6b; --accent-light: #e8eef7; --accent2: #d4a853;
+      --green: #2d6a4f; --green-light: #edf5f0;
+      --red: #c8361e; --red-light: #fdf1ef;
+      --radius: 14px; --nav-h: 68px; --safe-b: env(safe-area-inset-bottom, 0px);
     }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100dvh;
-      overflow-x: hidden;
-    }
-
-    /* ── TOP BAR ── */
-    .topbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(250,250,248,.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 20px 12px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .topbar-title { font-family: 'DM Serif Display', serif; font-size: 20px; letter-spacing: -.3px; }
-    .topbar-title span { color: var(--accent); font-style: italic; }
-    .admin-btn {
-      font-size: 12px; font-weight: 500; letter-spacing: .03em;
-      padding: 6px 12px; border-radius: 20px;
-      border: 1.5px solid var(--border);
-      background: var(--surface); color: var(--text2);
-      cursor: pointer; transition: all .2s;
-    }
+    /* TOPBAR */
+    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(250,250,248,.93); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .admin-btn { font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; transition: all .2s; white-space: nowrap; }
     .admin-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .admin-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .notif-btn { font-size: 20px; background: none; border: none; cursor: pointer; padding: 4px; line-height: 1; position: relative; }
+    .notif-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background: var(--red); border-radius: 50%; border: 2px solid var(--bg); display: none; }
+    .notif-dot.show { display: block; }
 
-    /* ── NAV ── */
-    nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(250,250,248,.95);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border);
-      display: flex;
-      padding-bottom: var(--safe-b);
-    }
-    .nav-item {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      gap: 3px; padding: 10px 4px 8px;
-      cursor: pointer; transition: all .15s;
-      border: none; background: none; color: var(--text3);
-      font-family: 'DM Sans', sans-serif;
-    }
+    /* NAV */
+    nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(250,250,248,.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; padding-bottom: var(--safe-b); }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 2px 8px; cursor: pointer; transition: all .15s; border: none; background: none; color: var(--text3); font-family: 'DM Sans', sans-serif; }
     .nav-item.active { color: var(--accent); }
-    .nav-icon { font-size: 20px; line-height: 1; }
-    .nav-label { font-size: 9.5px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
+    .nav-icon { font-size: 18px; line-height: 1; }
+    .nav-label { font-size: 9px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
 
-    /* ── MAIN ── */
-    main {
-      padding-top: calc(56px + 12px);
-      padding-bottom: calc(var(--nav-h) + var(--safe-b) + 12px);
-      min-height: 100dvh;
-    }
-
-    /* ── PAGES ── */
+    /* MAIN */
+    main { padding-top: calc(56px + 12px); padding-bottom: calc(var(--nav-h) + var(--safe-b) + 12px); min-height: 100dvh; }
     .page { display: none; padding: 16px 16px 8px; animation: fadeIn .2s ease; }
     .page.active { display: block; }
     @keyframes fadeIn { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform: none; } }
 
-    /* ── HERO ── */
-    .hero {
-      background: var(--text); color: white;
-      border-radius: var(--radius); padding: 28px 24px; margin-bottom: 16px;
-      position: relative; overflow: hidden;
-    }
-    .hero::before {
-      content: 'ROMA'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
-      font-family: 'DM Serif Display', serif; font-size: 88px; opacity: .06; line-height: 1;
-      pointer-events: none; white-space: nowrap;
-    }
-    .hero-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; opacity: .5; margin-bottom: 8px; }
-    .hero h1 { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1.15; margin-bottom: 6px; }
-    .hero h1 em { font-style: italic; color: var(--accent2); }
-    .hero-meta { font-size: 13px; opacity: .55; }
-
-    /* ── CARDS ── */
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px; margin-bottom: 12px;
-    }
+    /* CARDS */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; }
     .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
     .card-title { font-size: 15px; font-weight: 500; }
-    .card-badge {
-      font-size: 10px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase;
-      padding: 3px 9px; border-radius: 20px;
-      background: var(--surface2); color: var(--text2);
-    }
-    .card-badge.red { background: var(--accent-light); color: var(--accent); }
+    .card-badge { font-size: 10px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; background: var(--surface2); color: var(--text2); }
+    .card-badge.red { background: var(--red-light); color: var(--red); }
     .card-badge.gold { background: #fdf5e6; color: #9a6e1a; }
-    .card-badge.green { background: var(--green-light); color: var(--green); }
+    .card-badge.blue { background: var(--accent-light); color: var(--accent); }
+    .section-label { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin: 20px 0 10px; }
 
-    .section-label {
-      font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
-      color: var(--text3); margin: 20px 0 10px;
-    }
-
-    /* ── REISEFÜHRER ── */
-    .guide-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden; margin-bottom: 12px;
-      cursor: pointer; transition: box-shadow .2s;
-    }
+    /* GUIDE CARDS */
+    .guide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; cursor: pointer; transition: box-shadow .2s; }
     .guide-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
-    .guide-img {
-      width: 100%; height: 140px; object-fit: cover;
-      background: var(--surface2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 42px;
-    }
+    .guide-img-wrap { width: 100%; height: 160px; overflow: hidden; background: var(--surface2); display: flex; align-items: center; justify-content: center; }
+    .guide-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .guide-img-emoji { font-size: 52px; }
     .guide-body { padding: 14px 16px; }
-    .guide-category {
-      font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 4px;
-    }
+    .guide-category { font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
     .guide-title { font-size: 16px; font-weight: 500; margin-bottom: 6px; }
     .guide-desc { font-size: 13px; color: var(--text2); line-height: 1.55; }
     .guide-meta { font-size: 11px; color: var(--text3); margin-top: 10px; display: flex; gap: 12px; }
 
-    /* ── ZEITPLAN ── */
+    /* TIMELINE */
     .timeline { position: relative; padding-left: 28px; }
-    .timeline::before {
-      content: ''; position: absolute; left: 8px; top: 6px; bottom: 6px;
-      width: 1.5px; background: var(--border);
-    }
+    .timeline::before { content: ''; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 1.5px; background: var(--border); }
     .timeline-item { position: relative; margin-bottom: 18px; }
-    .timeline-dot {
-      position: absolute; left: -24px; top: 4px;
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--surface); border: 2px solid var(--border);
-    }
+    .timeline-dot { position: absolute; left: -24px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--surface); border: 2px solid var(--border); }
     .timeline-dot.highlight { border-color: var(--accent); background: var(--accent); }
     .timeline-time { font-size: 11px; font-weight: 500; color: var(--text3); margin-bottom: 2px; letter-spacing: .03em; }
     .timeline-label { font-size: 14px; font-weight: 500; }
     .timeline-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-    .day-chip {
-      display: inline-block; font-size: 11px; font-weight: 500;
-      padding: 4px 12px; border-radius: 20px;
-      background: var(--text); color: white; margin-bottom: 14px;
-    }
+    .day-chip { display: inline-block; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; background: var(--text); color: white; margin-bottom: 14px; }
 
-    /* ── KONTAKTE ── */
-    .contact-item {
-      display: flex; align-items: center; gap: 14px; padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-    }
+    /* CONTACTS */
+    .contact-item { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .contact-item:last-child { border-bottom: none; }
-    .contact-avatar {
-      width: 42px; height: 42px; border-radius: 50%;
-      background: var(--surface2); display: flex; align-items: center;
-      justify-content: center; font-size: 18px; flex-shrink: 0;
-    }
-    .contact-avatar.emergency { background: var(--accent-light); }
+    .contact-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .contact-avatar.emergency { background: var(--red-light); }
     .contact-name { font-size: 14px; font-weight: 500; }
     .contact-role { font-size: 12px; color: var(--text2); margin-top: 1px; }
-    .contact-tel {
-      margin-left: auto; display: flex; align-items: center; gap: 8px;
-    }
-    .tel-btn {
-      font-size: 13px; font-weight: 500; color: var(--accent);
-      background: var(--accent-light); border: none;
-      padding: 6px 14px; border-radius: 20px; cursor: pointer;
-      text-decoration: none;
-    }
+    .contact-tel { margin-left: auto; }
+    .tel-btn { font-size: 13px; font-weight: 500; color: var(--accent); background: var(--accent-light); border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; text-decoration: none; }
 
-    /* ── PACKLISTE ── */
-    .pack-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 11px 0; border-bottom: 1px solid var(--border); cursor: pointer;
-    }
+    /* PACKLISTE */
+    .pack-item { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
     .pack-item:last-child { border-bottom: none; }
-    .pack-check {
-      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
-      border: 2px solid var(--border); display: flex; align-items: center;
-      justify-content: center; transition: all .15s;
-    }
+    .pack-check { width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all .15s; }
     .pack-check.checked { background: var(--green); border-color: var(--green); }
     .pack-check.checked::after { content: '✓'; color: white; font-size: 12px; font-weight: 500; }
     .pack-label { font-size: 14px; transition: color .15s; }
     .pack-item.done .pack-label { color: var(--text3); text-decoration: line-through; }
-    .pack-progress {
-      height: 4px; background: var(--surface2); border-radius: 2px; margin-bottom: 16px; overflow: hidden;
-    }
+    .pack-progress { height: 4px; background: var(--surface2); border-radius: 2px; margin-bottom: 16px; overflow: hidden; }
     .pack-progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width .4s ease; }
 
-    /* ── REGELN ── */
-    .rule-item {
-      display: flex; gap: 12px; padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-    }
+    /* REGELN */
+    .rule-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
     .rule-item:last-child { border-bottom: none; }
-    .rule-num {
-      font-family: 'DM Serif Display', serif; font-size: 24px; line-height: 1;
-      color: var(--accent); opacity: .3; flex-shrink: 0; width: 28px;
-    }
+    .rule-num { font-family: 'DM Serif Display', serif; font-size: 24px; line-height: 1; color: var(--accent); opacity: .3; flex-shrink: 0; width: 28px; }
     .rule-text { font-size: 14px; line-height: 1.55; color: var(--text2); padding-top: 2px; }
-    .rule-text strong { color: var(--text); font-weight: 500; }
 
-    /* ── KARTE ── */
-    .map-placeholder {
-      background: var(--surface2); border-radius: var(--radius);
-      height: 200px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px;
-      border: 1px solid var(--border);
-    }
-    .map-placeholder .icon { font-size: 36px; }
-    .map-placeholder p { font-size: 13px; color: var(--text2); text-align: center; padding: 0 24px; line-height: 1.5; }
-    .map-link {
-      display: block; width: 100%;
-      background: var(--text); color: white;
-      border: none; border-radius: 10px; padding: 14px;
-      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
-      text-align: center; cursor: pointer; text-decoration: none; margin-bottom: 10px;
-    }
-    .sight-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--surface); border: 1px solid var(--border);
-      padding: 8px 14px; border-radius: 20px; font-size: 13px;
-      cursor: pointer; margin: 0 6px 8px 0; text-decoration: none; color: var(--text);
-    }
+    /* KARTE */
+    .map-link { display: block; width: 100%; background: var(--text); color: white; border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; text-decoration: none; margin-bottom: 10px; }
+    .sight-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; margin: 0 6px 8px 0; text-decoration: none; color: var(--text); }
 
-    /* ── ADMIN OVERLAY ── */
-    .admin-overlay {
-      display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(10,10,8,.5); backdrop-filter: blur(4px);
-      align-items: flex-end; justify-content: center;
-    }
-    .admin-overlay.open { display: flex; }
-    .admin-sheet {
-      background: var(--surface); border-radius: 20px 20px 0 0;
-      width: 100%; max-width: 500px;
-      padding: 24px 20px calc(24px + var(--safe-b));
-      animation: slideUp .25s ease;
-    }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
-    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
-    .sheet-title { font-size: 17px; font-weight: 500; margin-bottom: 16px; }
-    .input-group { margin-bottom: 14px; }
-    .input-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; letter-spacing: .03em; }
-    .input-group input, .input-group textarea, .input-group select {
-      width: 100%; padding: 11px 14px; border-radius: 10px;
-      border: 1.5px solid var(--border); background: var(--bg);
-      font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
-      outline: none; transition: border-color .15s;
-    }
-    .input-group input:focus, .input-group textarea:focus, .input-group select:focus { border-color: var(--accent); }
-    .input-group textarea { resize: vertical; min-height: 90px; }
-    .btn-primary {
-      width: 100%; padding: 14px; background: var(--accent); color: white;
-      border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif;
-      font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity .15s;
-    }
-    .btn-primary:hover { opacity: .9; }
-    .btn-cancel {
-      width: 100%; padding: 12px; background: none; color: var(--text2);
-      border: none; font-family: 'DM Sans', sans-serif;
-      font-size: 14px; cursor: pointer; margin-top: 8px;
-    }
-    .admin-pw { padding: 40px 20px; }
-    .admin-pw input {
-      width: 100%; padding: 12px 14px; border-radius: 10px;
-      border: 1.5px solid var(--border); font-family: 'DM Sans', sans-serif;
-      font-size: 16px; text-align: center; letter-spacing: .2em;
-      outline: none; margin-bottom: 12px; background: var(--bg); color: var(--text);
-    }
+    /* FEEDBACK PAGE */
+    .feedback-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
+    .feedback-header { background: var(--accent); color: white; padding: 20px; }
+    .feedback-header h2 { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 4px; }
+    .feedback-header p { font-size: 13px; opacity: .7; }
+    .feedback-body { padding: 18px; }
+    .forms-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; margin-bottom: 10px; }
+    .forms-btn-secondary { background: var(--accent-light); color: var(--accent); }
+    .poll-card { background: var(--surface2); border-radius: 10px; padding: 16px; margin-bottom: 10px; }
+    .poll-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
+    .poll-opt { display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer; border: none; background: none; width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); }
+    .poll-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .poll-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width .4s ease; }
+    .poll-pct { font-size: 11px; color: var(--text3); min-width: 30px; text-align: right; }
 
-    /* ── DETAIL VIEW ── */
-    .detail-view {
-      display: none; position: fixed; inset: 0; z-index: 150;
-      background: var(--bg); overflow-y: auto;
-    }
+    /* PUSH NOTIFICATIONS */
+    .push-banner { display: none; background: var(--accent); color: white; border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px; }
+    .push-banner.show { display: block; }
+    .push-banner h3 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+    .push-banner p { font-size: 13px; opacity: .75; margin-bottom: 12px; }
+    .push-banner button { background: white; color: var(--accent); border: none; padding: 8px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; margin-right: 8px; }
+    .push-banner button.sec { background: transparent; color: white; border: 1px solid rgba(255,255,255,.4); }
+
+    /* NOTIFICATION INBOX */
+    .notif-item { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-dot-left { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+    .notif-dot-left.read { background: var(--border); }
+    .notif-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+    .notif-body { font-size: 13px; color: var(--text2); line-height: 1.5; }
+    .notif-time { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+    /* INSTALL BANNER */
+    .install-banner { display: none; position: fixed; top: 58px; left: 12px; right: 12px; z-index: 90; background: var(--text); color: white; border-radius: 12px; padding: 12px 16px; align-items: center; gap: 12px; font-size: 13px; box-shadow: 0 4px 20px rgba(0,0,0,.2); }
+    .install-banner.show { display: flex; }
+    .install-banner p { flex: 1; line-height: 1.4; opacity: .85; }
+    .install-banner button { background: white; color: var(--text); border: none; padding: 7px 14px; border-radius: 8px; font-weight: 500; font-size: 12px; cursor: pointer; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+    .install-x { background: none; border: none; color: white; font-size: 18px; cursor: pointer; opacity: .6; }
+
+    /* DETAIL VIEW */
+    .detail-view { display: none; position: fixed; inset: 0; z-index: 150; background: var(--bg); overflow-y: auto; }
     .detail-view.open { display: block; }
-    .detail-topbar {
-      position: sticky; top: 0; background: rgba(250,250,248,.92);
-      backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
-      padding: 14px 16px; display: flex; align-items: center; gap: 12px; z-index: 10;
-    }
-    .back-btn {
-      background: none; border: none; font-size: 22px; cursor: pointer;
-      color: var(--text); padding: 0; line-height: 1;
-    }
+    .detail-topbar { position: sticky; top: 0; background: rgba(250,250,248,.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 16px; display: flex; align-items: center; gap: 12px; z-index: 10; }
+    .back-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text); padding: 0; line-height: 1; }
     .detail-content { padding: 20px 16px; }
     .detail-content h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 8px; }
     .detail-content p { font-size: 15px; line-height: 1.7; color: var(--text2); margin-bottom: 16px; }
     .detail-content h3 { font-size: 13px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); margin: 20px 0 8px; }
 
-    /* ── INSTALL BANNER ── */
-    .install-banner {
-      display: none; position: fixed; top: 58px; left: 12px; right: 12px; z-index: 90;
-      background: var(--text); color: white; border-radius: 12px;
-      padding: 12px 16px; align-items: center; gap: 12px;
-      font-size: 13px; box-shadow: 0 4px 20px rgba(0,0,0,.2);
-    }
-    .install-banner.show { display: flex; }
-    .install-banner p { flex: 1; line-height: 1.4; opacity: .85; }
-    .install-banner button {
-      background: white; color: var(--text); border: none;
-      padding: 7px 14px; border-radius: 8px; font-weight: 500;
-      font-size: 12px; cursor: pointer; white-space: nowrap;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .install-x { background: none; border: none; color: white; font-size: 18px; cursor: pointer; opacity: .6; }
+    /* ADMIN OVERLAY */
+    .admin-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(10,10,8,.5); backdrop-filter: blur(4px); align-items: flex-end; justify-content: center; }
+    .admin-overlay.open { display: flex; }
+    .admin-sheet { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 500px; padding: 24px 20px calc(24px + var(--safe-b)); animation: slideUp .25s ease; max-height: 90dvh; overflow-y: auto; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+    .sheet-title { font-size: 17px; font-weight: 500; margin-bottom: 16px; }
+    .input-group { margin-bottom: 14px; }
+    .input-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; letter-spacing: .03em; }
+    .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: border-color .15s; }
+    .input-group input:focus, .input-group textarea:focus, .input-group select:focus { border-color: var(--accent); }
+    .input-group textarea { resize: vertical; min-height: 90px; }
+    .photo-preview { width: 100%; height: 140px; object-fit: cover; border-radius: 10px; margin-top: 8px; display: none; }
+    .btn-primary { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
+    .btn-primary:hover { opacity: .9; }
+    .btn-cancel { width: 100%; padding: 12px; background: none; color: var(--text2); border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; margin-top: 8px; }
+    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .admin-grid button { padding: 14px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: left; }
+    .del-btn-row { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-bottom: 6px; border: 1px solid #fcd5d0; border-radius: 8px; background: #fdf3f2; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: left; color: var(--text); }
   </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <header class="topbar">
-  <img src="logo-schule.png" alt="Kardinal von Galen Schulen" style="height:34px;width:auto;object-fit:contain;opacity:.9">
-  <button class="admin-btn" id="adminToggle" onclick="openAdmin()">✏️ Bearbeiten</button>
+  <img src="logo-schule.png" alt="KvG" style="height:34px;width:auto;object-fit:contain;opacity:.9">
+  <div class="topbar-right">
+    <button class="notif-btn" onclick="switchPage('benachrichtigungen')" title="Benachrichtigungen">
+      🔔<span class="notif-dot" id="notifDot"></span>
+    </button>
+    <button class="admin-btn" onclick="openAdmin()">✏️ Bearbeiten</button>
+  </div>
 </header>
 
-<!-- INSTALL BANNER -->
 <div class="install-banner" id="installBanner">
   <p>App zum Homescreen hinzufügen für Offline-Zugriff</p>
   <button id="installBtn">Installieren</button>
   <button class="install-x" onclick="document.getElementById('installBanner').classList.remove('show')">×</button>
 </div>
 
-<!-- MAIN CONTENT -->
 <main>
 
-  <!-- ── STARTSEITE ── -->
+  <!-- START -->
   <div class="page active" id="page-home">
-    <div class="hero" style="padding:0;overflow:hidden;position:relative;min-height:200px;display:flex;flex-direction:column;justify-content:flex-end">
-      <img src="logo-fahrt.jpeg" alt="Rome 2026 Schulfahrt Logo"
-        style="width:100%;height:220px;object-fit:cover;object-position:center;display:block;border-radius:var(--radius) var(--radius) 0 0">
-      <div style="background:linear-gradient(to top, rgba(10,10,20,.85) 60%, transparent);padding:18px 22px 22px;border-radius:0 0 var(--radius) var(--radius)">
+    <div style="padding:0;overflow:hidden;border-radius:var(--radius);margin-bottom:16px;display:flex;flex-direction:column;justify-content:flex-end">
+      <img src="logo-fahrt.jpeg" alt="Rome 2026" style="width:100%;height:220px;object-fit:cover;object-position:center;display:block;border-radius:var(--radius) var(--radius) 0 0">
+      <div style="background:linear-gradient(to top, rgba(10,10,20,.85) 60%, transparent);padding:18px 22px 22px;border-radius:0 0 var(--radius) var(--radius);background-color:var(--text)">
         <div style="font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;opacity:.55;margin-bottom:4px;color:white">Kardinal von Galen Schulen</div>
         <div style="font-family:'DM Serif Display',serif;font-size:24px;color:white;line-height:1.2">Willkommen in <em style="color:#d4a853">Rom</em></div>
         <div id="hero-meta" style="font-size:13px;color:rgba(255,255,255,.55);margin-top:4px">Datum · Klasse eintragen</div>
       </div>
     </div>
-
     <div class="section-label">Schnellzugriff</div>
     <div class="card" onclick="switchPage('kontakte')" style="cursor:pointer">
       <div class="card-header">
-        <div>
-          <div class="card-title">🚨 Notfallnummern</div>
-          <div style="font-size:13px;color:var(--text2);margin-top:4px">Lehrkräfte & Notruf</div>
-        </div>
+        <div><div class="card-title">🚨 Notfallnummern</div><div style="font-size:13px;color:var(--text2);margin-top:4px">Lehrkräfte & Notruf</div></div>
         <span class="card-badge red">Wichtig</span>
       </div>
     </div>
     <div class="card" onclick="switchPage('zeitplan')" style="cursor:pointer">
       <div class="card-header">
-        <div>
-          <div class="card-title">📅 Heutiges Programm</div>
-          <div style="font-size:13px;color:var(--text2);margin-top:4px" id="today-preview">Zeitplan ansehen</div>
-        </div>
+        <div><div class="card-title">📅 Heutiges Programm</div><div style="font-size:13px;color:var(--text2);margin-top:4px">Zeitplan ansehen</div></div>
         <span class="card-badge gold">Heute</span>
       </div>
     </div>
     <div class="card" onclick="switchPage('reisefuehrer')" style="cursor:pointer">
       <div class="card-header">
-        <div>
-          <div class="card-title">🏛️ Reiseführer</div>
-          <div style="font-size:13px;color:var(--text2);margin-top:4px" id="guide-count-home">Einträge ansehen</div>
-        </div>
+        <div><div class="card-title">🏛️ Reiseführer</div><div style="font-size:13px;color:var(--text2);margin-top:4px" id="guide-count-home">Einträge ansehen</div></div>
         <span class="card-badge">Entdecken</span>
+      </div>
+    </div>
+    <div class="card" onclick="switchPage('feedback')" style="cursor:pointer">
+      <div class="card-header">
+        <div><div class="card-title">💬 Mitmachen</div><div style="font-size:13px;color:var(--text2);margin-top:4px">Abstimmungen & Feedback</div></div>
+        <span class="card-badge blue">Neu</span>
       </div>
     </div>
   </div>
 
-  <!-- ── REISEFÜHRER ── -->
+  <!-- REISEFÜHRER -->
   <div class="page" id="page-reisefuehrer">
     <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px">
       <img src="logo-fahrt.jpeg" alt="Rome 2026" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0">
@@ -409,19 +246,17 @@
         <div style="font-size:12px;color:var(--text2);margin-top:2px">Von Lehrkräften kuratierte Einträge</div>
       </div>
     </div>
-    <div class="section-label">Reiseführer-Einträge</div>
+    <div class="section-label">Einträge</div>
     <div id="guide-list"></div>
-    <div id="guide-empty" style="text-align:center;padding:40px 0;color:var(--text3);font-size:14px;display:none">
-      Noch keine Einträge.<br>Im Bearbeiten-Modus hinzufügen.
-    </div>
+    <div id="guide-empty" style="text-align:center;padding:40px 0;color:var(--text3);font-size:14px;display:none">Noch keine Einträge.<br>Im Bearbeiten-Modus hinzufügen.</div>
   </div>
 
-  <!-- ── ZEITPLAN ── -->
+  <!-- ZEITPLAN -->
   <div class="page" id="page-zeitplan">
     <div id="zeitplan-content"></div>
   </div>
 
-  <!-- ── KONTAKTE ── -->
+  <!-- KONTAKTE -->
   <div class="page" id="page-kontakte">
     <div class="section-label">Notfall & Notruf</div>
     <div class="card">
@@ -436,25 +271,18 @@
         <div class="contact-tel"><a href="tel:118" class="tel-btn">118</a></div>
       </div>
     </div>
-
     <div class="section-label">Lehrkräfte</div>
-    <div class="card" id="teachers-list">
-      <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Kontakte im Bearbeiten-Modus eintragen</div>
-    </div>
-
+    <div class="card" id="teachers-list"><div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Kontakte im Bearbeiten-Modus eintragen</div></div>
     <div class="section-label">Unterkunft</div>
     <div class="card" id="hotel-info">
       <div class="contact-item">
         <div class="contact-avatar">🏨</div>
-        <div id="hotel-detail">
-          <div class="contact-name">Hotel — eintragen</div>
-          <div class="contact-role">Adresse eintragen</div>
-        </div>
+        <div id="hotel-detail"><div class="contact-name">Hotel — eintragen</div><div class="contact-role">Adresse eintragen</div></div>
       </div>
     </div>
   </div>
 
-  <!-- ── PACKLISTE ── -->
+  <!-- PACKLISTE -->
   <div class="page" id="page-packliste">
     <div class="section-label">Checkliste</div>
     <div class="pack-progress"><div class="pack-progress-bar" id="pack-bar" style="width:0%"></div></div>
@@ -462,15 +290,13 @@
     <div class="card" id="pack-list"></div>
   </div>
 
-  <!-- ── REGELN ── -->
+  <!-- REGELN -->
   <div class="page" id="page-regeln">
     <div class="section-label">Verhaltensregeln</div>
-    <div class="card" id="rules-list">
-      <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Regeln im Bearbeiten-Modus eintragen</div>
-    </div>
+    <div class="card" id="rules-list"><div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Regeln im Bearbeiten-Modus eintragen</div></div>
   </div>
 
-  <!-- ── KARTE ── -->
+  <!-- KARTE -->
   <div class="page" id="page-karte">
     <div class="section-label">Karte & Sehenswürdigkeiten</div>
     <a href="https://maps.google.com/?q=Rom,+Italien" target="_blank" class="map-link">📍 Karte in Google Maps öffnen</a>
@@ -478,34 +304,54 @@
     <div id="sights-list" style="margin-bottom:8px"></div>
   </div>
 
+  <!-- FEEDBACK / MITMACHEN -->
+  <div class="page" id="page-feedback">
+    <div class="push-banner" id="pushBanner">
+      <h3>🔔 Benachrichtigungen erlauben</h3>
+      <p>Erhalte Infos bei Programmänderungen direkt auf dein Handy.</p>
+      <button onclick="requestPush()">Erlauben</button>
+      <button class="sec" onclick="dismissPush()">Nicht jetzt</button>
+    </div>
+
+    <div class="section-label">Abstimmungen</div>
+    <div id="polls-list"></div>
+
+    <div class="section-label">Feedback & Kommentare</div>
+    <div class="card">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:14px;line-height:1.6">Hast du Feedback zur Fahrt, Fragen oder Kommentare zu Sehenswürdigkeiten? Füll das Formular aus — die Lehrkräfte sehen deine Antwort.</p>
+      <a id="feedback-link" href="#" target="_blank" class="forms-btn">
+        💬 Feedback-Formular öffnen
+      </a>
+      <a id="fragen-link" href="#" target="_blank" class="forms-btn forms-btn-secondary">
+        ❓ Fragen stellen
+      </a>
+      <p style="font-size:11px;color:var(--text3);margin-top:8px">Die Links führen zu Google Forms. Im Bearbeiten-Modus konfigurierbar.</p>
+    </div>
+  </div>
+
+  <!-- BENACHRICHTIGUNGEN -->
+  <div class="page" id="page-benachrichtigungen">
+    <div class="section-label">Mitteilungen der Lehrkräfte</div>
+    <div class="card" id="notif-list">
+      <div style="text-align:center;padding:24px 0;color:var(--text3);font-size:14px">Noch keine Mitteilungen.</div>
+    </div>
+  </div>
+
 </main>
 
-<!-- BOTTOM NAV -->
+<!-- NAV -->
 <nav>
-  <button class="nav-item active" data-page="home" onclick="switchPage('home')">
-    <span class="nav-icon">🏠</span><span class="nav-label">Start</span>
-  </button>
-  <button class="nav-item" data-page="reisefuehrer" onclick="switchPage('reisefuehrer')">
-    <span class="nav-icon">🏛️</span><span class="nav-label">Reiseführer</span>
-  </button>
-  <button class="nav-item" data-page="zeitplan" onclick="switchPage('zeitplan')">
-    <span class="nav-icon">📅</span><span class="nav-label">Zeitplan</span>
-  </button>
-  <button class="nav-item" data-page="kontakte" onclick="switchPage('kontakte')">
-    <span class="nav-icon">📞</span><span class="nav-label">Kontakte</span>
-  </button>
-  <button class="nav-item" data-page="packliste" onclick="switchPage('packliste')">
-    <span class="nav-icon">🎒</span><span class="nav-label">Packliste</span>
-  </button>
-  <button class="nav-item" data-page="regeln" onclick="switchPage('regeln')">
-    <span class="nav-icon">📋</span><span class="nav-label">Regeln</span>
-  </button>
-  <button class="nav-item" data-page="karte" onclick="switchPage('karte')">
-    <span class="nav-icon">🗺️</span><span class="nav-label">Karte</span>
-  </button>
+  <button class="nav-item active" data-page="home" onclick="switchPage('home')"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></button>
+  <button class="nav-item" data-page="reisefuehrer" onclick="switchPage('reisefuehrer')"><span class="nav-icon">🏛️</span><span class="nav-label">Reiseführer</span></button>
+  <button class="nav-item" data-page="zeitplan" onclick="switchPage('zeitplan')"><span class="nav-icon">📅</span><span class="nav-label">Zeitplan</span></button>
+  <button class="nav-item" data-page="kontakte" onclick="switchPage('kontakte')"><span class="nav-icon">📞</span><span class="nav-label">Kontakte</span></button>
+  <button class="nav-item" data-page="packliste" onclick="switchPage('packliste')"><span class="nav-icon">🎒</span><span class="nav-label">Packliste</span></button>
+  <button class="nav-item" data-page="regeln" onclick="switchPage('regeln')"><span class="nav-icon">📋</span><span class="nav-label">Regeln</span></button>
+  <button class="nav-item" data-page="karte" onclick="switchPage('karte')"><span class="nav-icon">🗺️</span><span class="nav-label">Karte</span></button>
+  <button class="nav-item" data-page="feedback" onclick="switchPage('feedback')"><span class="nav-icon">💬</span><span class="nav-label">Mitmachen</span></button>
 </nav>
 
-<!-- ── DETAIL VIEW (Reiseführer) ── -->
+<!-- DETAIL VIEW -->
 <div class="detail-view" id="detail-view">
   <div class="detail-topbar">
     <button class="back-btn" onclick="closeDetail()">←</button>
@@ -514,151 +360,147 @@
   <div class="detail-content" id="detail-content"></div>
 </div>
 
-<!-- ── ADMIN OVERLAY ── -->
+<!-- ADMIN OVERLAY -->
 <div class="admin-overlay" id="adminOverlay" onclick="if(event.target===this)closeAdminOverlay()">
   <div class="admin-sheet">
     <div class="sheet-handle"></div>
 
-    <!-- PW-Screen -->
     <div id="pwScreen">
       <div class="sheet-title">Bearbeiten-Modus</div>
       <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Nur für Lehrkräfte — Passwort eingeben</p>
-      <input type="password" id="pwInput" placeholder="Passwort" onkeydown="if(event.key==='Enter')checkPw()">
+      <div class="input-group"><input type="password" id="pwInput" placeholder="Passwort" onkeydown="if(event.key==='Enter')checkPw()"></div>
       <button class="btn-primary" onclick="checkPw()">Bestätigen</button>
       <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>
-      <p id="pwError" style="color:var(--accent);font-size:12px;margin-top:10px;display:none">Falsches Passwort</p>
+      <p id="pwError" style="color:var(--red);font-size:12px;margin-top:10px;display:none">Falsches Passwort</p>
     </div>
 
-    <!-- Admin Menu -->
     <div id="adminMenu" style="display:none">
       <div class="sheet-title">Was möchtest du bearbeiten?</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-        <button onclick="showForm('trip')" style="padding:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left">
-          ✈️<br><strong>Reiseinfos</strong><br><span style="color:var(--text2);font-size:11px">Datum, Klasse</span>
-        </button>
-        <button onclick="showForm('guide')" style="padding:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left">
-          🏛️<br><strong>Reiseführer</strong><br><span style="color:var(--text2);font-size:11px">Eintrag hinzufügen</span>
-        </button>
-        <button onclick="showForm('zeitplan')" style="padding:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left">
-          📅<br><strong>Zeitplan</strong><br><span style="color:var(--text2);font-size:11px">Programmpunkt</span>
-        </button>
-        <button onclick="showForm('teacher')" style="padding:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left">
-          👤<br><strong>Kontakt</strong><br><span style="color:var(--text2);font-size:11px">Lehrkraft hinzufügen</span>
-        </button>
-        <button onclick="showForm('hotel')" style="padding:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left">
-          🏨<br><strong>Unterkunft</strong><br><span style="color:var(--text2);font-size:11px">Hotel eintragen</span>
-        </button>
-        <button onclick="showForm('rule')" style="padding:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left">
-          📋<br><strong>Regel</strong><br><span style="color:var(--text2);font-size:11px">Verhaltensregel</span>
-        </button>
-        <button onclick="showForm('pack')" style="padding:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left">
-          🎒<br><strong>Packliste</strong><br><span style="color:var(--text2);font-size:11px">Gegenstand</span>
-        </button>
-        <button onclick="showForm('sight')" style="padding:14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left">
-          🗺️<br><strong>Sehenswürdigkeit</strong><br><span style="color:var(--text2);font-size:11px">Zur Karte hinzufügen</span>
+      <div class="admin-grid">
+        <button onclick="showForm('trip')">✈️<br><strong>Reiseinfos</strong><br><span style="color:var(--text2);font-size:11px">Datum, Klasse</span></button>
+        <button onclick="showForm('guide')">🏛️<br><strong>Reiseführer</strong><br><span style="color:var(--text2);font-size:11px">+ Foto möglich</span></button>
+        <button onclick="showForm('zeitplan')">📅<br><strong>Zeitplan</strong><br><span style="color:var(--text2);font-size:11px">Programmpunkt</span></button>
+        <button onclick="showForm('teacher')">👤<br><strong>Kontakt</strong><br><span style="color:var(--text2);font-size:11px">Lehrkraft</span></button>
+        <button onclick="showForm('hotel')">🏨<br><strong>Unterkunft</strong><br><span style="color:var(--text2);font-size:11px">Hotel</span></button>
+        <button onclick="showForm('rule')">📋<br><strong>Regel</strong><br><span style="color:var(--text2);font-size:11px">Verhaltensregel</span></button>
+        <button onclick="showForm('pack')">🎒<br><strong>Packliste</strong><br><span style="color:var(--text2);font-size:11px">Gegenstand</span></button>
+        <button onclick="showForm('sight')">🗺️<br><strong>Sehenswürdigkeit</strong><br><span style="color:var(--text2);font-size:11px">Karte</span></button>
+        <button onclick="showForm('poll')">📊<br><strong>Abstimmung</strong><br><span style="color:var(--text2);font-size:11px">Neue Umfrage</span></button>
+        <button onclick="showForm('forms')">🔗<br><strong>Formular-Links</strong><br><span style="color:var(--text2);font-size:11px">Google Forms</span></button>
+        <button onclick="showForm('push')">🔔<br><strong>Mitteilung senden</strong><br><span style="color:var(--text2);font-size:11px">An alle Schüler</span></button>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:4px">
+        <button onclick="showForm('delete')" style="width:100%;padding:12px 14px;border:1.5px solid #fcd5d0;border-radius:10px;background:#fdf3f2;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left;color:#9b2a1a">
+          🗑️ <strong>Einträge löschen</strong>
         </button>
       </div>
       <button class="btn-cancel" onclick="closeAdminOverlay()">Schließen</button>
     </div>
 
-    <!-- Forms (werden dynamisch eingefügt) -->
     <div id="formArea" style="display:none"></div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-// DATA — hier trägst du Inhalte ein (oder über den Bearbeiten-Modus)
-// ═══════════════════════════════════════════
-const ADMIN_PW = 'rom2025'; // ← Passwort ändern!
+// ════════════════════════════════════════════
+// CONFIG — hier anpassen
+// ════════════════════════════════════════════
+const ADMIN_PW = 'kvgrom26';
+
+// Firebase-Konfiguration (nach Firebase-Setup eintragen):
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAKYEtp3xeQT5l0RDd8QTkcAOp2HVhOSbQ",
+  authDomain: "kvg-rom.firebaseapp.com",
+  projectId: "kvg-rom",
+  storageBucket: "kvg-rom.firebasestorage.app",
+  messagingSenderId: "553968429577",
+  appId: "1:553968429577:web:f225399967ddb9338366d8"
+};
+const FIREBASE_VAPID_KEY = "BFFkdNWF-1pXAQLA3pVWo6iMTAUiC4L1PZv4SA27mk1B5ytcIjwFBtcssDGArM9RRpEXj6KjrqrjC7RiI1NcZxA";
+// ════════════════════════════════════════════
 
 let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
-  trip: { title: 'Rom 2025', dates: '12.–18. Mai 2025', klasse: 'Klasse 10b — Gymnasium' },
+  trip: { title: 'Rom 2026', dates: 'Datum eintragen', klasse: 'Klasse eintragen' },
   guides: [
-    {
-      id: 1, emoji: '🏟️', category: 'Antikes Rom',
-      title: 'Das Kolosseum',
-      desc: 'Das Kolosseum ist das größte je erbaute Amphitheater der Antike. Es fasste bis zu 80.000 Zuschauer und war Schauplatz von Gladiatorenkämpfen und anderen Schauspielen.',
-      details: 'Gebaut zwischen 70 und 80 n. Chr. unter den Kaisern Vespasian und Titus, ist das Kolosseum ein Meisterwerk römischer Ingenieurskunst. Das elliptische Bauwerk misst 188 × 156 Meter und ist noch heute 48 Meter hoch.\n\nTipp: Tickets unbedingt vorab online buchen, um die langen Schlangen zu vermeiden.',
-      tipp: 'Kombikarte mit dem Forum Romanum kaufen',
-      adresse: 'Piazza del Colosseo, 1, 00184 Rom',
-      autor: 'Frau Müller'
-    },
-    {
-      id: 2, emoji: '⛪', category: 'Vatikan',
-      title: 'Petersdom & Vatikan',
-      desc: 'Der Petersdom ist die größte Kirche der Welt und das Zentrum der katholischen Christenheit. Michelangelo entwarf die berühmte Kuppel.',
-      details: 'Die Basilika steht auf dem Petersplatz im Vatikan – dem kleinsten anerkannten Staat der Welt. Der Innenraum ist 218 Meter lang und beeindruckt durch Michelangelos Pietà sowie das Baldachin von Bernini.\n\nAuf die Kuppel kann man zu Fuß oder mit dem Lift steigen – der Blick über Rom ist unvergesslich.',
-      tipp: 'Knie und Schultern müssen bedeckt sein (Kleidungscode)',
-      adresse: 'Piazza San Pietro, 00120 Vatikanstadt',
-      autor: 'Herr Schmidt'
-    },
-    {
-      id: 3, emoji: '⛲', category: 'Barockrom',
-      title: 'Trevi-Brunnen',
-      desc: 'Der Trevi-Brunnen ist der größte und bekannteste Barockbrunnen Roms. Wer eine Münze hineinwirft, kehrt angeblich nach Rom zurück.',
-      details: 'Der Brunnen wurde 1762 von Nicola Salvi fertiggestellt. Im Zentrum steht Neptun auf einem Muschelwagen, gezogen von geflügelten Pferden.\n\nTipp: Früh morgens oder spät abends besuchen – tagsüber ist er sehr voll.',
-      tipp: 'Am besten vor 8 Uhr morgens besuchen',
-      adresse: 'Piazza di Trevi, 00187 Rom',
-      autor: 'Frau Müller'
-    }
+    { id: 1, emoji: '🏟️', photo: null, category: 'Antikes Rom', title: 'Das Kolosseum',
+      desc: 'Das Kolosseum ist das größte je erbaute Amphitheater der Antike. Es fasste bis zu 80.000 Zuschauer.',
+      details: 'Gebaut zwischen 70 und 80 n. Chr. unter den Kaisern Vespasian und Titus.\n\nTipp: Tickets unbedingt vorab online buchen.',
+      tipp: 'Kombikarte mit dem Forum Romanum kaufen', adresse: 'Piazza del Colosseo, 1, 00184 Rom', autor: 'Frau Müller' },
+    { id: 2, emoji: '⛪', photo: null, category: 'Vatikan', title: 'Petersdom & Vatikan',
+      desc: 'Der Petersdom ist die größte Kirche der Welt und das Zentrum der katholischen Christenheit.',
+      details: 'Die Basilika steht auf dem Petersplatz im Vatikan. Michelangelos Pietà und Berninis Baldachin sind Höhepunkte.',
+      tipp: 'Knie und Schultern müssen bedeckt sein', adresse: 'Piazza San Pietro, 00120 Vatikanstadt', autor: 'Herr Schmidt' },
+    { id: 3, emoji: '⛲', photo: null, category: 'Barockrom', title: 'Trevi-Brunnen',
+      desc: 'Der Trevi-Brunnen ist der größte Barockbrunnen Roms. Wer eine Münze hineinwirft, kehrt zurück.',
+      details: '1762 von Nicola Salvi fertiggestellt. Im Zentrum steht Neptun auf einem Muschelwagen.',
+      tipp: 'Am besten vor 8 Uhr morgens besuchen', adresse: 'Piazza di Trevi, 00187 Rom', autor: 'Frau Müller' }
   ],
   zeitplan: [
-    { tag: 'Tag 1 — Anreise', eintraege: [
-      { time: '07:00', label: 'Abfahrt Schule', sub: 'Treffpunkt Haupteingang', highlight: true },
-      { time: '10:30', label: 'Ankunft Flughafen', sub: 'Köln/Bonn Airport, Terminal 2' },
-      { time: '12:45', label: 'Abflug', sub: 'Flug FR1234' },
-      { time: '15:00', label: 'Ankunft Rom Fiumicino', sub: '' },
-      { time: '17:00', label: 'Check-in Hotel', sub: '', highlight: true },
-      { time: '19:30', label: 'Abendessen gemeinsam', sub: 'Trattoria in der Nähe' }
+    { tag: 'Tag 1 — Freitag (Anreise)', eintraege: [
+      { time: '', label: 'Gottesdienst / Segen an der Schule', sub: '', highlight: true },
+      { time: '', label: 'Busse beladen & Abfahrt', sub: 'Treffpunkt Schule', highlight: false }
     ]},
-    { tag: 'Tag 2 — Forum & Kolosseum', eintraege: [
-      { time: '08:30', label: 'Frühstück', sub: '' },
-      { time: '09:30', label: 'Forum Romanum', sub: 'Führung ca. 2 Stunden', highlight: true },
-      { time: '12:00', label: 'Mittagspause', sub: 'Freie Zeit in der Nähe' },
-      { time: '14:00', label: 'Kolosseum', sub: 'Führung & Besichtigung', highlight: true },
-      { time: '17:00', label: 'Freie Zeit', sub: 'Rückkehr bis 19:00 Uhr' }
+    { tag: 'Tag 2 — Samstag (Ankunft)', eintraege: [
+      { time: 'Mittag', label: 'Ankunft in Rom', sub: '', highlight: true },
+      { time: '', label: 'Imbiss & Einquartierung', sub: 'Erkundung des Platzes', highlight: false },
+      { time: 'Abends', label: 'Abendessen & Eröffnungsabend', sub: 'Vorbereitung auf Projekttage', highlight: true }
     ]},
-    { tag: 'Tag 3 — Vatikan', eintraege: [
-      { time: '09:00', label: 'Vatikanische Museen', sub: 'Sixtinische Kapelle', highlight: true },
-      { time: '12:30', label: 'Mittagspause', sub: '' },
-      { time: '14:30', label: 'Petersdom & Platz', sub: 'Kuppelbesichtigung', highlight: true },
-      { time: '17:00', label: 'Castel Sant\'Angelo', sub: 'Außenbesichtigung' }
+    { tag: 'Tag 3 — Sonntag', eintraege: [
+      { time: '', label: 'Klassen 5–7: Kleiner Stadtrundgang', sub: 'Anschließend Programmende', highlight: false },
+      { time: '', label: 'Klassen 8–Q2: Kolosseum & Forum Romanum', sub: 'Ggf. Besuch St. Paul vor den Mauern', highlight: true },
+      { time: 'Abends', label: 'Lichterfahrt / Trastevere', sub: 'Nur Oberstufe', highlight: false }
+    ]},
+    { tag: 'Tag 4 — Montag', eintraege: [
+      { time: '', label: 'Klassen 5–7: Kolosseum & Forum Romanum', sub: '', highlight: true },
+      { time: '', label: 'Klassen 8–Q2: Großer Stadtrundgang & Freizeit', sub: 'Ggf. einzelne Angebote durch Lehrkräfte', highlight: false },
+      { time: '', label: 'Petersdom', sub: 'Kuppelbesteigung optional', highlight: false },
+      { time: '', label: 'Ggf. Gottesdienst', sub: '', highlight: false }
+    ]},
+    { tag: 'Tag 5 — Dienstag (Tagesausflüge)', eintraege: [
+      { time: '', label: 'Klassen 5–7: Ostia Antica', sub: 'Inkl. Führung', highlight: true },
+      { time: '', label: 'Klassen 8–Q2: Monte Cassino & Pompeji', sub: 'Ca. 15 € pro Person', highlight: true }
+    ]},
+    { tag: 'Tag 6 — Mittwoch', eintraege: [
+      { time: 'Morgens', label: 'Generalaudienz Papst', sub: '', highlight: true },
+      { time: '', label: 'Optionale Angebote (nach Stufen / Interessen)', sub: 'Kuppel Petersdom · Olympiastadion · Katakomben · Vatikanische Museen · Villa Borghese', highlight: false },
+      { time: 'Ggf.', label: 'Gottesdienst', sub: 'Ca. 2–3 € pro Person', highlight: false },
+      { time: 'Abends', label: 'Abschlussparty', sub: '', highlight: true }
+    ]},
+    { tag: 'Tag 7 — Donnerstag (Abreise)', eintraege: [
+      { time: 'Morgens', label: 'Frühstück & Busse beladen', sub: '', highlight: false },
+      { time: '', label: 'Abfahrt', sub: '', highlight: true }
+    ]},
+    { tag: 'Tag 8 — Freitag (Ankunft)', eintraege: [
+      { time: '', label: 'Ankunft in Mettingen', sub: '', highlight: true }
     ]}
   ],
-  teachers: [],
-  hotel: { name: '', adresse: '', tel: '' },
+  teachers: [], hotel: { name: '', adresse: '', tel: '' },
   rules: [
     'Handys werden um 22:00 Uhr bei der Lehrkraft abgegeben.',
-    'Das Hotel darf abends nur in Gruppen von mindestens 3 Personen und mit Genehmigung verlassen werden.',
+    'Das Hotel darf abends nur in Gruppen von mindestens 3 Personen verlassen werden.',
     'Alkohol und Zigaretten sind während der gesamten Fahrt verboten.',
     'Alle Treffpunkte und Abfahrtszeiten sind verbindlich — 5 Minuten vorher erscheinen.',
     'Bei Problemen oder Notfällen sofort eine Lehrkraft informieren.'
   ],
-  pack: [
-    'Reisepass / Personalausweis', 'Krankenversicherungskarte (EHIC)', 'Bargeld & EC-Karte',
-    'Sonnencreme (mind. LSF 30)', 'Bequeme Laufschuhe', 'Wasserflasche',
-    'Regenjacke', 'Kleider für Kirchenbesuch (Schulterbedeckung)', 'Reiseadapter',
-    'Powerbank', 'Notizblock & Stift', 'Schmerzmittel & Pflaster'
-  ],
+  pack: ['Reisepass / Personalausweis','Krankenversicherungskarte (EHIC)','Bargeld & EC-Karte','Sonnencreme (mind. LSF 30)','Bequeme Laufschuhe','Wasserflasche','Regenjacke','Kleidung für Kirchenbesuch','Reiseadapter','Powerbank','Notizblock & Stift','Pflaster'],
   checkedPack: [],
-  sights: ['Kolosseum', 'Forum Romanum', 'Vatikan', 'Trevi-Brunnen', 'Pantheon', 'Piazza Navona', 'Spanische Treppe', 'Trastevere']
+  sights: ['Kolosseum','Forum Romanum','Vatikan','Trevi-Brunnen','Pantheon','Piazza Navona','Spanische Treppe','Trastevere'],
+  polls: [
+    { id: 1, question: 'Welche Sehenswürdigkeit hat euch am besten gefallen?', options: ['Kolosseum','Vatikan','Trevi-Brunnen','Pantheon'], votes: [0,0,0,0] }
+  ],
+  notifications: [],
+  formsLinks: { feedback: '', fragen: '' }
 };
 
 function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════════
 // RENDER
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════════
 function renderAll() {
-  renderHome();
-  renderGuides();
-  renderZeitplan();
-  renderTeachers();
-  renderHotel();
-  renderRules();
-  renderPack();
-  renderSights();
+  renderHome(); renderGuides(); renderZeitplan(); renderTeachers();
+  renderHotel(); renderRules(); renderPack(); renderSights();
+  renderPolls(); renderNotifications(); renderFormLinks();
 }
 
 function renderHome() {
@@ -673,7 +515,11 @@ function renderGuides() {
   empty.style.display='none';
   list.innerHTML = data.guides.map(g => `
     <div class="guide-card" onclick="openDetail(${g.id})">
-      <div class="guide-img">${g.emoji}</div>
+      <div class="guide-img-wrap">
+        ${g.photo
+          ? `<img src="${g.photo}" alt="${g.title}">`
+          : `<div class="guide-img-emoji">${g.emoji}</div>`}
+      </div>
       <div class="guide-body">
         <div class="guide-category">${g.category}</div>
         <div class="guide-title">${g.title}</div>
@@ -702,10 +548,7 @@ function renderZeitplan() {
 
 function renderTeachers() {
   const list = document.getElementById('teachers-list');
-  if (!data.teachers.length) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Kontakte im Bearbeiten-Modus eintragen</div>';
-    return;
-  }
+  if (!data.teachers.length) { list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Im Bearbeiten-Modus eintragen</div>'; return; }
   list.innerHTML = data.teachers.map(t => `
     <div class="contact-item">
       <div class="contact-avatar">👤</div>
@@ -733,12 +576,10 @@ function renderRules() {
 }
 
 function renderPack() {
-  const list = document.getElementById('pack-list');
-  const n = data.checkedPack.length;
-  const total = data.pack.length;
+  const n = data.checkedPack.length, total = data.pack.length;
   document.getElementById('pack-bar').style.width = total ? (n/total*100)+'%' : '0%';
   document.getElementById('pack-status').textContent = `${n} von ${total} Dingen gepackt`;
-  list.innerHTML = data.pack.map((item, i) => {
+  document.getElementById('pack-list').innerHTML = data.pack.map((item,i) => {
     const checked = data.checkedPack.includes(i);
     return `<div class="pack-item ${checked?'done':''}" onclick="togglePack(${i})">
       <div class="pack-check ${checked?'checked':''}"></div>
@@ -759,80 +600,186 @@ function renderSights() {
   ).join('');
 }
 
-// ═══════════════════════════════════════════
+function renderPolls() {
+  const votedPolls = JSON.parse(localStorage.getItem('rom-voted') || '[]');
+  document.getElementById('polls-list').innerHTML = data.polls.map(p => {
+    const total = p.votes.reduce((a,b)=>a+b,0);
+    const voted = votedPolls.includes(p.id);
+    return `<div class="poll-card">
+      <div class="poll-title">📊 ${p.question}</div>
+      ${p.options.map((opt,i) => {
+        const pct = total ? Math.round(p.votes[i]/total*100) : 0;
+        return voted
+          ? `<div class="poll-opt" style="cursor:default">
+              <span style="min-width:120px;font-size:13px">${opt}</span>
+              <div class="poll-bar-wrap"><div class="poll-bar" style="width:${pct}%"></div></div>
+              <span class="poll-pct">${pct}%</span>
+            </div>`
+          : `<button class="poll-opt" onclick="vote(${p.id},${i})">
+              <span style="min-width:120px;text-align:left">${opt}</span>
+              <div class="poll-bar-wrap"><div class="poll-bar" style="width:0%"></div></div>
+              <span class="poll-pct">${p.votes[i]}</span>
+            </button>`;
+      }).join('')}
+      <div style="font-size:11px;color:var(--text3);margin-top:10px">${total} Stimme${total===1?'':'n'} gesamt${voted?' · Du hast abgestimmt':''}</div>
+    </div>`;
+  }).join('') || '<p style="font-size:13px;color:var(--text3)">Noch keine Abstimmungen.</p>';
+}
+
+function vote(pollId, optIdx) {
+  const p = data.polls.find(x=>x.id===pollId);
+  if (!p) return;
+  p.votes[optIdx]++;
+  save();
+  const voted = JSON.parse(localStorage.getItem('rom-voted') || '[]');
+  voted.push(pollId);
+  localStorage.setItem('rom-voted', JSON.stringify(voted));
+  renderPolls();
+}
+
+function renderNotifications() {
+  const unread = data.notifications.filter(n=>!n.read).length;
+  document.getElementById('notifDot').classList.toggle('show', unread > 0);
+  const list = document.getElementById('notif-list');
+  if (!data.notifications.length) {
+    list.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--text3);font-size:14px">Noch keine Mitteilungen.</div>';
+    return;
+  }
+  list.innerHTML = data.notifications.slice().reverse().map((n,i) => `
+    <div class="notif-item" onclick="markRead(${data.notifications.length-1-i})">
+      <div class="notif-dot-left ${n.read?'read':''}"></div>
+      <div>
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-body">${n.body}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function markRead(idx) {
+  if (data.notifications[idx]) { data.notifications[idx].read = true; save(); renderNotifications(); }
+}
+
+function renderFormLinks() {
+  const fb = data.formsLinks.feedback || '#';
+  const fq = data.formsLinks.fragen || '#';
+  document.getElementById('feedback-link').href = fb;
+  document.getElementById('fragen-link').href = fq;
+}
+
+// ════════════════════════════════════════════
+// PUSH (Firebase)
+// ════════════════════════════════════════════
+let fbMessaging = null;
+
+function initFirebase() {
+  // Firebase ist konfiguriert
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    fbMessaging = firebase.messaging();
+    fbMessaging.onMessage(payload => {
+      const n = { title: payload.notification.title, body: payload.notification.body, time: new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}), read: false };
+      data.notifications.push(n); save(); renderNotifications();
+    });
+    // Show push banner on feedback page if not yet subscribed
+    if (Notification.permission === 'default') {
+      document.getElementById('pushBanner').classList.add('show');
+    }
+  } catch(e) { console.log('Firebase not configured:', e); }
+}
+
+async function requestPush() {
+  if (!fbMessaging) { alert('Firebase noch nicht konfiguriert. Siehe ANLEITUNG.md.'); return; }
+  try {
+    const token = await fbMessaging.getToken({ vapidKey: FIREBASE_VAPID_KEY });
+    console.log('FCM Token:', token); // In der Konsole kopieren für Server-Nutzung
+    dismissPush();
+    alert('Benachrichtigungen aktiviert! ✓');
+  } catch(e) { alert('Benachrichtigungen konnten nicht aktiviert werden.'); }
+}
+
+function dismissPush() {
+  document.getElementById('pushBanner').classList.remove('show');
+}
+
+// ════════════════════════════════════════════
 // NAVIGATION
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════════
 function switchPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id)?.classList.add('active');
   document.querySelector(`[data-page="${id}"]`)?.classList.add('active');
+  if (id === 'benachrichtigungen') {
+    data.notifications.forEach(n=>n.read=true); save(); renderNotifications();
+  }
   window.scrollTo(0,0);
 }
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════════
 // DETAIL VIEW
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════════
 function openDetail(id) {
-  const g = data.guides.find(x => x.id === id);
+  const g = data.guides.find(x=>x.id===id);
   if (!g) return;
   document.getElementById('detail-nav-title').textContent = g.title;
   document.getElementById('detail-content').innerHTML = `
-    <div style="font-size:60px;margin-bottom:16px;text-align:center">${g.emoji}</div>
+    ${g.photo
+      ? `<img src="${g.photo}" alt="${g.title}" style="width:100%;height:220px;object-fit:cover;border-radius:var(--radius);margin-bottom:16px">`
+      : `<div style="font-size:60px;margin-bottom:16px;text-align:center">${g.emoji}</div>`}
     <div style="font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px">${g.category}</div>
     <h2>${g.title}</h2>
     <p>${g.desc}</p>
     ${g.details ? `<h3>Mehr erfahren</h3><p>${g.details.replace(/\n/g,'<br>')}</p>` : ''}
     ${g.tipp ? `<div class="card" style="background:var(--accent-light);border-color:transparent"><strong style="font-size:13px">💡 Tipp</strong><br><span style="font-size:14px;color:var(--text2)">${g.tipp}</span></div>` : ''}
-    ${g.adresse ? `<h3>Adresse</h3>
-    <a href="https://www.google.com/maps/search/${encodeURIComponent(g.adresse)}" target="_blank" class="map-link" style="margin-top:4px">📍 In Karte öffnen</a>` : ''}
-    <p style="font-size:12px;color:var(--text3);margin-top:16px">Eintrag von ${g.autor}</p>
-  `;
+    ${g.adresse ? `<h3>Adresse</h3><a href="https://www.google.com/maps/search/${encodeURIComponent(g.adresse)}" target="_blank" class="map-link" style="margin-top:4px">📍 In Karte öffnen</a>` : ''}
+    <p style="font-size:12px;color:var(--text3);margin-top:16px">Eintrag von ${g.autor}</p>`;
   document.getElementById('detail-view').classList.add('open');
 }
 
-function closeDetail() {
-  document.getElementById('detail-view').classList.remove('open');
-}
+function closeDetail() { document.getElementById('detail-view').classList.remove('open'); }
 
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════════
 // ADMIN
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════════
 function openAdmin() {
   document.getElementById('adminOverlay').classList.add('open');
-  document.getElementById('pwScreen').style.display = 'block';
-  document.getElementById('adminMenu').style.display = 'none';
-  document.getElementById('formArea').style.display = 'none';
-  document.getElementById('pwInput').value = '';
-  document.getElementById('pwError').style.display = 'none';
+  document.getElementById('pwScreen').style.display='block';
+  document.getElementById('adminMenu').style.display='none';
+  document.getElementById('formArea').style.display='none';
+  document.getElementById('pwInput').value='';
+  document.getElementById('pwError').style.display='none';
 }
-
-function closeAdminOverlay() {
-  document.getElementById('adminOverlay').classList.remove('open');
-}
-
+function closeAdminOverlay() { document.getElementById('adminOverlay').classList.remove('open'); }
 function checkPw() {
   if (document.getElementById('pwInput').value === ADMIN_PW) {
-    document.getElementById('pwScreen').style.display = 'none';
-    document.getElementById('adminMenu').style.display = 'block';
-  } else {
-    document.getElementById('pwError').style.display = 'block';
-  }
+    document.getElementById('pwScreen').style.display='none';
+    document.getElementById('adminMenu').style.display='block';
+  } else { document.getElementById('pwError').style.display='block'; }
+}
+function showMenu() {
+  document.getElementById('adminMenu').style.display='block';
+  document.getElementById('formArea').style.display='none';
 }
 
 function showForm(type) {
-  document.getElementById('adminMenu').style.display = 'none';
+  document.getElementById('adminMenu').style.display='none';
   const area = document.getElementById('formArea');
-  area.style.display = 'block';
+  area.style.display='block';
 
   const forms = {
     trip: `<div class="sheet-title">✈️ Reiseinfos</div>
-      <div class="input-group"><label>Datum</label><input id="f-dates" value="${data.trip.dates}" placeholder="12.–18. Mai 2025"></div>
-      <div class="input-group"><label>Klasse / Gruppe</label><input id="f-klasse" value="${data.trip.klasse}" placeholder="Klasse 10b"></div>
+      <div class="input-group"><label>Datum</label><input id="f-dates" value="${data.trip.dates}"></div>
+      <div class="input-group"><label>Klasse / Gruppe</label><input id="f-klasse" value="${data.trip.klasse}"></div>
       <button class="btn-primary" onclick="saveTrip()">Speichern</button>`,
 
     guide: `<div class="sheet-title">🏛️ Reiseführer-Eintrag</div>
-      <div class="input-group"><label>Emoji</label><input id="f-emoji" value="🏛️" maxlength="2" style="font-size:24px;text-align:center"></div>
+      <div class="input-group"><label>Emoji (falls kein Foto)</label><input id="f-emoji" value="🏛️" maxlength="2" style="font-size:24px;text-align:center;width:70px"></div>
+      <div class="input-group">
+        <label>📸 Foto hochladen (optional)</label>
+        <input type="file" id="f-photo" accept="image/*" onchange="previewPhoto()" style="font-size:13px;padding:8px">
+        <img id="f-photo-preview" class="photo-preview">
+      </div>
       <div class="input-group"><label>Kategorie</label><input id="f-cat" placeholder="z.B. Antikes Rom"></div>
       <div class="input-group"><label>Titel</label><input id="f-gtitle" placeholder="Name der Sehenswürdigkeit"></div>
       <div class="input-group"><label>Kurzbeschreibung</label><textarea id="f-gdesc" placeholder="1–2 Sätze Überblick"></textarea></div>
@@ -843,55 +790,119 @@ function showForm(type) {
       <button class="btn-primary" onclick="saveGuide()">Eintrag speichern</button>`,
 
     zeitplan: `<div class="sheet-title">📅 Programmpunkt</div>
-      <div class="input-group"><label>Tag (z.B. Tag 2 — Vatikan)</label><input id="f-ztag" placeholder="Tag 1 — Anreise"></div>
+      <div class="input-group"><label>Tag</label><input id="f-ztag" placeholder="Tag 1 — Anreise"></div>
       <div class="input-group"><label>Uhrzeit</label><input id="f-ztime" placeholder="09:00"></div>
       <div class="input-group"><label>Bezeichnung</label><input id="f-zlabel" placeholder="Kolosseum-Besichtigung"></div>
       <div class="input-group"><label>Zusatzinfo</label><input id="f-zsub" placeholder="Führung ca. 2 Stunden"></div>
       <button class="btn-primary" onclick="saveZeitplan()">Hinzufügen</button>`,
 
-    teacher: `<div class="sheet-title">👤 Kontakt hinzufügen</div>
+    teacher: `<div class="sheet-title">👤 Kontakt</div>
       <div class="input-group"><label>Name</label><input id="f-tname" placeholder="Frau Müller"></div>
       <div class="input-group"><label>Rolle</label><input id="f-trole" placeholder="Klassenleitung"></div>
       <div class="input-group"><label>Handynummer</label><input id="f-ttel" type="tel" placeholder="+49 170 ..."></div>
       <button class="btn-primary" onclick="saveTeacher()">Speichern</button>`,
 
     hotel: `<div class="sheet-title">🏨 Unterkunft</div>
-      <div class="input-group"><label>Hotelname</label><input id="f-hname" value="${data.hotel.name}" placeholder="Hotel Roma Palace"></div>
-      <div class="input-group"><label>Adresse</label><input id="f-haddr" value="${data.hotel.adresse}" placeholder="Via Roma 12, 00100 Rom"></div>
-      <div class="input-group"><label>Telefonnummer</label><input id="f-htel" value="${data.hotel.tel}" type="tel" placeholder="+39 06 ..."></div>
+      <div class="input-group"><label>Hotelname</label><input id="f-hname" value="${data.hotel.name}"></div>
+      <div class="input-group"><label>Adresse</label><input id="f-haddr" value="${data.hotel.adresse}"></div>
+      <div class="input-group"><label>Telefonnummer</label><input id="f-htel" value="${data.hotel.tel}" type="tel"></div>
       <button class="btn-primary" onclick="saveHotel()">Speichern</button>`,
 
-    rule: `<div class="sheet-title">📋 Regel hinzufügen</div>
-      <div class="input-group"><label>Regeltext</label><textarea id="f-rule" placeholder="Handys werden um 22 Uhr abgegeben."></textarea></div>
+    rule: `<div class="sheet-title">📋 Regel</div>
+      <div class="input-group"><label>Regeltext</label><textarea id="f-rule"></textarea></div>
       <button class="btn-primary" onclick="saveRule()">Hinzufügen</button>`,
 
-    pack: `<div class="sheet-title">🎒 Packlisten-Eintrag</div>
+    pack: `<div class="sheet-title">🎒 Packliste</div>
       <div class="input-group"><label>Gegenstand</label><input id="f-pack" placeholder="z.B. Sonnencreme"></div>
       <button class="btn-primary" onclick="savePack()">Hinzufügen</button>`,
 
     sight: `<div class="sheet-title">🗺️ Sehenswürdigkeit</div>
       <div class="input-group"><label>Name</label><input id="f-sight" placeholder="z.B. Pantheon"></div>
-      <button class="btn-primary" onclick="saveSight()">Hinzufügen</button>`
+      <button class="btn-primary" onclick="saveSight()">Hinzufügen</button>`,
+
+    poll: `<div class="sheet-title">📊 Neue Abstimmung</div>
+      <div class="input-group"><label>Frage</label><input id="f-pq" placeholder="Welche Sehenswürdigkeit war am schönsten?"></div>
+      <div class="input-group"><label>Option 1</label><input id="f-po1" placeholder="Kolosseum"></div>
+      <div class="input-group"><label>Option 2</label><input id="f-po2" placeholder="Vatikan"></div>
+      <div class="input-group"><label>Option 3 (optional)</label><input id="f-po3" placeholder=""></div>
+      <div class="input-group"><label>Option 4 (optional)</label><input id="f-po4" placeholder=""></div>
+      <button class="btn-primary" onclick="savePoll()">Abstimmung erstellen</button>`,
+
+    forms: `<div class="sheet-title">🔗 Google Forms-Links</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Erstelle deine Formulare auf <strong>forms.google.com</strong> und füge die Links hier ein.</p>
+      <div class="input-group"><label>Feedback-Formular URL</label><input id="f-fb" value="${data.formsLinks.feedback}" placeholder="https://forms.google.com/..."></div>
+      <div class="input-group"><label>Fragen-Formular URL</label><input id="f-fq" value="${data.formsLinks.fragen}" placeholder="https://forms.google.com/..."></div>
+      <button class="btn-primary" onclick="saveForms()">Speichern</button>`,
+
+    push: `<div class="sheet-title">🔔 Mitteilung an alle senden</div>
+      <div class="input-group"><label>Titel</label><input id="f-ptitle" placeholder="z.B. Programmänderung!"></div>
+      <div class="input-group"><label>Nachricht</label><textarea id="f-pbody" placeholder="Treffpunkt um 14:00 Uhr am Brunnen..."></textarea></div>
+      <button class="btn-primary" onclick="saveNotification()">In App speichern & senden</button>
+      <div style="background:var(--accent-light);border-radius:10px;padding:12px;margin-top:12px;font-size:12px;color:var(--text2);line-height:1.6">
+        💡 Sobald Firebase konfiguriert ist, erhalten alle Schüler/innen eine echte Push-Benachrichtigung. Bis dahin erscheint die Mitteilung beim nächsten App-Öffnen.
+      </div>`,
+
+    delete: `<div class="sheet-title">🗑️ Eintrag löschen</div>
+      <div class="input-group">
+        <label>Bereich</label>
+        <select id="f-del-type" onchange="renderDeleteList()">
+          <option value="">— Bereich wählen —</option>
+          <option value="guides">🏛️ Reiseführer</option>
+          <option value="teachers">👤 Kontakte</option>
+          <option value="rules">📋 Regeln</option>
+          <option value="pack">🎒 Packliste</option>
+          <option value="sights">🗺️ Sehenswürdigkeiten</option>
+          <option value="zeitplan">📅 Zeitplan-Tage</option>
+          <option value="polls">📊 Abstimmungen</option>
+          <option value="notifications">🔔 Mitteilungen</option>
+        </select>
+      </div>
+      <div id="del-list"></div>`
   };
 
   area.innerHTML = (forms[type] || '') + `<button class="btn-cancel" onclick="showMenu()">← Zurück</button>`;
 }
 
-function showMenu() {
-  document.getElementById('adminMenu').style.display = 'block';
-  document.getElementById('formArea').style.display = 'none';
+// ════════════════════════════════════════════
+// PHOTO UPLOAD
+// ════════════════════════════════════════════
+function previewPhoto() {
+  const file = document.getElementById('f-photo').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('f-photo-preview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
 }
 
-// ── Save functions ──
+// ════════════════════════════════════════════
+// SAVE FUNCTIONS
+// ════════════════════════════════════════════
 function saveTrip() {
   data.trip.dates = document.getElementById('f-dates').value;
   data.trip.klasse = document.getElementById('f-klasse').value;
   save(); renderHome(); closeAdminOverlay();
 }
+
 function saveGuide() {
+  const file = document.getElementById('f-photo').files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      pushGuide(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  } else { pushGuide(null); }
+}
+
+function pushGuide(photoData) {
   data.guides.push({
     id: Date.now(),
     emoji: document.getElementById('f-emoji').value || '🏛️',
+    photo: photoData,
     category: document.getElementById('f-cat').value,
     title: document.getElementById('f-gtitle').value,
     desc: document.getElementById('f-gdesc').value,
@@ -902,50 +913,93 @@ function saveGuide() {
   });
   save(); renderGuides(); renderHome(); closeAdminOverlay();
 }
+
 function saveZeitplan() {
   const tagName = document.getElementById('f-ztag').value;
-  let day = data.zeitplan.find(d => d.tag === tagName);
-  if (!day) { day = { tag: tagName, eintraege: [] }; data.zeitplan.push(day); }
-  day.eintraege.push({
-    time: document.getElementById('f-ztime').value,
-    label: document.getElementById('f-zlabel').value,
-    sub: document.getElementById('f-zsub').value,
-    highlight: false
-  });
+  let day = data.zeitplan.find(d=>d.tag===tagName);
+  if (!day) { day={tag:tagName,eintraege:[]}; data.zeitplan.push(day); }
+  day.eintraege.push({ time:document.getElementById('f-ztime').value, label:document.getElementById('f-zlabel').value, sub:document.getElementById('f-zsub').value, highlight:false });
   save(); renderZeitplan(); closeAdminOverlay();
 }
 function saveTeacher() {
-  data.teachers.push({
-    name: document.getElementById('f-tname').value,
-    role: document.getElementById('f-trole').value,
-    tel: document.getElementById('f-ttel').value
-  });
+  data.teachers.push({ name:document.getElementById('f-tname').value, role:document.getElementById('f-trole').value, tel:document.getElementById('f-ttel').value });
   save(); renderTeachers(); closeAdminOverlay();
 }
 function saveHotel() {
-  data.hotel = {
-    name: document.getElementById('f-hname').value,
-    adresse: document.getElementById('f-haddr').value,
-    tel: document.getElementById('f-htel').value
-  };
+  data.hotel={ name:document.getElementById('f-hname').value, adresse:document.getElementById('f-haddr').value, tel:document.getElementById('f-htel').value };
   save(); renderHotel(); closeAdminOverlay();
 }
-function saveRule() {
-  data.rules.push(document.getElementById('f-rule').value);
-  save(); renderRules(); closeAdminOverlay();
-}
-function savePack() {
-  data.pack.push(document.getElementById('f-pack').value);
-  save(); renderPack(); closeAdminOverlay();
-}
-function saveSight() {
-  data.sights.push(document.getElementById('f-sight').value);
-  save(); renderSights(); closeAdminOverlay();
+function saveRule() { data.rules.push(document.getElementById('f-rule').value); save(); renderRules(); closeAdminOverlay(); }
+function savePack() { data.pack.push(document.getElementById('f-pack').value); save(); renderPack(); closeAdminOverlay(); }
+function saveSight() { data.sights.push(document.getElementById('f-sight').value); save(); renderSights(); closeAdminOverlay(); }
+
+function savePoll() {
+  const opts = [
+    document.getElementById('f-po1').value,
+    document.getElementById('f-po2').value,
+    document.getElementById('f-po3').value,
+    document.getElementById('f-po4').value
+  ].filter(Boolean);
+  if (opts.length < 2) { alert('Mindestens 2 Optionen eingeben.'); return; }
+  data.polls.push({ id: Date.now(), question: document.getElementById('f-pq').value, options: opts, votes: opts.map(()=>0) });
+  save(); renderPolls(); closeAdminOverlay();
 }
 
-// ═══════════════════════════════════════════
+function saveForms() {
+  data.formsLinks.feedback = document.getElementById('f-fb').value;
+  data.formsLinks.fragen = document.getElementById('f-fq').value;
+  save(); renderFormLinks(); closeAdminOverlay();
+}
+
+function saveNotification() {
+  const title = document.getElementById('f-ptitle').value;
+  const body = document.getElementById('f-pbody').value;
+  if (!title || !body) { alert('Bitte Titel und Nachricht eingeben.'); return; }
+  const now = new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  data.notifications.push({ title, body, time: now, read: false });
+  save(); renderNotifications();
+  // Echter Firebase Push wenn konfiguriert:
+  if (fbMessaging) {
+    alert('Mitteilung gespeichert ✓\nFür echten Push: Firebase Cloud Messaging Server-Key verwenden.');
+  } else {
+    alert('Mitteilung gespeichert ✓\nSie erscheint in der App für alle Nutzer beim nächsten Öffnen.');
+  }
+  closeAdminOverlay();
+}
+
+// ════════════════════════════════════════════
+// DELETE
+// ════════════════════════════════════════════
+function renderDeleteList() {
+  const type = document.getElementById('f-del-type').value;
+  const container = document.getElementById('del-list');
+  if (!type) { container.innerHTML=''; return; }
+
+  const row = (label, fn) => `<button class="del-btn-row" onclick="${fn}"><span style="flex:1">${label}</span><span style="color:#9b2a1a">🗑</span></button>`;
+  const empty = '<p style="font-size:13px;color:var(--text3);padding:8px 0">Keine Einträge vorhanden.</p>';
+
+  let html = '';
+  if (type==='guides') html = data.guides.length ? data.guides.map((g,i)=>row(g.emoji+' '+g.title,`deleteItem('guides',${i})`)).join('') : empty;
+  else if (type==='teachers') html = data.teachers.length ? data.teachers.map((t,i)=>row('👤 '+t.name,`deleteItem('teachers',${i})`)).join('') : empty;
+  else if (type==='rules') html = data.rules.length ? data.rules.map((r,i)=>row((i+1)+'. '+r.substring(0,50)+(r.length>50?'…':''),`deleteItem('rules',${i})`)).join('') : empty;
+  else if (type==='pack') html = data.pack.length ? data.pack.map((p,i)=>row('🎒 '+p,`deleteItem('pack',${i})`)).join('') : empty;
+  else if (type==='sights') html = data.sights.length ? data.sights.map((s,i)=>row('📍 '+s,`deleteItem('sights',${i})`)).join('') : empty;
+  else if (type==='zeitplan') html = data.zeitplan.length ? data.zeitplan.map((d,i)=>row('📅 '+d.tag,`deleteItem('zeitplan',${i})`)).join('') : empty;
+  else if (type==='polls') html = data.polls.length ? data.polls.map((p,i)=>row('📊 '+p.question.substring(0,50),`deleteItem('polls',${i})`)).join('') : empty;
+  else if (type==='notifications') html = data.notifications.length ? data.notifications.map((n,i)=>row('🔔 '+n.title,`deleteItem('notifications',${i})`)).join('') : empty;
+  container.innerHTML = html;
+}
+
+function deleteItem(type, idx) {
+  if (!confirm('Wirklich löschen?')) return;
+  data[type].splice(idx,1);
+  if (type==='pack') data.checkedPack = data.checkedPack.filter(i=>i<data.pack.length);
+  save(); renderAll(); renderDeleteList();
+}
+
+// ════════════════════════════════════════════
 // PWA INSTALL
-// ═══════════════════════════════════════════
+// ════════════════════════════════════════════
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault(); deferredPrompt = e;
@@ -954,20 +1008,21 @@ window.addEventListener('beforeinstallprompt', e => {
 document.getElementById('installBtn').addEventListener('click', async () => {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
+  await deferredPrompt.userChoice;
   document.getElementById('installBanner').classList.remove('show');
   deferredPrompt = null;
 });
 
-// ═══════════════════════════════════════════
-// SERVICE WORKER
-// ═══════════════════════════════════════════
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-// INIT
 renderAll();
+</script>
+
+<!-- Firebase SDKs — müssen VOR initFirebase() geladen werden -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+<script>
+  initFirebase();
 </script>
 </body>
 </html>
