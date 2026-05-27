@@ -1,28 +1,48 @@
-const CACHE = 'kvgrom-v2';
+// Cache-Version — wird bei jedem Update automatisch hochgezählt
+const CACHE = 'kvgrom-v20260527-0434';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png'];
 
+// Installation: neuen Cache befüllen
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
-});
-
-self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
-    .then(() => self.clients.claim())
+    caches.open(CACHE)
+      .then(c => c.addAll(ASSETS))
+      .then(() => self.skipWaiting()) // sofort aktivieren, nicht auf Tab-Schließen warten
   );
 });
 
+// Aktivierung: alten Cache löschen + alle offenen Tabs übernehmen
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim()) // alle offenen Tabs sofort aktualisieren
+  );
+});
+
+// Fetch: Network-first — immer versuchen die aktuelle Version zu laden
+// Nur bei fehlender Verbindung auf Cache zurückfallen (Offline-Modus)
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const network = fetch(e.request).then(res => {
+    fetch(e.request)
+      .then(res => {
+        // Erfolgreiche Antwort im Cache speichern
         if (res && res.status === 200 && res.type !== 'opaque') {
-          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return res;
-      }).catch(() => cached);
-      return cached || network;
+      })
+      .catch(() => caches.match(e.request)) // Offline: aus Cache laden
+  );
+});
+
+// Update-Nachricht an alle offenen Tabs senden
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then(clients => {
+      clients.forEach(client => client.postMessage({ type: 'UPDATE_AVAILABLE', version: 'kvgrom-v20260527-0434' }));
     })
   );
 });
