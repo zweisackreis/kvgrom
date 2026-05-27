@@ -231,12 +231,18 @@
 
   <!-- START -->
   <div class="page active" id="page-home">
-    <div style="padding:0;overflow:hidden;border-radius:var(--radius);margin-bottom:16px;display:flex;flex-direction:column;justify-content:flex-end">
-      <img src="logo-fahrt.jpeg" alt="Rome 2026" style="width:100%;height:220px;object-fit:cover;object-position:center;display:block;border-radius:var(--radius) var(--radius) 0 0">
-      <div style="background:linear-gradient(to top, rgba(10,10,20,.85) 60%, transparent);padding:18px 22px 22px;border-radius:0 0 var(--radius) var(--radius);background-color:var(--text)">
-        <div style="font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;opacity:.55;margin-bottom:4px;color:white">Kardinal von Galen Schulen</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:24px;color:white;line-height:1.2">Willkommen in <em style="color:#d4a853">Rom</em></div>
-        <div id="hero-meta" style="font-size:13px;color:rgba(255,255,255,.55);margin-top:4px">Datum · Klasse eintragen</div>
+    <div style="position:relative;overflow:hidden;border-radius:var(--radius);margin-bottom:16px;min-height:220px;display:flex;flex-direction:column;justify-content:flex-end">
+      <!-- Hintergrundbild -->
+      <img src="hero-bg.jpg" alt=""
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;filter:brightness(.75) saturate(.85)">
+      <!-- Logo oben rechts -->
+      <img src="logo-schule.png" alt="KvG"
+        style="position:absolute;top:14px;right:14px;height:36px;width:auto;object-fit:contain;filter:brightness(0) invert(1);opacity:.85;z-index:2">
+      <!-- Gradient + Text -->
+      <div style="position:relative;z-index:1;background:linear-gradient(to top, rgba(10,10,20,.88) 55%, rgba(10,10,20,.2) 100%);padding:20px 20px 22px">
+        <div style="font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;opacity:.6;margin-bottom:5px;color:white">Kardinal von Galen Schulen</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:26px;color:white;line-height:1.2;margin-bottom:4px">Willkommen in <em style="color:#d4a853">Rom</em></div>
+        <div id="hero-meta" style="font-size:13px;color:rgba(255,255,255,.55)">Datum · Klasse eintragen</div>
       </div>
     </div>
     <div class="section-label">Schnellzugriff</div>
