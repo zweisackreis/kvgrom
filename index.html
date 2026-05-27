@@ -192,6 +192,14 @@
   </div>
 </header>
 
+<div id="adminToggleBar" style="display:none;position:fixed;top:58px;left:0;right:0;z-index:95;background:#1a3a6b;color:white;padding:8px 16px;align-items:center;justify-content:space-between;font-size:12px;font-weight:500">
+  <span>✏️ Bearbeiten-Modus aktiv</span>
+  <div style="display:flex;gap:8px">
+    <button onclick="openAdmin()" style="background:rgba(255,255,255,.2);border:none;color:white;padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Menü öffnen</button>
+    <button onclick="exitAdmin()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Beenden ✕</button>
+  </div>
+</div>
+
 <div class="install-banner" id="installBanner">
   <p>App zum Homescreen hinzufügen für Offline-Zugriff</p>
   <button id="installBtn">Installieren</button>
@@ -411,6 +419,7 @@
 // CONFIG — hier anpassen
 // ════════════════════════════════════════════
 const ADMIN_PW = 'kvgrom26';
+let adminMode = false;
 
 // Firebase-Konfiguration (nach Firebase-Setup eintragen):
 const FIREBASE_CONFIG = {
@@ -430,15 +439,15 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
     { id: 1, emoji: '🏟️', photo: null, category: 'Antikes Rom', title: 'Das Kolosseum',
       desc: 'Das Kolosseum ist das größte je erbaute Amphitheater der Antike. Es fasste bis zu 80.000 Zuschauer.',
       details: 'Gebaut zwischen 70 und 80 n. Chr. unter den Kaisern Vespasian und Titus.\n\nTipp: Tickets unbedingt vorab online buchen.',
-      tipp: 'Kombikarte mit dem Forum Romanum kaufen', adresse: 'Piazza del Colosseo, 1, 00184 Rom', autor: 'Frau Müller' },
+      tipp: 'Kombikarte mit dem Forum Romanum kaufen', adresse: 'Piazza del Colosseo, 1, 00184 Rom', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.076245!2d12.4913!3d41.8902!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f61b383a9d4d1%3A0xa840fd491ce4de1f!2sKolosseum!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde', autor: 'Frau Müller' },
     { id: 2, emoji: '⛪', photo: null, category: 'Vatikan', title: 'Petersdom & Vatikan',
       desc: 'Der Petersdom ist die größte Kirche der Welt und das Zentrum der katholischen Christenheit.',
       details: 'Die Basilika steht auf dem Petersplatz im Vatikan. Michelangelos Pietà und Berninis Baldachin sind Höhepunkte.',
-      tipp: 'Knie und Schultern müssen bedeckt sein', adresse: 'Piazza San Pietro, 00120 Vatikanstadt', autor: 'Herr Schmidt' },
+      tipp: 'Knie und Schultern müssen bedeckt sein', adresse: 'Piazza San Pietro, 00120 Vatikanstadt', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.5!2d12.4534!3d41.9022!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f60839a671b29%3A0x3c886ac4c23d0b4!2sPetersdom!5e0!3m2!1sde!2sde!4v1700000000001!5m2!1sde!2sde', autor: 'Herr Schmidt' },
     { id: 3, emoji: '⛲', photo: null, category: 'Barockrom', title: 'Trevi-Brunnen',
       desc: 'Der Trevi-Brunnen ist der größte Barockbrunnen Roms. Wer eine Münze hineinwirft, kehrt zurück.',
       details: '1762 von Nicola Salvi fertiggestellt. Im Zentrum steht Neptun auf einem Muschelwagen.',
-      tipp: 'Am besten vor 8 Uhr morgens besuchen', adresse: 'Piazza di Trevi, 00187 Rom', autor: 'Frau Müller' }
+      tipp: 'Am besten vor 8 Uhr morgens besuchen', adresse: 'Piazza di Trevi, 00187 Rom', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.2!2d12.4833!3d41.9009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f6054f697cc81%3A0x47e06d174de03b0f!2sTrevi-Brunnen!5e0!3m2!1sde!2sde!4v1700000000002!5m2!1sde!2sde', autor: 'Frau Müller' }
   ],
   zeitplan: [
     { tag: 'Tag 1 — Fr. 09.10. (Anreise)', eintraege: [
@@ -519,13 +528,13 @@ function renderGuides() {
   if (!data.guides.length) { list.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display='none';
   list.innerHTML = data.guides.map(g => `
-    <div class="guide-card" onclick="openDetail(${g.id})">
-      <div class="guide-img-wrap">
+    <div class="guide-card">
+      <div class="guide-img-wrap" onclick="openDetail(${g.id})">
         ${g.photo
           ? `<img src="${g.photo}" alt="${g.title}">`
           : `<div class="guide-img-emoji">${g.emoji}</div>`}
       </div>
-      <div class="guide-body">
+      <div class="guide-body" onclick="openDetail(${g.id})">
         <div class="guide-category">${g.category}</div>
         <div class="guide-title">${g.title}</div>
         <div class="guide-desc">${g.desc}</div>
@@ -534,19 +543,31 @@ function renderGuides() {
           <span>✍️ ${g.autor}</span>
         </div>
       </div>
+      ${adminMode ? `<div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border)">
+        <button onclick="editGuide(${g.id})" style="flex:1;padding:8px;border:1.5px solid var(--accent);border-radius:8px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer">✏️ Bearbeiten</button>
+        <button onclick="deleteGuideById(${g.id})" style="padding:8px 12px;border:1.5px solid #fcd5d0;border-radius:8px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🗑</button>
+      </div>` : ''}
     </div>`).join('');
 }
 
 function renderZeitplan() {
-  document.getElementById('zeitplan-content').innerHTML = data.zeitplan.map(day => `
-    <div class="day-chip">${day.tag}</div>
+  document.getElementById('zeitplan-content').innerHTML = data.zeitplan.map((day,di) => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <div class="day-chip" style="margin-bottom:0">${day.tag}</div>
+      ${adminMode ? `<button onclick="editDayTag(${di})" style="padding:3px 10px;border:1.5px solid var(--accent);border-radius:20px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️ Tag</button>
+      <button onclick="if(confirm('Tag löschen?')){data.zeitplan.splice(${di},1);save();renderZeitplan()}" style="padding:3px 8px;border:1.5px solid #fcd5d0;border-radius:20px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>` : ''}
+    </div>
     <div class="timeline">
-      ${day.eintraege.map(e => `
+      ${day.eintraege.map((e,ei) => `
         <div class="timeline-item">
           <div class="timeline-dot ${e.highlight?'highlight':''}"></div>
-          <div class="timeline-time">${e.time} Uhr</div>
+          <div class="timeline-time">${e.time ? e.time+' Uhr' : ''}</div>
           <div class="timeline-label">${e.label}</div>
           ${e.sub ? `<div class="timeline-sub">${e.sub}</div>` : ''}
+          ${adminMode ? `<div style="display:flex;gap:6px;margin-top:6px">
+            <button onclick="editZeitplanEintrag(${di},${ei})" style="padding:4px 10px;border:1.5px solid var(--accent);border-radius:6px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️ Bearbeiten</button>
+            <button onclick="if(confirm('Eintrag löschen?')){data.zeitplan[${di}].eintraege.splice(${ei},1);if(!data.zeitplan[${di}].eintraege.length)data.zeitplan.splice(${di},1);save();renderZeitplan()}" style="padding:4px 8px;border:1.5px solid #fcd5d0;border-radius:6px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>
+          </div>` : ''}
         </div>`).join('')}
     </div>`).join('');
 }
@@ -554,11 +575,15 @@ function renderZeitplan() {
 function renderTeachers() {
   const list = document.getElementById('teachers-list');
   if (!data.teachers.length) { list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Im Bearbeiten-Modus eintragen</div>'; return; }
-  list.innerHTML = data.teachers.map(t => `
-    <div class="contact-item">
+  list.innerHTML = data.teachers.map((t,i) => `
+    <div class="contact-item" style="flex-wrap:wrap;gap:8px">
       <div class="contact-avatar">👤</div>
-      <div><div class="contact-name">${t.name}</div><div class="contact-role">${t.role}</div></div>
+      <div style="flex:1"><div class="contact-name">${t.name}</div><div class="contact-role">${t.role}</div></div>
       <div class="contact-tel"><a href="tel:${t.tel}" class="tel-btn">${t.tel}</a></div>
+      ${adminMode ? `<div style="display:flex;gap:6px;width:100%;padding-top:6px">
+        <button onclick="editTeacher(${i})" style="flex:1;padding:6px;border:1.5px solid var(--accent);border-radius:8px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer">✏️ Bearbeiten</button>
+        <button onclick="deleteItem('teachers',${i});renderTeachers()" style="padding:6px 10px;border:1.5px solid #fcd5d0;border-radius:8px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🗑</button>
+      </div>` : ''}
     </div>`).join('');
 }
 
@@ -574,9 +599,13 @@ function renderHotel() {
 function renderRules() {
   if (!data.rules.length) return;
   document.getElementById('rules-list').innerHTML = data.rules.map((r,i) => `
-    <div class="rule-item">
+    <div class="rule-item" style="flex-wrap:wrap">
       <div class="rule-num">${String(i+1).padStart(2,'0')}</div>
-      <div class="rule-text">${r}</div>
+      <div class="rule-text" style="flex:1">${r}</div>
+      ${adminMode ? `<div style="display:flex;gap:6px;width:100%;margin-top:6px;padding-left:40px">
+        <button onclick="editRule(${i})" style="flex:1;padding:6px;border:1.5px solid var(--accent);border-radius:8px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer">✏️ Bearbeiten</button>
+        <button onclick="deleteItem('rules',${i});renderRules()" style="padding:6px 10px;border:1.5px solid #fcd5d0;border-radius:8px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🗑</button>
+      </div>` : ''}
     </div>`).join('');
 }
 
@@ -586,9 +615,11 @@ function renderPack() {
   document.getElementById('pack-status').textContent = `${n} von ${total} Dingen gepackt`;
   document.getElementById('pack-list').innerHTML = data.pack.map((item,i) => {
     const checked = data.checkedPack.includes(i);
-    return `<div class="pack-item ${checked?'done':''}" onclick="togglePack(${i})">
-      <div class="pack-check ${checked?'checked':''}"></div>
-      <span class="pack-label">${item}</span>
+    return `<div class="pack-item ${checked?'done':''}" style="flex-wrap:wrap">
+      <div class="pack-check ${checked?'checked':''}" onclick="togglePack(${i})"></div>
+      <span class="pack-label" style="flex:1" onclick="togglePack(${i})">${item}</span>
+      ${adminMode ? `<button onclick="editPack(${i})" style="padding:3px 8px;border:1.5px solid var(--accent);border-radius:6px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️</button>
+      <button onclick="deleteItem('pack',${i});renderPack()" style="padding:3px 8px;border:1.5px solid #fcd5d0;border-radius:6px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>` : ''}
     </div>`;
   }).join('');
 }
@@ -752,7 +783,16 @@ function openDetail(id) {
     <p>${g.desc}</p>
     ${g.details ? `<h3>Mehr erfahren</h3><p>${g.details.replace(/\n/g,'<br>')}</p>` : ''}
     ${g.tipp ? `<div class="card" style="background:var(--accent-light);border-color:transparent"><strong style="font-size:13px">💡 Tipp</strong><br><span style="font-size:14px;color:var(--text2)">${g.tipp}</span></div>` : ''}
-    ${g.adresse ? `<h3>Adresse</h3><a href="https://www.google.com/maps/search/${encodeURIComponent(g.adresse)}" target="_blank" class="map-link" style="margin-top:4px">📍 In Karte öffnen</a>` : ''}
+    ${g.adresse ? `<h3>Adresse</h3><a href="https://www.google.com/maps/search/${encodeURIComponent(g.adresse)}" target="_blank" class="map-link" style="margin-top:4px">📍 In Google Maps öffnen</a>` : ''}
+    ${g.mapsEmbed ? `
+      <h3>Karte</h3>
+      <div style="border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:12px">
+        <iframe src="${g.mapsEmbed}"
+          width="100%" height="260" style="border:0;display:block"
+          allowfullscreen="" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>` : ''}
     <p style="font-size:12px;color:var(--text3);margin-top:16px">Eintrag von ${g.autor}</p>`;
   document.getElementById('detail-view').classList.add('open');
 }
@@ -773,9 +813,18 @@ function openAdmin() {
 function closeAdminOverlay() { document.getElementById('adminOverlay').classList.remove('open'); }
 function checkPw() {
   if (document.getElementById('pwInput').value === ADMIN_PW) {
+    adminMode = true;
     document.getElementById('pwScreen').style.display='none';
     document.getElementById('adminMenu').style.display='block';
+    document.getElementById('adminToggleBar').style.display='flex';
+    renderAll();
   } else { document.getElementById('pwError').style.display='block'; }
+}
+function exitAdmin() {
+  adminMode = false;
+  document.getElementById('adminToggleBar').style.display='none';
+  closeAdminOverlay();
+  renderAll();
 }
 function showMenu() {
   document.getElementById('adminMenu').style.display='block';
@@ -806,6 +855,13 @@ function showForm(type) {
       <div class="input-group"><label>Detailtext</label><textarea id="f-gdetails" placeholder="Ausführlicherer Text..."></textarea></div>
       <div class="input-group"><label>Tipp</label><input id="f-gtipp" placeholder="Praktischer Hinweis"></div>
       <div class="input-group"><label>Adresse</label><input id="f-gaddr" placeholder="Straße, Ort"></div>
+      <div class="input-group">
+        <label>🗺️ Google Maps Embed-Link (kostenlos)</label>
+        <input id="f-gmaps" placeholder="https://www.google.com/maps/embed?pb=...">
+        <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.6">
+          So geht's: Google Maps → Ort suchen → Teilen → Karte einbetten → nur die URL aus dem src="..." kopieren
+        </div>
+      </div>
       <div class="input-group"><label>Verfasst von</label><input id="f-gaut" placeholder="Name der Lehrkraft"></div>
       <button class="btn-primary" onclick="saveGuide()">Eintrag speichern</button>`,
 
@@ -944,6 +1000,7 @@ function pushGuide(photoData) {
     details: document.getElementById('f-gdetails').value,
     tipp: document.getElementById('f-gtipp').value,
     adresse: document.getElementById('f-gaddr').value,
+    mapsEmbed: document.getElementById('f-gmaps')?.value || '',
     autor: document.getElementById('f-gaut').value
   });
   save(); renderGuides(); renderHome(); closeAdminOverlay();
@@ -967,6 +1024,170 @@ function saveHotel() {
 function saveRule() { data.rules.push(document.getElementById('f-rule').value); save(); renderRules(); closeAdminOverlay(); }
 function savePack() { data.pack.push(document.getElementById('f-pack').value); save(); renderPack(); closeAdminOverlay(); }
 function saveSight() { data.sights.push(document.getElementById('f-sight').value); save(); renderSights(); closeAdminOverlay(); }
+
+// ════════════════════════════════════════════
+// BEARBEITEN-FUNKTIONEN
+// ════════════════════════════════════════════
+
+function editGuide(id) {
+  const g = data.guides.find(x => x.id === id);
+  if (!g) return;
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('adminMenu').style.display = 'none';
+  const area = document.getElementById('formArea');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div class="sheet-title">✏️ Reiseführer bearbeiten</div>
+    <div class="input-group"><label>Emoji</label><input id="e-emoji" value="${g.emoji}" maxlength="2" style="font-size:24px;text-align:center;width:70px"></div>
+    <div class="input-group"><label>Kategorie</label><input id="e-cat" value="${g.category}"></div>
+    <div class="input-group"><label>Titel</label><input id="e-gtitle" value="${g.title}"></div>
+    <div class="input-group"><label>Kurzbeschreibung</label><textarea id="e-gdesc">${g.desc}</textarea></div>
+    <div class="input-group"><label>Detailtext</label><textarea id="e-gdetails">${g.details||''}</textarea></div>
+    <div class="input-group"><label>Tipp</label><input id="e-gtipp" value="${g.tipp||''}"></div>
+    <div class="input-group"><label>Adresse</label><input id="e-gaddr" value="${g.adresse||''}"></div>
+    <div class="input-group">
+      <label>🗺️ Google Maps Embed-Link</label>
+      <input id="e-gmaps" value="${g.mapsEmbed||''}" placeholder="https://www.google.com/maps/embed?pb=...">
+      <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">Google Maps → Teilen → Karte einbetten → URL aus src="..." kopieren</div>
+    </div>
+    <div class="input-group"><label>Verfasst von</label><input id="e-gaut" value="${g.autor}"></div>
+    <button class="btn-primary" onclick="updateGuide(${id})">Änderungen speichern</button>
+    <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>`;
+}
+
+function updateGuide(id) {
+  const g = data.guides.find(x => x.id === id);
+  if (!g) return;
+  g.emoji   = document.getElementById('e-emoji').value || g.emoji;
+  g.category= document.getElementById('e-cat').value;
+  g.title   = document.getElementById('e-gtitle').value;
+  g.desc    = document.getElementById('e-gdesc').value;
+  g.details = document.getElementById('e-gdetails').value;
+  g.tipp    = document.getElementById('e-gtipp').value;
+  g.adresse   = document.getElementById('e-gaddr').value;
+  g.mapsEmbed = document.getElementById('e-gmaps')?.value || g.mapsEmbed || '';
+  g.autor     = document.getElementById('e-gaut').value;
+  save(); renderGuides(); renderHome(); closeAdminOverlay();
+}
+
+function deleteGuideById(id) {
+  if (!confirm('Eintrag wirklich löschen?')) return;
+  data.guides = data.guides.filter(g => g.id !== id);
+  save(); renderGuides(); renderHome();
+}
+
+function editTeacher(i) {
+  const t = data.teachers[i];
+  if (!t) return;
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('adminMenu').style.display = 'none';
+  const area = document.getElementById('formArea');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div class="sheet-title">✏️ Kontakt bearbeiten</div>
+    <div class="input-group"><label>Name</label><input id="e-tname" value="${t.name}"></div>
+    <div class="input-group"><label>Rolle</label><input id="e-trole" value="${t.role}"></div>
+    <div class="input-group"><label>Telefon</label><input id="e-ttel" type="tel" value="${t.tel}"></div>
+    <button class="btn-primary" onclick="updateTeacher(${i})">Änderungen speichern</button>
+    <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>`;
+}
+
+function updateTeacher(i) {
+  data.teachers[i] = {
+    name: document.getElementById('e-tname').value,
+    role: document.getElementById('e-trole').value,
+    tel:  document.getElementById('e-ttel').value
+  };
+  save(); renderTeachers(); closeAdminOverlay();
+}
+
+function editRule(i) {
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('adminMenu').style.display = 'none';
+  const area = document.getElementById('formArea');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div class="sheet-title">✏️ Regel bearbeiten</div>
+    <div class="input-group"><label>Regeltext</label><textarea id="e-rule">${data.rules[i]}</textarea></div>
+    <button class="btn-primary" onclick="updateRule(${i})">Änderungen speichern</button>
+    <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>`;
+}
+
+function updateRule(i) {
+  data.rules[i] = document.getElementById('e-rule').value;
+  save(); renderRules(); closeAdminOverlay();
+}
+
+function editPack(i) {
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('adminMenu').style.display = 'none';
+  const area = document.getElementById('formArea');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div class="sheet-title">✏️ Packlisten-Eintrag bearbeiten</div>
+    <div class="input-group"><label>Gegenstand</label><input id="e-pack" value="${data.pack[i]}"></div>
+    <button class="btn-primary" onclick="updatePack(${i})">Änderungen speichern</button>
+    <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>`;
+}
+
+function updatePack(i) {
+  data.pack[i] = document.getElementById('e-pack').value;
+  save(); renderPack(); closeAdminOverlay();
+}
+
+function editDayTag(di) {
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('adminMenu').style.display = 'none';
+  const area = document.getElementById('formArea');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div class="sheet-title">✏️ Tag-Bezeichnung bearbeiten</div>
+    <div class="input-group"><label>Bezeichnung</label><input id="e-daytag" value="${data.zeitplan[di].tag}"></div>
+    <button class="btn-primary" onclick="updateDayTag(${di})">Änderungen speichern</button>
+    <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>`;
+}
+
+function updateDayTag(di) {
+  data.zeitplan[di].tag = document.getElementById('e-daytag').value;
+  save(); renderZeitplan(); closeAdminOverlay();
+}
+
+function editZeitplanEintrag(di, ei) {
+  const e = data.zeitplan[di].eintraege[ei];
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('adminMenu').style.display = 'none';
+  const area = document.getElementById('formArea');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div class="sheet-title">✏️ Programmpunkt bearbeiten</div>
+    <div class="input-group"><label>Uhrzeit / Tageszeit</label><input id="e-ztime" value="${e.time}" placeholder="z.B. Morgens"></div>
+    <div class="input-group"><label>Bezeichnung</label><input id="e-zlabel" value="${e.label}"></div>
+    <div class="input-group"><label>Zusatzinfo</label><input id="e-zsub" value="${e.sub||''}"></div>
+    <div class="input-group"><label>Hervorheben?</label>
+      <select id="e-zhighlight">
+        <option value="0" ${!e.highlight?'selected':''}>Nein</option>
+        <option value="1" ${e.highlight?'selected':''}>Ja (blauer Punkt)</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="updateZeitplanEintrag(${di},${ei})">Änderungen speichern</button>
+    <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>`;
+}
+
+function updateZeitplanEintrag(di, ei) {
+  data.zeitplan[di].eintraege[ei] = {
+    time:      document.getElementById('e-ztime').value,
+    label:     document.getElementById('e-zlabel').value,
+    sub:       document.getElementById('e-zsub').value,
+    highlight: document.getElementById('e-zhighlight').value === '1'
+  };
+  save(); renderZeitplan(); closeAdminOverlay();
+}
 
 function savePoll() {
   const opts = [
