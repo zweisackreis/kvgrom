@@ -245,6 +245,15 @@
         <div id="hero-meta" style="font-size:13px;color:rgba(255,255,255,.55)">Datum · Klasse eintragen</div>
       </div>
     </div>
+    <!-- COUNTDOWN -->
+    <div id="countdown-box" style="display:flex;gap:10px;margin-bottom:16px"></div>
+
+    <!-- TREFFPUNKT -->
+    <div id="treffpunkt-box" style="margin-bottom:4px"></div>
+
+    <!-- HEUTE IM PROGRAMM -->
+    <div id="heute-box" style="margin-bottom:4px"></div>
+
     <div class="section-label">Schnellzugriff</div>
     <div class="card" onclick="switchPage('kontakte')" style="cursor:pointer">
       <div class="card-header">
@@ -344,6 +353,15 @@
     <div id="sights-list" style="margin-bottom:8px"></div>
   </div>
 
+  <!-- SPRACHFÜHRER -->
+  <div class="page" id="page-sprache">
+    <div style="background:var(--accent);border-radius:var(--radius);padding:20px;margin-bottom:14px;color:white">
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px">Sprachführer <em>Italiano</em></div>
+      <div style="font-size:13px;opacity:.7">Die wichtigsten Phrasen für unterwegs</div>
+    </div>
+    <div id="sprache-content"></div>
+  </div>
+
   <!-- FEEDBACK / MITMACHEN -->
   <div class="page" id="page-feedback">
     <div class="push-banner" id="pushBanner">
@@ -388,6 +406,7 @@
   <button class="nav-item" data-page="packliste" onclick="switchPage('packliste')"><span class="nav-icon">🎒</span><span class="nav-label">Packliste</span></button>
   <button class="nav-item" data-page="regeln" onclick="switchPage('regeln')"><span class="nav-icon">📋</span><span class="nav-label">Regeln</span></button>
   <button class="nav-item" data-page="karte" onclick="switchPage('karte')"><span class="nav-icon">🗺️</span><span class="nav-label">Karte</span></button>
+  <button class="nav-item" data-page="sprache" onclick="switchPage('sprache')"><span class="nav-icon">🇮🇹</span><span class="nav-label">Italiano</span></button>
   <button class="nav-item" data-page="feedback" onclick="switchPage('feedback')"><span class="nav-icon">💬</span><span class="nav-label">Mitmachen</span></button>
 </nav>
 
@@ -428,6 +447,7 @@
         <button onclick="showForm('poll')">📊<br><strong>Abstimmung</strong><br><span style="color:var(--text2);font-size:11px">Neue Umfrage</span></button>
         <button onclick="showForm('forms')">🔗<br><strong>Formular-Links</strong><br><span style="color:var(--text2);font-size:11px">Google Forms</span></button>
         <button onclick="showForm('push')">🔔<br><strong>Mitteilung senden</strong><br><span style="color:var(--text2);font-size:11px">An alle Schüler</span></button>
+        <button onclick="showForm('treffpunkt')">📍<br><strong>Treffpunkt</strong><br><span style="color:var(--text2);font-size:11px">Setzen / löschen</span></button>
       </div>
       <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:4px">
         <button onclick="showForm('delete')" style="width:100%;padding:12px 14px;border:1.5px solid #fcd5d0;border-radius:10px;background:#fdf3f2;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left;color:#9b2a1a">
@@ -530,7 +550,8 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
     { id: 1, question: 'Welche Sehenswürdigkeit hat euch am besten gefallen?', options: ['Kolosseum','Vatikan','Trevi-Brunnen','Pantheon'], votes: [0,0,0,0] }
   ],
   notifications: [],
-  formsLinks: { feedback: '', fragen: '' }
+  formsLinks: { feedback: '', fragen: '' },
+  treffpunkte: []
 };
 
 function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
@@ -542,11 +563,14 @@ function renderAll() {
   renderHome(); renderGuides(); renderZeitplan(); renderTeachers();
   renderHotel(); renderRules(); renderPack(); renderSights();
   renderPolls(); renderNotifications(); renderFormLinks();
+  renderCountdown(); renderTreffpunkt(); renderHeute(); renderSprache();
 }
 
 function renderHome() {
   document.getElementById('hero-meta').textContent = data.trip.dates + ' · ' + data.trip.klasse;
   document.getElementById('guide-count-home').textContent = data.guides.length + ' Einträge von Lehrkräften';
+  renderCountdown();
+  renderHeute();
 }
 
 function renderGuides() {
@@ -661,6 +685,213 @@ function renderSights() {
   document.getElementById('sights-list').innerHTML = data.sights.map(s =>
     `<a href="https://www.google.com/maps/search/${encodeURIComponent(s+', Rom, Italien')}" target="_blank" class="sight-pill">📍 ${s}</a>`
   ).join('');
+}
+
+// ════════════════════════════════════════════
+// COUNTDOWN
+// ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// TREFFPUNKT
+// ════════════════════════════════════════════
+function renderTreffpunkt() {
+  const box = document.getElementById('treffpunkt-box');
+  if (!box) return;
+  const myKlasse = localStorage.getItem('rom-klasse') || '';
+  const isLehrer = myKlasse === 'Lehrkraft';
+
+  // Treffpunkte die für meine Klasse gelten
+  const sichtbar = (data.treffpunkte || []).filter(t => {
+    if (!t.ort) return false;
+    if (t.klasse === 'alle') return true;
+    if (isLehrer) return true;
+    if (t.klasse === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) return true;
+    if (t.klasse === 'Klassen 8-Q2' && ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'].includes(myKlasse)) return true;
+    return t.klasse === myKlasse;
+  });
+
+  if (!sichtbar.length) { box.innerHTML = ''; return; }
+
+  box.innerHTML = sichtbar.map(t => `
+    <div style="background:var(--accent);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.1;line-height:1">📍</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)">Treffpunkt</div>
+        ${t.klasse !== 'alle' ? `<span style="font-size:10px;background:rgba(255,255,255,.2);color:white;padding:2px 8px;border-radius:10px">${t.klasse}</span>` : ''}
+      </div>
+      <div style="font-size:18px;font-weight:500;color:white;margin-bottom:4px">${t.ort}</div>
+      ${t.uhrzeit ? `<div style="font-size:14px;color:rgba(255,255,255,.8)">🕐 ${t.uhrzeit}</div>` : ''}
+      ${t.info    ? `<div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:6px">${t.info}</div>` : ''}
+    </div>`).join('');
+}
+
+function saveTreffpunkt(aktiv) {
+  if (aktiv) {
+    const ort     = document.getElementById('f-tort')?.value.trim();
+    const uhrzeit = document.getElementById('f-tuhr')?.value.trim();
+    const info    = document.getElementById('f-tinfo')?.value.trim();
+    const klasse  = document.getElementById('f-tklasse')?.value || 'alle';
+    if (!ort) { alert('Bitte einen Ort eingeben.'); return; }
+    if (!data.treffpunkte) data.treffpunkte = [];
+    data.treffpunkte.push({ id: Date.now(), ort, uhrzeit, info, klasse });
+  }
+  save(); renderTreffpunkt(); closeAdminOverlay();
+}
+
+function deleteTreffpunkt(id) {
+  data.treffpunkte = (data.treffpunkte || []).filter(t => t.id !== id);
+  save(); renderTreffpunkt(); showForm('treffpunkt');
+}
+
+function renderCountdown() {
+  const box = document.getElementById('countdown-box');
+  if (!box) return;
+  const ziel = new Date('2026-10-09T00:00:00');
+  const jetzt = new Date();
+  const diff = ziel - jetzt;
+
+  if (diff <= 0) {
+    // Während der Fahrt
+    const ende = new Date('2026-10-16T00:00:00');
+    const tagDiff = Math.ceil((ende - jetzt) / 86400000);
+    if (tagDiff > 0) {
+      box.innerHTML = `<div style="width:100%;background:var(--accent);border-radius:var(--radius);padding:14px 18px;color:white;display:flex;align-items:center;gap:12px">
+        <span style="font-size:28px">🏛️</span>
+        <div><div style="font-size:13px;opacity:.7;font-weight:500;letter-spacing:.05em;text-transform:uppercase">Ciao Roma!</div>
+        <div style="font-family:\'DM Serif Display\',serif;font-size:18px">Noch ${tagDiff} Tag${tagDiff===1?'':'e'} in Rom</div></div>
+      </div>`;
+    } else {
+      box.innerHTML = '';
+    }
+    return;
+  }
+
+  const tage    = Math.floor(diff / 86400000);
+  const stunden = Math.floor((diff % 86400000) / 3600000);
+  const minuten = Math.floor((diff % 3600000) / 60000);
+
+  const einheit = (val, label) => `
+    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 8px;text-align:center">
+      <div style="font-family:\'DM Serif Display\',serif;font-size:28px;color:var(--accent);line-height:1">${val}</div>
+      <div style="font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:4px">${label}</div>
+    </div>`;
+
+  box.innerHTML = einheit(tage,'Tage') + einheit(stunden,'Std.') + einheit(minuten,'Min.');
+
+  // Jede Minute aktualisieren
+  if (!box._timer) box._timer = setInterval(renderCountdown, 60000);
+}
+
+// ════════════════════════════════════════════
+// HEUTE IM PROGRAMM
+// ════════════════════════════════════════════
+function renderHeute() {
+  const box = document.getElementById('heute-box');
+  if (!box) return;
+
+  // Tagesdaten aus dem Zeitplan: Datum aus Tag-Label extrahieren
+  const heute = new Date();
+  const dd = String(heute.getDate()).padStart(2,'0');
+  const mm = String(heute.getMonth()+1).padStart(2,'0');
+  const datumStr = `${dd}.${mm}.`;
+
+  // Im Zeitplan nach heutigem Datum suchen
+  const heuteTag = data.zeitplan.find(t => t.tag.includes(datumStr));
+
+  if (!heuteTag) {
+    // Außerhalb der Fahrt: nur Hinweis wenn nahe
+    const abfahrt = new Date('2026-10-09');
+    const diff = Math.ceil((abfahrt - heute) / 86400000);
+    if (diff > 0 && diff <= 30) {
+      box.innerHTML = `<div class="section-label" style="margin-top:0">Nächstes Programm</div>
+        <div class="card" style="margin-bottom:16px;border-left:3px solid var(--accent)">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:4px">Tag 1 — Fr. 09.10. (Anreise)</div>
+          ${data.zeitplan[0]?.eintraege.slice(0,2).map(e =>
+            `<div style="font-size:14px;font-weight:500;padding:4px 0">${e.label}</div>`).join('')}
+        </div>`;
+    } else { box.innerHTML = ''; }
+    return;
+  }
+
+  const punkte = heuteTag.eintraege;
+  box.innerHTML = `
+    <div class="section-label" style="margin-top:0">Heute im Programm</div>
+    <div class="card" style="margin-bottom:16px;border-left:3px solid var(--accent);cursor:pointer" onclick="switchPage('zeitplan')">
+      <div style="font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">${heuteTag.tag}</div>
+      ${punkte.map(e => `
+        <div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--text3);min-width:60px;padding-top:2px">${e.time||''}</span>
+          <div>
+            <div style="font-size:14px;font-weight:${e.highlight?'500':'400'};color:${e.highlight?'var(--text)':'var(--text2)'}">${e.label}</div>
+            ${e.sub ? `<div style="font-size:12px;color:var(--text3)">${e.sub}</div>` : ''}
+          </div>
+        </div>`).join('')}
+      <div style="font-size:12px;color:var(--accent);margin-top:10px;text-align:right">Vollständigen Zeitplan ansehen →</div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// SPRACHFÜHRER ITALIENISCH
+// ════════════════════════════════════════════
+const PHRASEN = [
+  { kategorie: '👋 Begrüßung', eintraege: [
+    { it: 'Ciao!',               aussprache: 'Tschau',              de: 'Hallo! / Tschüss!' },
+    { it: 'Buongiorno!',         aussprache: 'Buon-dschiorno',      de: 'Guten Morgen / Tag!' },
+    { it: 'Buonasera!',          aussprache: 'Buona-ssera',         de: 'Guten Abend!' },
+    { it: 'Arrivederci!',        aussprache: 'Arri-we-derttschi',   de: 'Auf Wiedersehen!' },
+    { it: 'Come stai?',          aussprache: 'Kome staj',           de: 'Wie geht\'s dir?' },
+    { it: 'Bene, grazie!',       aussprache: 'Bene, gratzje',       de: 'Gut, danke!' },
+  ]},
+  { kategorie: '🙏 Höflichkeit', eintraege: [
+    { it: 'Per favore',          aussprache: 'Per fa-wore',         de: 'Bitte' },
+    { it: 'Grazie mille!',       aussprache: 'Gratzje mille',       de: 'Vielen Dank!' },
+    { it: 'Prego',               aussprache: 'Prego',               de: 'Bitte sehr / Gern geschehen' },
+    { it: 'Scusi!',              aussprache: 'Skusi',               de: 'Entschuldigung!' },
+    { it: 'Mi dispiace',         aussprache: 'Mi dis-pjatsche',     de: 'Es tut mir leid' },
+    { it: 'Non capisco',         aussprache: 'Non ka-pisko',        de: 'Ich verstehe nicht' },
+    { it: 'Parla tedesco?',      aussprache: 'Parla te-desko',      de: 'Sprechen Sie Deutsch?' },
+  ]},
+  { kategorie: '🍕 Essen & Trinken', eintraege: [
+    { it: 'Un tavolo per ...',   aussprache: 'Un ta-wolo per ...',  de: 'Ein Tisch für ... Personen' },
+    { it: 'Il menù, per favore', aussprache: 'Il me-nü per fa-wore',de: 'Die Speisekarte, bitte' },
+    { it: 'Vorrei ...',          aussprache: 'Wor-rej',             de: 'Ich hätte gerne ...' },
+    { it: 'Il conto, per favore',aussprache: 'Il konto per fa-wore',de: 'Die Rechnung, bitte' },
+    { it: 'Senza glutine',       aussprache: 'Sentsa glu-tine',     de: 'Ohne Gluten' },
+    { it: 'Sono vegetariano/a',  aussprache: 'Sono vege-tariano',   de: 'Ich bin Vegetarier/in' },
+    { it: 'Delizioso!',          aussprache: 'De-litzjoso',         de: 'Lecker! / Köstlich!' },
+  ]},
+  { kategorie: '🗺️ Orientierung', eintraege: [
+    { it: 'Dov\'è ...?',         aussprache: 'Do-we ...',           de: 'Wo ist ...?' },
+    { it: 'A destra',            aussprache: 'A destra',            de: 'Rechts' },
+    { it: 'A sinistra',          aussprache: 'A si-nistra',         de: 'Links' },
+    { it: 'Dritto',              aussprache: 'Dritto',              de: 'Geradeaus' },
+    { it: 'Quanto costa?',       aussprache: 'Kwanto kosta',        de: 'Was kostet das?' },
+    { it: 'Dov\'è la fermata?',  aussprache: 'Do-we la fer-mata',   de: 'Wo ist die Haltestelle?' },
+  ]},
+  { kategorie: '🚨 Notfall', eintraege: [
+    { it: 'Aiuto!',              aussprache: 'A-juto',              de: 'Hilfe!' },
+    { it: 'Chiami un medico!',   aussprache: 'Kjami un me-diko',    de: 'Rufen Sie einen Arzt!' },
+    { it: 'Chiami la polizia!',  aussprache: 'Kjami la po-litzja',  de: 'Rufen Sie die Polizei!' },
+    { it: 'Mi sono perso/a',     aussprache: 'Mi sono perso',       de: 'Ich habe mich verlaufen' },
+    { it: 'Ho bisogno di aiuto', aussprache: 'O bi-sonjo di ajuto', de: 'Ich brauche Hilfe' },
+    { it: 'Il mio telefono è rotto', aussprache: 'Il mio te-le-fono e rotto', de: 'Mein Handy ist kaputt' },
+  ]},
+];
+
+function renderSprache() {
+  const c = document.getElementById('sprache-content');
+  if (!c) return;
+  c.innerHTML = PHRASEN.map(kat => `
+    <div class="section-label">${kat.kategorie}</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      ${kat.eintraege.map((p,i) => `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:11px 16px;border-bottom:${i<kat.eintraege.length-1?'1px solid var(--border)':'none'}">
+          <div>
+            <div style="font-size:15px;font-weight:500;color:var(--accent)">${p.it}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">🔊 ${p.aussprache}</div>
+          </div>
+          <div style="font-size:14px;color:var(--text2);padding-top:2px;text-align:right">${p.de}</div>
+        </div>`).join('')}
+    </div>`).join('');
 }
 
 
@@ -918,6 +1149,44 @@ function showForm(type) {
     pack: `<div class="sheet-title">🎒 Packliste</div>
       <div class="input-group"><label>Gegenstand</label><input id="f-pack" placeholder="z.B. Sonnencreme"></div>
       <button class="btn-primary" onclick="savePack()">Hinzufügen</button>`,
+
+    treffpunkt: `<div class="sheet-title">📍 Treffpunkt festlegen</div>
+      ${(data.treffpunkte||[]).length ? `
+        <div style="margin-bottom:14px">
+          <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;letter-spacing:.03em">AKTIVE TREFFPUNKTE</div>
+          ${(data.treffpunkte||[]).map(t => `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:var(--surface)">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:500">${t.ort}</div>
+                <div style="font-size:11px;color:var(--text3)">${t.uhrzeit ? t.uhrzeit+' · ' : ''}${t.klasse === 'alle' ? 'Alle' : t.klasse}</div>
+              </div>
+              <button onclick="deleteTreffpunkt(${t.id})" style="padding:5px 10px;border:1px solid #fcd5d0;border-radius:8px;background:#fdf3f2;color:#9b2a1a;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">🗑</button>
+            </div>`).join('')}
+        </div>` : ''}
+      <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:10px;letter-spacing:.03em">NEUER TREFFPUNKT</div>
+      <div class="input-group">
+        <label>Für wen?</label>
+        <select id="f-tklasse">
+          <option value="alle">👥 Alle Schüler/innen</option>
+          <optgroup label="Einzelne Klassen">
+            <option value="5a">Klasse 5a</option><option value="5b">Klasse 5b</option><option value="5c">Klasse 5c</option>
+            <option value="6a">Klasse 6a</option><option value="6b">Klasse 6b</option><option value="6c">Klasse 6c</option>
+            <option value="7a">Klasse 7a</option><option value="7b">Klasse 7b</option><option value="7c">Klasse 7c</option>
+            <option value="8a">Klasse 8a</option><option value="8b">Klasse 8b</option><option value="8c">Klasse 8c</option>
+            <option value="9a">Klasse 9a</option><option value="9b">Klasse 9b</option><option value="9c">Klasse 9c</option>
+            <option value="10a">Klasse 10a</option><option value="10b">Klasse 10b</option><option value="10c">Klasse 10c</option>
+            <option value="EF">EF</option><option value="Q1">Q1</option><option value="Q2">Q2</option>
+          </optgroup>
+          <optgroup label="Gruppen">
+            <option value="Klassen 5-7">Klassen 5–7 (Untergruppe)</option>
+            <option value="Klassen 8-Q2">Klassen 8–Q2 (Obergruppe)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="input-group"><label>Ort / Beschreibung</label><input id="f-tort" placeholder="z.B. Eingang Kolosseum, Nordseite"></div>
+      <div class="input-group"><label>Uhrzeit</label><input id="f-tuhr" placeholder="z.B. 14:30 Uhr"></div>
+      <div class="input-group"><label>Zusatzinfo (optional)</label><input id="f-tinfo" placeholder="z.B. Bitte pünktlich sein!"></div>
+      <button class="btn-primary" onclick="saveTreffpunkt(true)">📍 Treffpunkt hinzufügen</button>`,
 
     sight: `<div class="sheet-title">🗺️ Sehenswürdigkeit</div>
       <div class="input-group"><label>Name</label><input id="f-sight" placeholder="z.B. Pantheon"></div>
