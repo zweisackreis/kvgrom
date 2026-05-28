@@ -202,7 +202,6 @@
     <button class="notif-btn" onclick="switchPage('benachrichtigungen')" title="Benachrichtigungen">
       🔔<span class="notif-dot" id="notifDot"></span>
     </button>
-    <button class="notif-btn" id="darkBtn" onclick="toggleDark()" title="Nacht-Modus" style="font-size:18px">🌙</button>
     <button class="admin-btn" onclick="openAdmin()">✏️ Bearbeiten</button>
   </div>
 </header>
@@ -346,9 +345,6 @@
     <a href="https://maps.google.com/?q=Rom,+Italien" target="_blank" class="map-link">📍 Rom in Google Maps öffnen</a>
     <a href="https://maps.google.com/?q=Via+di+Malafede+225,+00125+Rom,+Italien" target="_blank" class="map-link" style="background:var(--accent)">🏕️ Unser Camp in Maps öffnen</a>
 
-    <div class="section-label">Übersetzer</div>
-    <a href="https://translate.google.com/?sl=it&tl=de&op=translate" target="_blank" class="map-link" style="background:#1a7f4b">🌐 Google Übersetzer (Italienisch → Deutsch)</a>
-
     <div class="section-label">Sehenswürdigkeiten</div>
     <div id="sights-list" style="margin-bottom:8px"></div>
   </div>
@@ -359,6 +355,7 @@
       <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px">Sprachführer <em>Italiano</em></div>
       <div style="font-size:13px;opacity:.7">Die wichtigsten Phrasen für unterwegs</div>
     </div>
+    <a href="https://translate.google.com/?sl=it&tl=de&op=translate" target="_blank" class="map-link" style="background:#1a7f4b;margin-bottom:16px">🌐 Google Übersetzer öffnen (Italienisch → Deutsch)</a>
     <div id="sprache-content"></div>
   </div>
 
@@ -397,6 +394,107 @@
 
 </main>
 
+  <!-- EINSTELLUNGEN -->
+  <div class="page" id="page-einstellungen">
+
+    <!-- Header -->
+    <div style="margin-bottom:16px">
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:2px">Einstellungen</div>
+      <div style="font-size:13px;color:var(--text3)">Persönliche App-Einstellungen</div>
+    </div>
+
+    <!-- Klasse -->
+    <div class="section-label">Meine Klasse</div>
+    <div class="card" style="padding:16px 18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;font-weight:500">Klasse auswählen</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">Für Treffpunkte & Mitteilungen</div>
+        </div>
+        <span id="einst-klasse-badge" style="font-size:13px;font-weight:500;padding:5px 14px;border-radius:20px;background:var(--accent-light);color:var(--accent)">—</span>
+      </div>
+      <div id="einst-klassen-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+    </div>
+
+    <!-- Darstellung -->
+    <div class="section-label">Darstellung</div>
+    <div class="card" style="padding:0">
+      <!-- Nachtmodus -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:14px;font-weight:500">🌙 Nacht-Modus</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">Dunkles Design für abends</div>
+        </div>
+        <div id="dark-toggle" onclick="toggleDarkFromSettings()" style="width:44px;height:26px;border-radius:13px;background:var(--border);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0">
+          <div id="dark-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
+        </div>
+      </div>
+      <!-- Schriftgröße -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px">
+        <div>
+          <div style="font-size:14px;font-weight:500">🔤 Schriftgröße</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">Lesbarkeit anpassen</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button onclick="changeFont(-1)" style="width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text)">−</button>
+          <span id="font-size-label" style="font-size:13px;color:var(--text2);min-width:28px;text-align:center">100%</span>
+          <button onclick="changeFont(1)" style="width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benachrichtigungen -->
+    <div class="section-label">Benachrichtigungen</div>
+    <div class="card" style="padding:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:14px;font-weight:500">🔔 Push-Benachrichtigungen</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px" id="push-status-label">Status wird geladen…</div>
+        </div>
+        <button id="push-toggle-btn" onclick="togglePushFromSettings()" style="font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;white-space:nowrap">Aktivieren</button>
+      </div>
+      <div style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:500">📬 Mitteilungen im Postfach</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px" id="notif-count-label">0 Mitteilungen</div>
+        </div>
+        <button onclick="switchPage('benachrichtigungen')" style="font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer">Öffnen</button>
+      </div>
+    </div>
+
+    <!-- App-Info -->
+    <div class="section-label">App-Info</div>
+    <div class="card" style="padding:0">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;color:var(--text2)">App-Version</span>
+        <span style="font-size:13px;color:var(--text3);font-family:var(--font-mono, monospace)" id="app-version-label">—</span>
+      </div>
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;color:var(--text2)">Offline-Modus</span>
+        <span style="font-size:13px;color:var(--green)">✓ Verfügbar</span>
+      </div>
+      <div style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;color:var(--text2)">Fahrt</span>
+        <span style="font-size:13px;color:var(--text3)" id="einst-fahrt-label">—</span>
+      </div>
+    </div>
+
+    <!-- Daten zurücksetzen -->
+    <div class="section-label">Zurücksetzen</div>
+    <div class="card" style="padding:0">
+      <button onclick="resetChecklist()" style="width:100%;padding:14px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;border-bottom:1px solid var(--border)">
+        ☑️ Packliste zurücksetzen
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">Alle Häkchen entfernen</div>
+      </button>
+      <button onclick="resetKlasse()" style="width:100%;padding:14px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--red);cursor:pointer;text-align:left">
+        🔄 Klassenauswahl zurücksetzen
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">Beim nächsten Start neu abfragen</div>
+      </button>
+    </div>
+
+    <div style="height:8px"></div>
+  </div>
+
 <!-- NAV -->
 <nav>
   <button class="nav-item active" data-page="home" onclick="switchPage('home')"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></button>
@@ -408,6 +506,7 @@
   <button class="nav-item" data-page="karte" onclick="switchPage('karte')"><span class="nav-icon">🗺️</span><span class="nav-label">Karte</span></button>
   <button class="nav-item" data-page="sprache" onclick="switchPage('sprache')"><span class="nav-icon">🇮🇹</span><span class="nav-label">Italiano</span></button>
   <button class="nav-item" data-page="feedback" onclick="switchPage('feedback')"><span class="nav-icon">💬</span><span class="nav-label">Mitmachen</span></button>
+  <button class="nav-item" data-page="einstellungen" onclick="switchPage('einstellungen')"><span class="nav-icon">⚙️</span><span class="nav-label">Einstellungen</span></button>
 </nav>
 
 <!-- DETAIL VIEW -->
@@ -545,7 +644,7 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
   ],
   pack: ['Reisepass / Personalausweis','Krankenversicherungskarte (EHIC)','Bargeld & EC-Karte','Sonnencreme (mind. LSF 30)','Bequeme Laufschuhe','Wasserflasche','Regenjacke','Kleidung für Kirchenbesuch','Reiseadapter','Powerbank','Notizblock & Stift','Pflaster'],
   checkedPack: [],
-  sights: ['Kolosseum','Forum Romanum','Vatikan','Trevi-Brunnen','Pantheon','Piazza Navona','Spanische Treppe','Trastevere','Fabulous Village Bungalowpark, Via di Malafede 225, Rom'],
+  sights: ['Kolosseum','Forum Romanum','Vatikan','Trevi-Brunnen','Pantheon','Piazza Navona','Spanische Treppe','Engelsburg','Gelateria della Palma (150 Sorten Eis)','Trastevere','Fabulous Village Bungalowpark, Via di Malafede 225, Rom'],
   polls: [
     { id: 1, question: 'Welche Sehenswürdigkeit hat euch am besten gefallen?', options: ['Kolosseum','Vatikan','Trevi-Brunnen','Pantheon'], votes: [0,0,0,0] }
   ],
@@ -564,6 +663,7 @@ function renderAll() {
   renderHotel(); renderRules(); renderPack(); renderSights();
   renderPolls(); renderNotifications(); renderFormLinks();
   renderCountdown(); renderTreffpunkt(); renderHeute(); renderSprache();
+  renderEinstellungen();
 }
 
 function renderHome() {
@@ -682,9 +782,27 @@ function togglePack(i) {
 }
 
 function renderSights() {
-  document.getElementById('sights-list').innerHTML = data.sights.map(s =>
-    `<a href="https://www.google.com/maps/search/${encodeURIComponent(s+', Rom, Italien')}" target="_blank" class="sight-pill">📍 ${s}</a>`
-  ).join('');
+  // Einträge mit eigenem Link
+  const customLinks = {
+    'Gelateria della Palma (150 Sorten Eis)': 'https://maps.app.goo.gl/sVVBKoTJEsXra8NE9',
+  };
+  const icons = {
+    'Gelateria della Palma (150 Sorten Eis)': '🍦',
+    'Engelsburg': '🏰',
+    'Vatikan': '⛪',
+    'Kolosseum': '🏟️',
+    'Trevi-Brunnen': '⛲',
+    'Pantheon': '🏛️',
+    'Spanische Treppe': '🪜',
+    'Piazza Navona': '🎨',
+    'Trastevere': '🌿',
+    'Forum Romanum': '🗿',
+  };
+  document.getElementById('sights-list').innerHTML = data.sights.map(s => {
+    const url = customLinks[s] || `https://www.google.com/maps/search/${encodeURIComponent(s+', Rom, Italien')}`;
+    const icon = Object.keys(icons).find(k => s.includes(k.split(' ')[0])) ? icons[Object.keys(icons).find(k => s.includes(k.split(' ')[0]))] : '📍';
+    return `<a href="${url}" target="_blank" class="sight-pill">${icon} ${s}</a>`;
+  }).join('');
 }
 
 // ════════════════════════════════════════════
@@ -1562,11 +1680,145 @@ document.getElementById('installBtn').addEventListener('click', async () => {
   deferredPrompt = null;
 });
 
+// ════════════════════════════════════════════
+// EINSTELLUNGEN
+// ════════════════════════════════════════════
+function renderEinstellungen() {
+  const grid = document.getElementById('einst-klassen-grid');
+  const badge = document.getElementById('einst-klasse-badge');
+  const myKlasse = localStorage.getItem('rom-klasse') || '';
+  if (badge) badge.textContent = myKlasse || 'Nicht gewählt';
+
+  if (grid) {
+    grid.innerHTML = KLASSEN.map(k => {
+      const active = k === myKlasse;
+      return `<button onclick="selectKlasseEinst('${k}')"
+        style="padding:9px 4px;border:1.5px solid ${active ? 'var(--accent)' : 'var(--border)'};
+        border-radius:10px;background:${active ? 'var(--accent-light)' : 'var(--bg)'};
+        font-family:'DM Sans',sans-serif;font-size:12px;font-weight:${active ? '500' : '400'};
+        cursor:pointer;color:${active ? 'var(--accent)' : 'var(--text)'}">${k}</button>`;
+    }).join('');
+  }
+
+  // Dark-mode Toggle-Status
+  const isDark = document.body.classList.contains('dark');
+  const tog = document.getElementById('dark-toggle');
+  const knob = document.getElementById('dark-knob');
+  if (tog) tog.style.background = isDark ? 'var(--accent)' : 'var(--border)';
+  if (knob) knob.style.transform = isDark ? 'translateX(18px)' : 'translateX(0)';
+
+  // Schriftgröße
+  const fs = parseInt(localStorage.getItem('rom-fontsize') || '100');
+  const lbl = document.getElementById('font-size-label');
+  if (lbl) lbl.textContent = fs + '%';
+
+  // Push-Status
+  const pushLbl = document.getElementById('push-status-label');
+  const pushBtn = document.getElementById('push-toggle-btn');
+  if (pushLbl && pushBtn) {
+    if (Notification.permission === 'granted') {
+      pushLbl.textContent = '✓ Aktiviert';
+      pushLbl.style.color = 'var(--green)';
+      pushBtn.textContent = 'Aktiviert';
+      pushBtn.style.color = 'var(--green)';
+      pushBtn.style.borderColor = 'var(--green)';
+    } else if (Notification.permission === 'denied') {
+      pushLbl.textContent = 'Blockiert — in Browser-Einstellungen erlauben';
+      pushBtn.textContent = 'Blockiert';
+    } else {
+      pushLbl.textContent = 'Noch nicht aktiviert';
+      pushBtn.textContent = 'Aktivieren';
+    }
+  }
+
+  // Mitteilungen-Anzahl
+  const notifLbl = document.getElementById('notif-count-label');
+  const myKl = localStorage.getItem('rom-klasse') || '';
+  if (notifLbl) {
+    const n = (data.notifications || []).filter(n => {
+      const z = n.klasse || 'alle';
+      return z === 'alle' || z === myKl || myKl === 'Lehrkraft';
+    }).length;
+    notifLbl.textContent = n + ' Mitteilung' + (n === 1 ? '' : 'en');
+  }
+
+  // App-Version aus SW
+  const verLbl = document.getElementById('app-version-label');
+  if (verLbl && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg) verLbl.textContent = 'PWA aktiv';
+    });
+  }
+
+  // Fahrtinfo
+  const fahrtLbl = document.getElementById('einst-fahrt-label');
+  if (fahrtLbl) fahrtLbl.textContent = data.trip.dates;
+}
+
+function selectKlasseEinst(klasse) {
+  localStorage.setItem('rom-klasse', klasse);
+  renderEinstellungen();
+  renderTreffpunkt();
+  renderNotifications();
+  // Kurzes visuelles Feedback
+  const badge = document.getElementById('einst-klasse-badge');
+  if (badge) {
+    badge.style.background = 'var(--green-light)';
+    badge.style.color = 'var(--green)';
+    badge.textContent = klasse + ' ✓';
+    setTimeout(() => {
+      badge.style.background = 'var(--accent-light)';
+      badge.style.color = 'var(--accent)';
+      badge.textContent = klasse;
+    }, 1500);
+  }
+}
+
+function toggleDarkFromSettings() {
+  toggleDark();
+  renderEinstellungen();
+}
+
+function changeFont(dir) {
+  const current = parseInt(localStorage.getItem('rom-fontsize') || '100');
+  const next = Math.min(130, Math.max(80, current + dir * 10));
+  localStorage.setItem('rom-fontsize', next);
+  document.documentElement.style.fontSize = next + '%';
+  renderEinstellungen();
+}
+
+function togglePushFromSettings() {
+  if (Notification.permission === 'granted') return;
+  requestPush();
+  setTimeout(renderEinstellungen, 1000);
+}
+
+function resetChecklist() {
+  if (!confirm('Alle Häkchen in der Packliste entfernen?')) return;
+  data.checkedPack = [];
+  save(); renderPack();
+  alert('Packliste zurückgesetzt ✓');
+}
+
+function resetKlasse() {
+  if (!confirm('Klassenauswahl zurücksetzen? Du wirst beim nächsten Start erneut gefragt.')) return;
+  localStorage.removeItem('rom-klasse');
+  renderEinstellungen();
+  renderTreffpunkt();
+  renderNotifications();
+}
+
+// Schriftgröße beim Start anwenden
+(function() {
+  const fs = localStorage.getItem('rom-fontsize');
+  if (fs) document.documentElement.style.fontSize = fs + '%';
+})();
+
 // ── DARK MODE ──
 function toggleDark() {
   const isDark = document.body.classList.toggle('dark');
   localStorage.setItem('rom-dark', isDark ? '1' : '0');
-  document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+  renderEinstellungen();
 }
 
 // Beim Start: gespeicherte Einstellung oder System-Präferenz laden
@@ -1576,8 +1828,7 @@ function toggleDark() {
   if (saved === '1' || (saved === null && prefersDark)) {
     document.body.classList.add('dark');
     document.addEventListener('DOMContentLoaded', () => {
-      const btn = document.getElementById('darkBtn');
-      if (btn) btn.textContent = '☀️';
+
     });
   }
 })();
@@ -1586,8 +1837,7 @@ function toggleDark() {
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
   if (localStorage.getItem('rom-dark') === null) {
     document.body.classList.toggle('dark', e.matches);
-    const btn = document.getElementById('darkBtn');
-    if (btn) btn.textContent = e.matches ? '☀️' : '🌙';
+    renderEinstellungen();
   }
 });
 
