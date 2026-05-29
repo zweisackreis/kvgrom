@@ -50,6 +50,14 @@
     /* NAV */
     nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(250,250,248,.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; padding-bottom: var(--safe-b); }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 2px 8px; cursor: pointer; transition: all .15s; border: none; background: none; color: var(--text3); font-family: 'DM Sans', sans-serif; }
+    /* Mehr-Menü */
+    .mehr-overlay { display: none; position: fixed; inset: 0; z-index: 180; background: rgba(10,10,8,.5); backdrop-filter: blur(4px); }
+    .mehr-overlay.open { display: block; }
+    .mehr-sheet { position: fixed; bottom: calc(var(--nav-h) + var(--safe-b)); left: 0; right: 0; z-index: 181; background: var(--surface); border-radius: 20px 20px 0 0; border-top: 1px solid var(--border); padding: 16px 16px calc(8px); animation: slideUp .2s ease; }
+    .mehr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .mehr-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 4px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-size: 11px; font-weight: 500; color: var(--text2); letter-spacing: .03em; text-transform: uppercase; }
+    .mehr-item:active { background: var(--surface2); }
+    .mehr-icon { font-size: 24px; line-height: 1; }
     .nav-item.active { color: var(--accent); }
     .nav-icon { font-size: 18px; line-height: 1; }
     .nav-label { font-size: 9px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
@@ -255,28 +263,30 @@
     <div id="heute-box" style="margin-bottom:4px"></div>
 
     <div class="section-label">Schnellzugriff</div>
-    <div class="card" onclick="switchPage('kontakte')" style="cursor:pointer">
-      <div class="card-header">
-        <div><div class="card-title">🚨 Notfallnummern</div><div style="font-size:13px;color:var(--text2);margin-top:4px">Lehrkräfte & Notruf</div></div>
-        <span class="card-badge red">Wichtig</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
+      <div onclick="switchPage('kontakte')" style="background:#FCEBEB;border-radius:var(--radius);padding:16px;cursor:pointer;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-4px;bottom:-6px;font-size:48px;opacity:.15">🚨</div>
+        <div style="font-size:30px;margin-bottom:8px">🚨</div>
+        <div style="font-size:14px;font-weight:500;color:#791F1F">Notfall</div>
+        <div style="font-size:11px;color:#A32D2D;margin-top:2px">112 · 118 · Lehrkräfte</div>
       </div>
-    </div>
-    <div class="card" onclick="switchPage('zeitplan')" style="cursor:pointer">
-      <div class="card-header">
-        <div><div class="card-title">📅 Heutiges Programm</div><div style="font-size:13px;color:var(--text2);margin-top:4px">Zeitplan ansehen</div></div>
-        <span class="card-badge gold">Heute</span>
+      <div onclick="switchPage('zeitplan')" style="background:#E6F1FB;border-radius:var(--radius);padding:16px;cursor:pointer;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-4px;bottom:-6px;font-size:48px;opacity:.15">📅</div>
+        <div style="font-size:30px;margin-bottom:8px">📅</div>
+        <div style="font-size:14px;font-weight:500;color:#0C447C">Programm</div>
+        <div style="font-size:11px;color:#185FA5;margin-top:2px" id="heute-quick">Zeitplan ansehen</div>
       </div>
-    </div>
-    <div class="card" onclick="switchPage('reisefuehrer')" style="cursor:pointer">
-      <div class="card-header">
-        <div><div class="card-title">🏛️ Reiseführer</div><div style="font-size:13px;color:var(--text2);margin-top:4px" id="guide-count-home">Einträge ansehen</div></div>
-        <span class="card-badge">Entdecken</span>
+      <div onclick="switchPage('reisefuehrer')" style="background:#FAEEDA;border-radius:var(--radius);padding:16px;cursor:pointer;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-4px;bottom:-6px;font-size:48px;opacity:.15">🏛️</div>
+        <div style="font-size:30px;margin-bottom:8px">🏛️</div>
+        <div style="font-size:14px;font-weight:500;color:#633806">Reiseführer</div>
+        <div style="font-size:11px;color:#854F0B;margin-top:2px" id="guide-count-home">Einträge ansehen</div>
       </div>
-    </div>
-    <div class="card" onclick="switchPage('feedback')" style="cursor:pointer">
-      <div class="card-header">
-        <div><div class="card-title">💬 Mitmachen</div><div style="font-size:13px;color:var(--text2);margin-top:4px">Abstimmungen & Feedback</div></div>
-        <span class="card-badge blue">Neu</span>
+      <div onclick="switchPage('feedback')" style="background:#EEEDFE;border-radius:var(--radius);padding:16px;cursor:pointer;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-4px;bottom:-6px;font-size:48px;opacity:.15">💬</div>
+        <div style="font-size:30px;margin-bottom:8px">💬</div>
+        <div style="font-size:14px;font-weight:500;color:#3C3489">Mitmachen</div>
+        <div style="font-size:11px;color:#534AB7;margin-top:2px">Abstimmungen & Feedback</div>
       </div>
     </div>
   </div>
@@ -302,18 +312,21 @@
 
   <!-- KONTAKTE -->
   <div class="page" id="page-kontakte">
-    <div class="section-label">Notfall & Notruf</div>
-    <div class="card">
-      <div class="contact-item">
-        <div class="contact-avatar emergency">🚑</div>
-        <div><div class="contact-name">Notruf Europa</div><div class="contact-role">Polizei, Feuerwehr, Rettung</div></div>
-        <div class="contact-tel"><a href="tel:112" class="tel-btn">112</a></div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-avatar emergency">🏥</div>
-        <div><div class="contact-name">Krankenwagen Italien</div><div class="contact-role">Ambulanza</div></div>
-        <div class="contact-tel"><a href="tel:118" class="tel-btn">118</a></div>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <a href="tel:112" style="background:#FCEBEB;border-radius:var(--radius);padding:18px 12px;text-align:center;text-decoration:none;display:block;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.07;pointer-events:none">🚑</div>
+        <div style="font-size:36px;margin-bottom:6px">🚑</div>
+        <div style="font-size:28px;font-weight:500;color:#791F1F;line-height:1;margin-bottom:4px">112</div>
+        <div style="font-size:11px;color:#A32D2D;font-weight:500">Notruf Europa</div>
+        <div style="font-size:10px;color:#A32D2D;opacity:.7;margin-top:2px">Polizei · Feuer · Rettung</div>
+      </a>
+      <a href="tel:118" style="background:#FCEBEB;border-radius:var(--radius);padding:18px 12px;text-align:center;text-decoration:none;display:block;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.07;pointer-events:none">🏥</div>
+        <div style="font-size:36px;margin-bottom:6px">🏥</div>
+        <div style="font-size:28px;font-weight:500;color:#791F1F;line-height:1;margin-bottom:4px">118</div>
+        <div style="font-size:11px;color:#A32D2D;font-weight:500">Krankenwagen</div>
+        <div style="font-size:10px;color:#A32D2D;opacity:.7;margin-top:2px">Ambulanza Italia</div>
+      </a>
     </div>
     <div class="section-label">Lehrkräfte</div>
     <div class="card" id="teachers-list"><div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Kontakte im Bearbeiten-Modus eintragen</div></div>
@@ -497,18 +510,29 @@
     <div style="height:8px"></div>
   </div>
 
+<!-- MEHR-MENÜ -->
+<div class="mehr-overlay" id="mehrOverlay" onclick="closeMehr()"></div>
+<div class="mehr-sheet" id="mehrSheet" style="display:none">
+  <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px"></div>
+  <div class="mehr-grid">
+    <div class="mehr-item" onclick="switchPageFromMehr('kontakte')"><span class="mehr-icon">📞</span>Kontakte</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('packliste')"><span class="mehr-icon">🎒</span>Packliste</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('regeln')"><span class="mehr-icon">📋</span>Regeln</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('karte')"><span class="mehr-icon">🗺️</span>Karte</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('sprache')"><span class="mehr-icon">🇮🇹</span>Italiano</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('feedback')"><span class="mehr-icon">💬</span>Mitmachen</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('benachrichtigungen')"><span class="mehr-icon">🔔</span>Mitteilungen</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('einstellungen')"><span class="mehr-icon">⚙️</span>Einstellungen</div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav>
   <button class="nav-item active" data-page="home" onclick="switchPage('home')"><span class="nav-icon">🏠</span><span class="nav-label">Start</span></button>
+  <button class="nav-item" data-page="zeitplan" onclick="switchPage('zeitplan')"><span class="nav-icon">📅</span><span class="nav-label">Programm</span></button>
   <button class="nav-item" data-page="reisefuehrer" onclick="switchPage('reisefuehrer')"><span class="nav-icon">🏛️</span><span class="nav-label">Reiseführer</span></button>
-  <button class="nav-item" data-page="zeitplan" onclick="switchPage('zeitplan')"><span class="nav-icon">📅</span><span class="nav-label">Zeitplan</span></button>
   <button class="nav-item" data-page="kontakte" onclick="switchPage('kontakte')"><span class="nav-icon">📞</span><span class="nav-label">Kontakte</span></button>
-  <button class="nav-item" data-page="packliste" onclick="switchPage('packliste')"><span class="nav-icon">🎒</span><span class="nav-label">Packliste</span></button>
-  <button class="nav-item" data-page="regeln" onclick="switchPage('regeln')"><span class="nav-icon">📋</span><span class="nav-label">Regeln</span></button>
-  <button class="nav-item" data-page="karte" onclick="switchPage('karte')"><span class="nav-icon">🗺️</span><span class="nav-label">Karte</span></button>
-  <button class="nav-item" data-page="sprache" onclick="switchPage('sprache')"><span class="nav-icon">🇮🇹</span><span class="nav-label">Italiano</span></button>
-  <button class="nav-item" data-page="feedback" onclick="switchPage('feedback')"><span class="nav-icon">💬</span><span class="nav-label">Mitmachen</span></button>
-  <button class="nav-item" data-page="einstellungen" onclick="switchPage('einstellungen')"><span class="nav-icon">⚙️</span><span class="nav-label">Einstellungen</span></button>
+  <button class="nav-item" id="nav-mehr" onclick="toggleMehr()"><span class="nav-icon">⋯</span><span class="nav-label">Mehr</span></button>
 </nav>
 
 <!-- DETAIL VIEW -->
@@ -588,11 +612,11 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
       desc: 'Das Kolosseum ist das größte je erbaute Amphitheater der Antike. Es fasste bis zu 80.000 Zuschauer.',
       details: 'Gebaut zwischen 70 und 80 n. Chr. unter den Kaisern Vespasian und Titus.\n\nTipp: Tickets unbedingt vorab online buchen.',
       tipp: 'Kombikarte mit dem Forum Romanum kaufen', adresse: 'Piazza del Colosseo, 1, 00184 Rom', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.076245!2d12.4913!3d41.8902!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f61b383a9d4d1%3A0xa840fd491ce4de1f!2sKolosseum!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde', autor: 'Frau Müller' },
-    { id: 2, emoji: '⛪', photo: null, category: 'Vatikan', title: 'Petersdom & Vatikan',
+    { id: 2, emoji: '⛪', photo: null, category: 'Kirchen', title: 'Petersdom & Vatikan',
       desc: 'Der Petersdom ist die größte Kirche der Welt und das Zentrum der katholischen Christenheit.',
       details: 'Die Basilika steht auf dem Petersplatz im Vatikan. Michelangelos Pietà und Berninis Baldachin sind Höhepunkte.',
       tipp: 'Knie und Schultern müssen bedeckt sein', adresse: 'Piazza San Pietro, 00120 Vatikanstadt', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.5!2d12.4534!3d41.9022!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f60839a671b29%3A0x3c886ac4c23d0b4!2sPetersdom!5e0!3m2!1sde!2sde!4v1700000000001!5m2!1sde!2sde', autor: 'Herr Schmidt' },
-    { id: 3, emoji: '⛲', photo: null, category: 'Barockrom', title: 'Trevi-Brunnen',
+    { id: 3, emoji: '⛲', photo: null, category: 'Barockes Rom', title: 'Trevi-Brunnen',
       desc: 'Der Trevi-Brunnen ist der größte Barockbrunnen Roms. Wer eine Münze hineinwirft, kehrt zurück.',
       details: '1762 von Nicola Salvi fertiggestellt. Im Zentrum steht Neptun auf einem Muschelwagen.',
       tipp: 'Am besten vor 8 Uhr morgens besuchen', adresse: 'Piazza di Trevi, 00187 Rom', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.2!2d12.4833!3d41.9009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f6054f697cc81%3A0x47e06d174de03b0f!2sTrevi-Brunnen!5e0!3m2!1sde!2sde!4v1700000000002!5m2!1sde!2sde', autor: 'Frau Müller' }
@@ -668,9 +692,32 @@ function renderAll() {
   renderEinstellungen();
 }
 
+// Kategorie → Farbe
+function getCategoryStyle(cat) {
+  const c = (cat||'').toLowerCase().trim();
+  if (c === 'barockes rom')      return 'background:#EEEDFE;color:#3C3489';
+  if (c === 'antikes rom')       return 'background:#FAEEDA;color:#633806';
+  if (c === 'modernes rom')      return 'background:#E6F1FB;color:#0C447C';
+  if (c === 'kirchen')           return 'background:#E1F5EE;color:#085041';
+  if (c === 'essen und trinken') return 'background:#EAF3DE;color:#27500A';
+  return 'background:var(--surface2);color:var(--text2)';
+}
+
 function renderHome() {
   document.getElementById('hero-meta').textContent = data.trip.dates + ' · ' + data.trip.klasse;
   document.getElementById('guide-count-home').textContent = data.guides.length + ' Einträge von Lehrkräften';
+
+  // Heute-Quickinfo in Programm-Karte
+  const hq = document.getElementById('heute-quick');
+  if (hq) {
+    const heute = new Date();
+    const dd = String(heute.getDate()).padStart(2,'0');
+    const mm = String(heute.getMonth()+1).padStart(2,'0');
+    const todayStr = dd+'.'+mm+'.';
+    const todayTag = data.zeitplan.find(t => t.tag.includes(todayStr));
+    hq.textContent = todayTag ? todayTag.tag.split('—')[1]?.trim() || 'Zeitplan ansehen' : 'Zeitplan ansehen';
+  }
+
   renderCountdown();
   renderHeute();
 }
@@ -688,7 +735,7 @@ function renderGuides() {
           : `<div class="guide-img-emoji">${g.emoji}</div>`}
       </div>
       <div class="guide-body" onclick="openDetail(${g.id})">
-        <div class="guide-category">${g.category}</div>
+        <div style="display:inline-block;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-bottom:6px;${getCategoryStyle(g.category)}">${g.category}</div>
         <div class="guide-title">${g.title}</div>
         <div class="guide-desc">${g.desc}</div>
         <div class="guide-meta">
@@ -704,24 +751,44 @@ function renderGuides() {
 }
 
 function renderZeitplan() {
+  // Heute automatisch aufklappen
+  if (typeof window._zeitplanOpen === 'undefined') {
+    const heute = new Date();
+    const dd = String(heute.getDate()).padStart(2,'0');
+    const mm = String(heute.getMonth()+1).padStart(2,'0');
+    const todayStr = dd+'.'+mm+'.';
+    const todayIdx = data.zeitplan.findIndex(t => t.tag.includes(todayStr));
+    window._zeitplanOpen = new Set(todayIdx >= 0 ? [todayIdx] : [0]);
+  }
   document.getElementById('zeitplan-content').innerHTML = data.zeitplan.map((day,di) => `
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-      <div class="day-chip" style="margin-bottom:0">${day.tag}</div>
-      ${adminMode ? `<button onclick="editDayTag(${di})" style="padding:3px 10px;border:1.5px solid var(--accent);border-radius:20px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️ Tag</button>
-      <button onclick="if(confirm('Tag löschen?')){data.zeitplan.splice(${di},1);save();renderZeitplan()}" style="padding:3px 8px;border:1.5px solid #fcd5d0;border-radius:20px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>` : ''}
-    </div>
-    <div class="timeline">
-      ${day.eintraege.map((e,ei) => `
-        <div class="timeline-item">
-          <div class="timeline-dot ${e.highlight?'highlight':''}"></div>
-          <div class="timeline-time">${e.time ? e.time+' Uhr' : ''}</div>
-          <div class="timeline-label">${e.label}</div>
-          ${e.sub ? `<div class="timeline-sub">${e.sub}</div>` : ''}
-          ${adminMode ? `<div style="display:flex;gap:6px;margin-top:6px">
-            <button onclick="editZeitplanEintrag(${di},${ei})" style="padding:4px 10px;border:1.5px solid var(--accent);border-radius:6px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️ Bearbeiten</button>
-            <button onclick="if(confirm('Eintrag löschen?')){data.zeitplan[${di}].eintraege.splice(${ei},1);if(!data.zeitplan[${di}].eintraege.length)data.zeitplan.splice(${di},1);save();renderZeitplan()}" style="padding:4px 8px;border:1.5px solid #fcd5d0;border-radius:6px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>
-          </div>` : ''}
-        </div>`).join('')}
+    <div style="border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden">
+      <div onclick="toggleZeitplanDay(${di})" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;background:${window._zeitplanOpen.has(di)?'var(--accent-light)':'var(--surface)'}">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:${window._zeitplanOpen.has(di)?'var(--accent)':'var(--surface2)'};color:${window._zeitplanOpen.has(di)?'white':'var(--text2)'}">${day.tag.split('—')[0].trim()}</span>
+          <span style="font-size:13px;color:var(--text2)">${day.tag.includes('—') ? day.tag.split('—')[1].trim() : ''}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${adminMode ? `<button onclick="event.stopPropagation();editDayTag(${di})" style="padding:3px 8px;border:1.5px solid var(--accent);border-radius:8px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️</button>
+          <button onclick="event.stopPropagation();if(confirm('Tag löschen?')){data.zeitplan.splice(${di},1);delete window._zeitplanOpen;save();renderZeitplan()}" style="padding:3px 8px;border:1.5px solid #fcd5d0;border-radius:8px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>` : ''}
+          <span style="font-size:18px;color:var(--text3);transition:transform .2s;${window._zeitplanOpen.has(di)?'transform:rotate(180deg)':''}">${window._zeitplanOpen.has(di)?'▲':'▼'}</span>
+        </div>
+      </div>
+      ${window._zeitplanOpen.has(di) ? `
+      <div style="border-top:1px solid var(--border);padding:12px 16px">
+        <div class="timeline">
+          ${day.eintraege.map((e,ei) => `
+            <div class="timeline-item">
+              <div class="timeline-dot ${e.highlight?'highlight':''}"></div>
+              <div class="timeline-time">${e.time ? e.time+' Uhr' : ''}</div>
+              <div class="timeline-label">${e.label}</div>
+              ${e.sub ? `<div class="timeline-sub">${e.sub}</div>` : ''}
+              ${adminMode ? `<div style="display:flex;gap:6px;margin-top:6px">
+                <button onclick="editZeitplanEintrag(${di},${ei})" style="padding:4px 10px;border:1.5px solid var(--accent);border-radius:6px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️</button>
+                <button onclick="if(confirm('Löschen?')){data.zeitplan[${di}].eintraege.splice(${ei},1);if(!data.zeitplan[${di}].eintraege.length)data.zeitplan.splice(${di},1);save();renderZeitplan()}" style="padding:4px 8px;border:1.5px solid #fcd5d0;border-radius:6px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>
+              </div>` : ''}
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
     </div>`).join('');
 }
 
@@ -870,18 +937,16 @@ function renderCountdown() {
   const diff = ziel - jetzt;
 
   if (diff <= 0) {
-    // Während der Fahrt
     const ende = new Date('2026-10-16T00:00:00');
     const tagDiff = Math.ceil((ende - jetzt) / 86400000);
     if (tagDiff > 0) {
-      box.innerHTML = `<div style="width:100%;background:var(--accent);border-radius:var(--radius);padding:14px 18px;color:white;display:flex;align-items:center;gap:12px">
-        <span style="font-size:28px">🏛️</span>
-        <div><div style="font-size:13px;opacity:.7;font-weight:500;letter-spacing:.05em;text-transform:uppercase">Ciao Roma!</div>
-        <div style="font-family:\'DM Serif Display\',serif;font-size:18px">Noch ${tagDiff} Tag${tagDiff===1?'':'e'} in Rom</div></div>
+      box.innerHTML = `<div style="width:100%;background:#1a1917;border-radius:var(--radius);padding:16px;color:white;text-align:center;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:90px;opacity:.04;pointer-events:none">🏛️</div>
+        <div style="font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:6px">Ciao Roma!</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px">Noch <span style="color:#d4a853">${tagDiff}</span> Tag${tagDiff===1?'':'e'} in Rom</div>
+        <div style="margin-top:10px;font-size:18px;letter-spacing:6px;opacity:.25">🏛️ 🌿 ⛲ 🏟️ ⛪</div>
       </div>`;
-    } else {
-      box.innerHTML = '';
-    }
+    } else { box.innerHTML = ''; }
     return;
   }
 
@@ -890,14 +955,20 @@ function renderCountdown() {
   const minuten = Math.floor((diff % 3600000) / 60000);
 
   const einheit = (val, label) => `
-    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 8px;text-align:center">
-      <div style="font-family:\'DM Serif Display\',serif;font-size:28px;color:var(--accent);line-height:1">${val}</div>
-      <div style="font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:4px">${label}</div>
+    <div style="flex:1;background:rgba(255,255,255,.1);border-radius:10px;padding:12px 8px;text-align:center">
+      <div style="font-family:'DM Serif Display',serif;font-size:28px;color:white;line-height:1">${val}</div>
+      <div style="font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:4px">${label}</div>
     </div>`;
 
-  box.innerHTML = einheit(tage,'Tage') + einheit(stunden,'Std.') + einheit(minuten,'Min.');
+  box.innerHTML = `<div style="width:100%;background:#1a1917;border-radius:var(--radius);padding:16px 16px 14px;overflow:hidden;position:relative">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:80px;opacity:.04;pointer-events:none;white-space:nowrap">ROMA</div>
+    <div style="font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:10px;text-align:center">Bis zur Abfahrt</div>
+    <div style="display:flex;gap:8px">
+      ${einheit(tage,'Tage')}${einheit(stunden,'Std.')}${einheit(minuten,'Min.')}
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:18px;letter-spacing:6px;opacity:.2">🏛️ 🌿 ⛲ 🏟️ ⛪</div>
+  </div>`;
 
-  // Jede Minute aktualisieren
   if (!box._timer) box._timer = setInterval(renderCountdown, 60000);
 }
 
@@ -1004,12 +1075,17 @@ function renderSprache() {
     <div class="section-label">${kat.kategorie}</div>
     <div class="card" style="padding:0;overflow:hidden">
       ${kat.eintraege.map((p,i) => `
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:11px 16px;border-bottom:${i<kat.eintraege.length-1?'1px solid var(--border)':'none'}">
-          <div>
-            <div style="font-size:15px;font-weight:500;color:var(--accent)">${p.it}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px">🔊 ${p.aussprache}</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:${i<kat.eintraege.length-1?'1px solid var(--border)':'none'}">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="font-size:15px;font-weight:500;color:var(--accent)">${p.it}</div>
+              <button onclick="speakIt('${p.it.replace(/'/g,"\'")}')"
+                style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0"
+                title="Aussprechen">🔊</button>
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;font-style:italic">${p.aussprache}</div>
           </div>
-          <div style="font-size:14px;color:var(--text2);padding-top:2px;text-align:right">${p.de}</div>
+          <div style="font-size:13px;color:var(--text2);text-align:right;min-width:100px">${p.de}</div>
         </div>`).join('')}
     </div>`).join('');
 }
@@ -1146,6 +1222,68 @@ function switchPage(id) {
 }
 
 // ════════════════════════════════════════════
+// MEHR-MENÜ
+// ════════════════════════════════════════════
+function toggleMehr() {
+  const sheet = document.getElementById('mehrSheet');
+  const overlay = document.getElementById('mehrOverlay');
+  const isOpen = sheet.style.display !== 'none';
+  sheet.style.display = isOpen ? 'none' : 'block';
+  overlay.classList.toggle('open', !isOpen);
+  document.getElementById('nav-mehr').classList.toggle('active', !isOpen);
+}
+
+function closeMehr() {
+  document.getElementById('mehrSheet').style.display = 'none';
+  document.getElementById('mehrOverlay').classList.remove('open');
+  document.getElementById('nav-mehr').classList.remove('active');
+}
+
+function switchPageFromMehr(id) {
+  closeMehr();
+  switchPage(id);
+}
+
+// ════════════════════════════════════════════
+// ZEITPLAN ACCORDION
+// ════════════════════════════════════════════
+function toggleZeitplanDay(di) {
+  if (!window._zeitplanOpen) window._zeitplanOpen = new Set();
+  if (window._zeitplanOpen.has(di)) {
+    window._zeitplanOpen.delete(di);
+  } else {
+    window._zeitplanOpen.add(di);
+  }
+  renderZeitplan();
+}
+
+// ════════════════════════════════════════════
+// TEXT-TO-SPEECH (Sprachführer)
+// ════════════════════════════════════════════
+function speakIt(text) {
+  if (!('speechSynthesis' in window)) {
+    alert('Text-to-Speech wird von diesem Browser nicht unterstützt.');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'it-IT';
+  utt.rate = 0.85;
+  utt.pitch = 1;
+  // Italienische Stimme bevorzugen
+  const voices = window.speechSynthesis.getVoices();
+  const itVoice = voices.find(v => v.lang.startsWith('it'));
+  if (itVoice) utt.voice = itVoice;
+  window.speechSynthesis.speak(utt);
+}
+
+// Stimmen vorladen (Chrome braucht das)
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.addEventListener('voiceschanged', () => window.speechSynthesis.getVoices());
+}
+
+// ════════════════════════════════════════════
 // DETAIL VIEW
 // ════════════════════════════════════════════
 function openDetail(id) {
@@ -1156,7 +1294,7 @@ function openDetail(id) {
     ${g.photo
       ? `<img src="${g.photo}" alt="${g.title}" style="width:100%;height:220px;object-fit:cover;border-radius:var(--radius);margin-bottom:16px">`
       : `<div style="font-size:60px;margin-bottom:16px;text-align:center">${g.emoji}</div>`}
-    <div style="font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px">${g.category}</div>
+    <div style="display:inline-block;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:10px;${getCategoryStyle(g.category)}">${g.category}</div>
     <h2>${g.title}</h2>
     <p>${g.desc}</p>
     ${g.details ? `<h3>Mehr erfahren</h3><p>${g.details.replace(/\n/g,'<br>')}</p>` : ''}
