@@ -55,9 +55,10 @@
     .nav-label { font-size: 9px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
 
     /* MAIN */
-    main { padding-top: calc(56px + 12px); padding-bottom: calc(var(--nav-h) + var(--safe-b) + 12px); min-height: 100dvh; }
-    .page { display: none; padding: 16px 16px 8px; animation: fadeIn .2s ease; }
+    main { padding-top: calc(56px + 4px); padding-bottom: calc(var(--nav-h) + var(--safe-b) + 12px); min-height: 100dvh; }
+    .page { display: none; padding: 12px 16px 8px; animation: fadeIn .2s ease; }
     .page.active { display: block; }
+    #page-einstellungen.active { padding-top: 0; }
     @keyframes fadeIn { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform: none; } }
 
     /* CARDS */
@@ -395,12 +396,13 @@
 </main>
 
   <!-- EINSTELLUNGEN -->
-  <div class="page" id="page-einstellungen" style="padding-top:8px">
+  <div class="page" id="page-einstellungen">
 
-    <!-- Header -->
-    <div style="margin-bottom:14px">
-      <div style="font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:2px">Einstellungen</div>
-      <div style="font-size:13px;color:var(--text3)">Persönliche App-Einstellungen</div>
+    <!-- Header-Block (kaschiert den Topbar-Abstand) -->
+    <div style="background:var(--accent);border-radius:var(--radius);padding:20px 20px 18px;margin-bottom:16px;margin-top:-12px;color:white;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.08;line-height:1">⚙️</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:3px">Einstellungen</div>
+      <div style="font-size:13px;opacity:.7" id="einst-klasse-header">Persönliche App-Einstellungen</div>
     </div>
 
     <!-- Klasse -->
@@ -1689,6 +1691,9 @@ function renderEinstellungen() {
   const myKlasse = localStorage.getItem('rom-klasse') || '';
   if (badge) badge.textContent = myKlasse || 'Nicht gewählt';
 
+  const headerSub = document.getElementById('einst-klasse-header');
+  if (headerSub) headerSub.textContent = myKlasse ? `Klasse ${myKlasse}` : 'Klasse noch nicht gewählt';
+
   if (grid) {
     grid.innerHTML = KLASSEN.map(k => {
       const active = k === myKlasse;
@@ -1869,12 +1874,12 @@ function applyUpdate() {
   window.location.reload();
 }
 
-renderAll();
-
 // ════════════════════════════════════════════
 // KLASSENABFRAGE beim ersten Start
 // ════════════════════════════════════════════
 const KLASSEN = ['5a','5b','5c','6a','6b','6c','7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2','Lehrkraft'];
+
+renderAll();
 
 function showKlassenModal() {
   const overlay = document.createElement('div');
