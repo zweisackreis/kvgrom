@@ -375,13 +375,6 @@
 
   <!-- FEEDBACK / MITMACHEN -->
   <div class="page" id="page-feedback">
-    <div class="push-banner" id="pushBanner">
-      <h3>🔔 Benachrichtigungen erlauben</h3>
-      <p>Erhalte Infos bei Programmänderungen direkt auf dein Handy.</p>
-      <button onclick="requestPush()">Erlauben</button>
-      <button class="sec" onclick="dismissPush()">Nicht jetzt</button>
-    </div>
-
     <div class="section-label">Abstimmungen</div>
     <div id="polls-list"></div>
 
@@ -1186,25 +1179,47 @@ function initFirebase() {
       const n = { title: payload.notification.title, body: payload.notification.body, time: new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}), read: false };
       data.notifications.push(n); save(); renderNotifications();
     });
-    // Show push banner on feedback page if not yet subscribed
+    // Automatisch anfragen wenn noch nicht entschieden
     if (Notification.permission === 'default') {
-      document.getElementById('pushBanner').classList.add('show');
+      // Kurz warten damit die App erst geladen ist
+      setTimeout(autoRequestPush, 2000);
     }
   } catch(e) { console.log('Firebase not configured:', e); }
 }
 
 async function requestPush() {
-  if (!fbMessaging) { alert('Firebase noch nicht konfiguriert. Siehe ANLEITUNG.md.'); return; }
+  if (!fbMessaging) {
+    // Firebase nicht konfiguriert — trotzdem Browser-Permission anfragen
+    try {
+      const perm = await Notification.requestPermission();
+      localStorage.setItem('rom-push-asked', '1');
+      renderEinstellungen();
+      return perm;
+    } catch(e) {}
+    return;
+  }
   try {
     const token = await fbMessaging.getToken({ vapidKey: FIREBASE_VAPID_KEY });
-    console.log('FCM Token:', token); // In der Konsole kopieren für Server-Nutzung
-    dismissPush();
-    alert('Benachrichtigungen aktiviert! ✓');
-  } catch(e) { alert('Benachrichtigungen konnten nicht aktiviert werden.'); }
+    localStorage.setItem('rom-push-asked', '1');
+    console.log('FCM Token:', token);
+    renderEinstellungen();
+  } catch(e) {
+    // Auch ohne Token die Permission speichern
+    localStorage.setItem('rom-push-asked', '1');
+    renderEinstellungen();
+  }
+}
+
+async function autoRequestPush() {
+  // Nur automatisch anfragen wenn noch nie gefragt wurde
+  if (localStorage.getItem('rom-push-asked')) return;
+  if (Notification.permission !== 'default') return;
+  await requestPush();
 }
 
 function dismissPush() {
-  document.getElementById('pushBanner').classList.remove('show');
+  // Legacy — wird nicht mehr aktiv genutzt
+  localStorage.setItem('rom-push-asked', '1');
 }
 
 // ════════════════════════════════════════════
@@ -1858,19 +1873,36 @@ function renderEinstellungen() {
   // Push-Status
   const pushLbl = document.getElementById('push-status-label');
   const pushBtn = document.getElementById('push-toggle-btn');
+  const pushMuted = localStorage.getItem('rom-push-muted') === '1';
   if (pushLbl && pushBtn) {
-    if (Notification.permission === 'granted') {
-      pushLbl.textContent = '✓ Aktiviert';
-      pushLbl.style.color = 'var(--green)';
-      pushBtn.textContent = 'Aktiviert';
-      pushBtn.style.color = 'var(--green)';
-      pushBtn.style.borderColor = 'var(--green)';
-    } else if (Notification.permission === 'denied') {
-      pushLbl.textContent = 'Blockiert — in Browser-Einstellungen erlauben';
+    if (Notification.permission === 'denied') {
+      pushLbl.textContent = '🚫 Blockiert — in Browser-Einstellungen erlauben';
+      pushLbl.style.color = 'var(--red)';
       pushBtn.textContent = 'Blockiert';
-    } else {
-      pushLbl.textContent = 'Noch nicht aktiviert';
+      pushBtn.style.color = 'var(--text3)';
+      pushBtn.style.borderColor = 'var(--border)';
+      pushBtn.onclick = null;
+    } else if (Notification.permission === 'granted' && !pushMuted) {
+      pushLbl.textContent = '✓ Aktiviert — du erhältst Mitteilungen';
+      pushLbl.style.color = 'var(--green)';
+      pushBtn.textContent = 'Deaktivieren';
+      pushBtn.style.color = 'var(--red)';
+      pushBtn.style.borderColor = '#fcd5d0';
+      pushBtn.onclick = () => togglePushFromSettings();
+    } else if (pushMuted) {
+      pushLbl.textContent = 'Stummgeschaltet — keine Benachrichtigungen';
+      pushLbl.style.color = 'var(--text3)';
       pushBtn.textContent = 'Aktivieren';
+      pushBtn.style.color = 'var(--accent)';
+      pushBtn.style.borderColor = 'var(--accent)';
+      pushBtn.onclick = () => togglePushFromSettings();
+    } else {
+      pushLbl.textContent = 'Wird beim Start automatisch aktiviert';
+      pushLbl.style.color = 'var(--text3)';
+      pushBtn.textContent = 'Jetzt aktivieren';
+      pushBtn.style.color = 'var(--accent)';
+      pushBtn.style.borderColor = 'var(--accent)';
+      pushBtn.onclick = () => togglePushFromSettings();
     }
   }
 
@@ -1955,7 +1987,22 @@ function applyFontSize(pct) {
 }
 
 function togglePushFromSettings() {
-  if (Notification.permission === 'granted') return;
+  if (Notification.permission === 'denied') {
+    alert('Push-Benachrichtigungen sind im Browser blockiert.\nBitte in den Browser-Einstellungen erlauben.');
+    return;
+  }
+  const muted = localStorage.getItem('rom-push-muted') === '1';
+  if (Notification.permission === 'granted') {
+    // Stummschalten / Reaktivieren
+    if (muted) {
+      localStorage.removeItem('rom-push-muted');
+    } else {
+      localStorage.setItem('rom-push-muted', '1');
+    }
+    renderEinstellungen();
+    return;
+  }
+  // Noch nicht erteilt — anfragen
   requestPush();
   setTimeout(renderEinstellungen, 1000);
 }
