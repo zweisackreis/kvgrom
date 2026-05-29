@@ -1787,9 +1787,33 @@ function toggleDarkFromSettings() {
 function changeFont(dir) {
   const current = parseInt(localStorage.getItem('rom-fontsize') || '100');
   const next = Math.min(130, Math.max(80, current + dir * 10));
-  localStorage.setItem('rom-fontsize', next);
-  document.documentElement.style.fontSize = next + '%';
+  localStorage.setItem('rom-fontsize', String(next));
+  applyFontSize(next);
   renderEinstellungen();
+}
+
+function applyFontSize(pct) {
+  const scale = pct / 100;
+  // CSS-Variable setzen, die alle rem-Werte skaliert
+  document.documentElement.style.setProperty('--font-scale', scale);
+  // Direkt die Body-Schriftgröße setzen (beeinflusst em-basierte Elemente)
+  document.body.style.fontSize = pct + '%';
+  // Zusätzlich spezifische Textelemente anpassen
+  const style = document.getElementById('font-scale-style') || (() => {
+    const s = document.createElement('style');
+    s.id = 'font-scale-style';
+    document.head.appendChild(s);
+    return s;
+  })();
+  style.textContent = `
+    .page p, .page div, .timeline-label, .timeline-sub,
+    .contact-name, .contact-role, .pack-label, .rule-text,
+    .guide-title, .guide-desc, .guide-category,
+    .card-title, .nav-label, .section-label,
+    .notif-title, .notif-body, .step-text {
+      font-size: ${pct === 100 ? '' : `calc(1em * ${scale})`} !important;
+    }
+  `;
 }
 
 function togglePushFromSettings() {
@@ -1815,8 +1839,8 @@ function resetKlasse() {
 
 // Schriftgröße beim Start anwenden
 (function() {
-  const fs = localStorage.getItem('rom-fontsize');
-  if (fs) document.documentElement.style.fontSize = fs + '%';
+  const fs = parseInt(localStorage.getItem('rom-fontsize') || '100');
+  if (fs !== 100) applyFontSize(fs);
 })();
 
 // ── DARK MODE ──
