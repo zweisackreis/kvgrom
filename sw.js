@@ -1,5 +1,5 @@
 // Cache-Version — wird bei jedem Update automatisch hochgezählt
-const CACHE = 'kvgrom-v20260603-1007';
+const CACHE = 'kvgrom-v20260606-1414';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png', './hero-bg.jpg'];
 
 // Installation: neuen Cache befüllen

@@ -205,7 +205,8 @@
     <button class="notif-btn" onclick="switchPage('benachrichtigungen')" title="Benachrichtigungen">
       🔔<span class="notif-dot" id="notifDot"></span>
     </button>
-    <button class="admin-btn" onclick="openAdmin()">✏️ Bearbeiten</button>
+    <button class="notif-btn" onclick="manualRefresh()" title="App aktualisieren" style="font-size:18px">🔄</button>
+    <button class="admin-btn" onclick="openAdmin()">👤 Lehrer</button>
   </div>
 </header>
 
@@ -702,7 +703,9 @@ function getCategoryStyle(cat) {
 }
 
 function renderHome() {
-  document.getElementById('hero-meta').textContent = data.trip.dates + ' · ' + data.trip.klasse;
+  const myKlasse = localStorage.getItem('rom-klasse');
+  const klasseText = myKlasse ? ' · ' + (myKlasse === 'Lehrkraft' ? '👤 Lehrkraft' : 'Klasse ' + myKlasse) : '';
+  document.getElementById('hero-meta').textContent = data.trip.dates + klasseText;
   document.getElementById('guide-count-home').textContent = data.guides.length + ' Einträge von Lehrkräften';
 
   // Heute-Quickinfo in Programm-Karte
@@ -916,15 +919,42 @@ function saveTreffpunkt(aktiv) {
     const info    = document.getElementById('f-tinfo')?.value.trim();
     const klasse  = document.getElementById('f-tklasse')?.value || 'alle';
     if (!ort) { alert('Bitte einen Ort eingeben.'); return; }
-    if (!data.treffpunkte) data.treffpunkte = [];
-    data.treffpunkte.push({ id: Date.now(), ort, uhrzeit, info, klasse });
+
+    if (fbDb) {
+      // In Firestore speichern → alle Geräte sehen den Treffpunkt sofort
+      fbDb.collection('treffpunkte').add({
+        ort, uhrzeit, info, klasse, aktiv: true,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        closeAdminOverlay();
+      }).catch(() => {
+        alert('Fehler beim Speichern. Bitte erneut versuchen.');
+      });
+    } else {
+      // Fallback: lokal
+      if (!data.treffpunkte) data.treffpunkte = [];
+      data.treffpunkte.push({ id: Date.now(), ort, uhrzeit, info, klasse });
+      save(); renderTreffpunkt(); closeAdminOverlay();
+    }
+  } else {
+    closeAdminOverlay();
   }
-  save(); renderTreffpunkt(); closeAdminOverlay();
 }
 
 function deleteTreffpunkt(id) {
-  data.treffpunkte = (data.treffpunkte || []).filter(t => t.id !== id);
-  save(); renderTreffpunkt(); showForm('treffpunkt');
+  if (fbDb) {
+    // Aus Firestore löschen → verschwindet sofort auf allen Geräten
+    fbDb.collection('treffpunkte').doc(String(id)).delete()
+      .then(() => showForm('treffpunkt'))
+      .catch(() => {
+        // Fallback: lokal löschen
+        data.treffpunkte = (data.treffpunkte || []).filter(t => t.id !== id);
+        save(); renderTreffpunkt(); showForm('treffpunkt');
+      });
+  } else {
+    data.treffpunkte = (data.treffpunkte || []).filter(t => t.id !== id);
+    save(); renderTreffpunkt(); showForm('treffpunkt');
+  }
 }
 
 function renderCountdown() {
@@ -1174,19 +1204,63 @@ function renderFormLinks() {
 // PUSH (Firebase)
 // ════════════════════════════════════════════
 let fbMessaging = null;
+let fbDb = null;
 
 function initFirebase() {
-  // Firebase ist konfiguriert
   try {
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+
+    // ── Firestore: Echtzeit-Datenbank für Mitteilungen & Treffpunkt ──
+    fbDb = firebase.firestore();
+
+    // Mitteilungen in Echtzeit empfangen
+    const myKlasse = localStorage.getItem('rom-klasse') || 'unbekannt';
+    fbDb.collection('mitteilungen')
+      .orderBy('timestamp', 'desc')
+      .limit(50)
+      .onSnapshot(snapshot => {
+        const fbNotifs = [];
+        snapshot.forEach(doc => {
+          const n = doc.data();
+          // Filter: für diese Klasse relevant?
+          const ziel = n.klasse || 'alle';
+          if (ziel === 'alle' || myKlasse === 'Lehrkraft') {
+            fbNotifs.push({ id: doc.id, title: n.title, body: n.body, time: n.timeStr || '', read: (n.readBy || []).includes(myKlasse), klasse: ziel, fromFirestore: true });
+          } else if (ziel === myKlasse) {
+            fbNotifs.push({ id: doc.id, title: n.title, body: n.body, time: n.timeStr || '', read: (n.readBy || []).includes(myKlasse), klasse: ziel, fromFirestore: true });
+          } else if (ziel === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) {
+            fbNotifs.push({ id: doc.id, title: n.title, body: n.body, time: n.timeStr || '', read: (n.readBy || []).includes(myKlasse), klasse: ziel, fromFirestore: true });
+          } else if (ziel === 'Klassen 8-Q2' && ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'].includes(myKlasse)) {
+            fbNotifs.push({ id: doc.id, title: n.title, body: n.body, time: n.timeStr || '', read: (n.readBy || []).includes(myKlasse), klasse: ziel, fromFirestore: true });
+          }
+        });
+        // Firestore-Mitteilungen ersetzen lokale
+        data.notifications = fbNotifs;
+        renderNotifications();
+      }, err => {
+        // Firestore nicht verfügbar -> lokale Mitteilungen behalten
+      });
+
+    // Treffpunkte in Echtzeit empfangen
+    fbDb.collection('treffpunkte')
+      .onSnapshot(snapshot => {
+        const tps = [];
+        snapshot.forEach(doc => {
+          const t = doc.data();
+          if (t.aktiv !== false) tps.push({ ...t, id: doc.id });
+        });
+        data.treffpunkte = tps;
+        renderTreffpunkt();
+      }, err => {});
+
+    // FCM Messaging
     fbMessaging = firebase.messaging();
     fbMessaging.onMessage(payload => {
-      const n = { title: payload.notification.title, body: payload.notification.body, time: new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}), read: false };
-      data.notifications.push(n); save(); renderNotifications();
+      // Wird bereits via Firestore-Snapshot angezeigt
     });
-    // Automatisch anfragen wenn noch nicht entschieden
+
+    // Auto-Push-Anfrage
     if (Notification.permission === 'default') {
-      // Kurz warten damit die App erst geladen ist
       setTimeout(autoRequestPush, 2000);
     }
   } catch(e) { /* Firebase not configured */ }
@@ -1785,10 +1859,26 @@ function saveNotification() {
   const klasse = document.getElementById('f-pklasse')?.value || 'alle';
   if (!title || !body) { alert('Bitte Titel und Nachricht eingeben.'); return; }
   const now = new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-  data.notifications.push({ title, body, time: now, read: false, klasse });
-  save(); renderNotifications();
   const empf = klasse === 'alle' ? 'alle Schüler/innen' : `Klasse ${klasse}`;
-  alert(`Mitteilung gespeichert ✓\nEmpfänger: ${empf}`);
+
+  if (fbDb) {
+    // In Firestore speichern → alle Geräte empfangen automatisch
+    fbDb.collection('mitteilungen').add({
+      title, body, klasse,
+      timeStr: now,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      readBy: []
+    }).then(() => {
+      alert(`Mitteilung gesendet ✓\nEmpfänger: ${empf}`);
+    }).catch(e => {
+      alert('Fehler beim Senden. Bitte erneut versuchen.');
+    });
+  } else {
+    // Fallback: lokal (ohne Firebase)
+    data.notifications.push({ title, body, time: now, read: false, klasse });
+    save(); renderNotifications();
+    alert(`Mitteilung gespeichert ✓\nEmpfänger: ${empf}\n\n⚠️ Firebase nicht verbunden — andere Geräte sehen diese Mitteilung nicht!`);
+  }
   closeAdminOverlay();
 }
 
@@ -1935,10 +2025,11 @@ function renderEinstellungen() {
 
 function selectKlasseEinst(klasse) {
   localStorage.setItem('rom-klasse', klasse);
+  renderHome(); // Hero sofort aktualisieren
   renderEinstellungen();
   renderTreffpunkt();
   renderNotifications();
-  // Kurzes visuelles Feedback
+  if (fbDb) initFirebase(); // Firestore-Listener mit neuer Klasse neu abonnieren
   const badge = document.getElementById('einst-klasse-badge');
   if (badge) {
     badge.style.background = 'var(--green-light)';
@@ -2086,6 +2177,12 @@ function applyUpdate() {
   window.location.reload();
 }
 
+function manualRefresh() {
+  const btn = document.querySelector('.notif-btn[onclick="manualRefresh()"]');
+  if (btn) { btn.style.transform = 'rotate(360deg)'; btn.style.transition = 'transform .5s'; setTimeout(() => { btn.style.transform = ''; btn.style.transition = ''; }, 500); }
+  window.location.reload();
+}
+
 // ════════════════════════════════════════════
 // KLASSENABFRAGE beim ersten Start
 // ════════════════════════════════════════════
@@ -2117,6 +2214,10 @@ function selectKlasse(klasse) {
   localStorage.setItem('rom-klasse', klasse);
   const overlay = document.getElementById('klassen-overlay');
   if (overlay) { overlay.style.opacity='0'; overlay.style.transition='opacity .2s'; setTimeout(()=>overlay.remove(), 200); }
+  // Hero sofort aktualisieren
+  renderHome();
+  // Firestore-Listener mit neuer Klasse neu abonnieren
+  if (fbDb) initFirebase();
 }
 
 // Nur beim ersten Öffnen zeigen
@@ -2128,6 +2229,7 @@ if (!localStorage.getItem('rom-klasse')) {
 <!-- Firebase SDKs — müssen VOR initFirebase() geladen werden -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
   initFirebase();
 </script>
