@@ -253,6 +253,7 @@
 
     <!-- TREFFPUNKT -->
     <div id="treffpunkt-box" style="margin-bottom:4px"></div>
+    <div id="notif-start-box" style="margin-bottom:4px"></div>
 
     <!-- HEUTE IM PROGRAMM -->
     <div id="heute-box" style="margin-bottom:4px"></div>
@@ -284,6 +285,18 @@
         <div style="font-size:11px;color:#534AB7;margin-top:2px">Abstimmungen & Feedback</div>
       </div>
     </div>
+
+    <!-- Instagram -->
+    <a href="https://www.instagram.com/kvggym_mettingen/" target="_blank"
+       style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7);border-radius:var(--radius);padding:14px 18px;text-decoration:none;margin-top:10px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.1;line-height:1">📸</div>
+      <span style="font-size:26px">📸</span>
+      <div>
+        <div style="font-size:14px;font-weight:500;color:white">KvG auf Instagram</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:2px">@kvggym_mettingen</div>
+      </div>
+      <span style="margin-left:auto;font-size:20px;color:rgba(255,255,255,.7)">→</span>
+    </a>
   </div>
 
   <!-- REISEFÜHRER -->
@@ -540,6 +553,10 @@
       <div class="sheet-title">Bearbeiten-Modus</div>
       <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Nur für Lehrkräfte — Passwort eingeben</p>
       <div class="input-group"><input type="password" id="pwInput" placeholder="Passwort" onkeydown="if(event.key==='Enter')checkPw()"></div>
+      <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);margin-bottom:16px;cursor:pointer">
+        <input type="checkbox" id="stayLoggedIn" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+        Eingeloggt bleiben (2 Tage)
+      </label>
       <button class="btn-primary" onclick="checkPw()">Bestätigen</button>
       <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>
       <p id="pwError" style="color:var(--red);font-size:12px;margin-top:10px;display:none">Falsches Passwort</p>
@@ -678,6 +695,11 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
     save();
   }
   if (!data.treffpunkte) { data.treffpunkte = []; save(); }
+  // Abgelaufene Treffpunkte bereinigen
+  const nowClean = Date.now();
+  const before = (data.treffpunkte || []).length;
+  data.treffpunkte = (data.treffpunkte || []).filter(t => !t.expiry || nowClean <= t.expiry);
+  if (data.treffpunkte.length < before) save();
 })();
 
 // ════════════════════════════════════════════
@@ -687,7 +709,7 @@ function renderAll() {
   renderHome(); renderGuides(); renderZeitplan(); renderTeachers();
   renderHotel(); renderRules(); renderPack(); renderSights();
   renderPolls(); renderNotifications(); renderFormLinks();
-  renderCountdown(); renderTreffpunkt(); renderHeute(); renderSprache();
+  renderCountdown(); renderTreffpunkt(); renderNotifBanner(); renderHeute(); renderSprache();
   renderEinstellungen();
 }
 
@@ -720,6 +742,8 @@ function renderHome() {
   }
 
   renderCountdown();
+  renderTreffpunkt();
+  renderNotifBanner();
   renderHeute();
 }
 
@@ -881,6 +905,55 @@ function renderSights() {
 // ════════════════════════════════════════════
 // TREFFPUNKT
 // ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// MITTEILUNGS-BANNER AUF STARTSEITE
+// ════════════════════════════════════════════
+function renderNotifBanner() {
+  const box = document.getElementById('notif-start-box');
+  if (!box) return;
+
+  const myKlasse = localStorage.getItem('rom-klasse') || '';
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs') || '[]');
+
+  // Neueste ungelesene Mitteilung für meine Klasse finden
+  const visible = (data.notifications || []).filter(n => {
+    if (dismissed.includes(n.time + n.title)) return false;
+    const ziel = n.klasse || 'alle';
+    if (ziel === 'alle') return true;
+    if (myKlasse === 'Lehrkraft') return true;
+    if (ziel === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) return true;
+    if (ziel === 'Klassen 8-Q2' && ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'].includes(myKlasse)) return true;
+    return ziel === myKlasse;
+  });
+
+  if (!visible.length) { box.innerHTML = ''; return; }
+
+  // Neueste anzeigen
+  const n = visible[visible.length - 1];
+  const id = n.time + n.title;
+  box.innerHTML = `
+    <div style="background:#1c3d2a;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.08;line-height:1">🔔</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px">Mitteilung · ${n.time}</div>
+          <div style="font-size:15px;font-weight:500;color:white;margin-bottom:3px">${n.title}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5">${n.body}</div>
+        </div>
+        <button onclick="dismissNotifBanner('${id.replace(/'/g,"\\'")}'); event.stopPropagation()"
+          style="background:rgba(255,255,255,.15);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;line-height:1">×</button>
+      </div>
+      ${visible.length > 1 ? `<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">+${visible.length-1} weitere Mitteilung${visible.length>2?'en':''}</div>` : ''}
+    </div>`;
+}
+
+function dismissNotifBanner(id) {
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs') || '[]');
+  if (!dismissed.includes(id)) dismissed.push(id);
+  localStorage.setItem('rom-dismissed-notifs', JSON.stringify(dismissed));
+  renderNotifBanner();
+}
+
 function renderTreffpunkt() {
   const box = document.getElementById('treffpunkt-box');
   if (!box) return;
@@ -888,8 +961,10 @@ function renderTreffpunkt() {
   const isLehrer = myKlasse === 'Lehrkraft';
 
   // Treffpunkte die für meine Klasse gelten
+  const now = Date.now();
   const sichtbar = (data.treffpunkte || []).filter(t => {
     if (!t.ort) return false;
+    if (t.expiry && now > t.expiry) return false; // abgelaufen
     if (t.klasse === 'alle') return true;
     if (isLehrer) return true;
     if (t.klasse === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) return true;
@@ -918,12 +993,13 @@ function saveTreffpunkt(aktiv) {
     const uhrzeit = document.getElementById('f-tuhr')?.value.trim();
     const info    = document.getElementById('f-tinfo')?.value.trim();
     const klasse  = document.getElementById('f-tklasse')?.value || 'alle';
+    const expiryVal = document.getElementById('f-texpiry')?.value;
+    const expiry = expiryVal ? new Date(expiryVal).getTime() : null;
     if (!ort) { alert('Bitte einen Ort eingeben.'); return; }
 
     if (fbDb) {
-      // In Firestore speichern → alle Geräte sehen den Treffpunkt sofort
       fbDb.collection('treffpunkte').add({
-        ort, uhrzeit, info, klasse, aktiv: true,
+        ort, uhrzeit, info, klasse, aktiv: true, expiry: expiry || null,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
         closeAdminOverlay();
@@ -931,9 +1007,8 @@ function saveTreffpunkt(aktiv) {
         alert('Fehler beim Speichern. Bitte erneut versuchen.');
       });
     } else {
-      // Fallback: lokal
       if (!data.treffpunkte) data.treffpunkte = [];
-      data.treffpunkte.push({ id: Date.now(), ort, uhrzeit, info, klasse });
+      data.treffpunkte.push({ id: Date.now(), ort, uhrzeit, info, klasse, expiry: expiry || null });
       save(); renderTreffpunkt(); closeAdminOverlay();
     }
   } else {
@@ -1411,6 +1486,16 @@ function closeDetail() { document.getElementById('detail-view').classList.remove
 // ADMIN
 // ════════════════════════════════════════════
 function openAdmin() {
+  const exp = localStorage.getItem('rom-admin-session');
+  if (exp && Date.now() < parseInt(exp)) {
+    // Session noch gültig — direkt ins Menü
+    document.getElementById('adminOverlay').classList.add('open');
+    document.getElementById('pwScreen').style.display='none';
+    document.getElementById('adminMenu').style.display='block';
+    document.getElementById('formArea').style.display='none';
+    if (!adminMode) activateAdmin();
+    return;
+  }
   document.getElementById('adminOverlay').classList.add('open');
   document.getElementById('pwScreen').style.display='block';
   document.getElementById('adminMenu').style.display='none';
@@ -1421,15 +1506,34 @@ function openAdmin() {
 function closeAdminOverlay() { document.getElementById('adminOverlay').classList.remove('open'); }
 function checkPw() {
   if (document.getElementById('pwInput').value === ADMIN_PW) {
+    const stay = document.getElementById('stayLoggedIn')?.checked;
+    if (stay) {
+      const expires = Date.now() + 2 * 24 * 60 * 60 * 1000; // 2 Tage
+      localStorage.setItem('rom-admin-session', expires);
+    }
+    activateAdmin();
+  } else { document.getElementById('pwError').style.display='block'; }
+}
+
+function activateAdmin() {
+  adminMode = true;
+  document.getElementById('pwScreen').style.display='none';
+  document.getElementById('adminMenu').style.display='block';
+  document.getElementById('adminToggleBar').style.display='flex';
+  renderAll();
+}
+
+function checkAdminSession() {
+  const exp = localStorage.getItem('rom-admin-session');
+  if (exp && Date.now() < parseInt(exp)) {
     adminMode = true;
-    document.getElementById('pwScreen').style.display='none';
-    document.getElementById('adminMenu').style.display='block';
     document.getElementById('adminToggleBar').style.display='flex';
     renderAll();
-  } else { document.getElementById('pwError').style.display='block'; }
+  }
 }
 function exitAdmin() {
   adminMode = false;
+  localStorage.removeItem('rom-admin-session');
   document.getElementById('adminToggleBar').style.display='none';
   closeAdminOverlay();
   renderAll();
@@ -1508,7 +1612,7 @@ function showForm(type) {
             <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:var(--surface)">
               <div style="flex:1">
                 <div style="font-size:13px;font-weight:500">${t.ort}</div>
-                <div style="font-size:11px;color:var(--text3)">${t.uhrzeit ? t.uhrzeit+' · ' : ''}${t.klasse === 'alle' ? 'Alle' : t.klasse}</div>
+                <div style="font-size:11px;color:var(--text3)">${t.uhrzeit ? t.uhrzeit+' · ' : ''}${t.klasse === 'alle' ? 'Alle' : t.klasse}${t.expiry ? ' · läuft ab '+new Date(t.expiry).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : ''}</div>
               </div>
               <button onclick="deleteTreffpunkt(${t.id})" style="padding:5px 10px;border:1px solid #fcd5d0;border-radius:8px;background:#fdf3f2;color:#9b2a1a;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">🗑</button>
             </div>`).join('')}
@@ -1536,6 +1640,11 @@ function showForm(type) {
       <div class="input-group"><label>Ort / Beschreibung</label><input id="f-tort" placeholder="z.B. Eingang Kolosseum, Nordseite"></div>
       <div class="input-group"><label>Uhrzeit</label><input id="f-tuhr" placeholder="z.B. 14:30 Uhr"></div>
       <div class="input-group"><label>Zusatzinfo (optional)</label><input id="f-tinfo" placeholder="z.B. Bitte pünktlich sein!"></div>
+      <div class="input-group">
+        <label>Automatisch ablaufen am (optional)</label>
+        <input type="datetime-local" id="f-texpiry" style="font-size:13px">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px">Der Treffpunkt verschwindet automatisch nach diesem Zeitpunkt.</div>
+      </div>
       <button class="btn-primary" onclick="saveTreffpunkt(true)">📍 Treffpunkt hinzufügen</button>`,
 
     sight: `<div class="sheet-title">🗺️ Sehenswürdigkeit</div>
