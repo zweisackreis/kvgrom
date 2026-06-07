@@ -252,8 +252,8 @@
     <div id="countdown-box" style="display:flex;gap:10px;margin-bottom:16px"></div>
 
     <!-- TREFFPUNKT -->
-    <div id="treffpunkt-box" style="margin-bottom:4px"></div>
-    <div id="notif-start-box" style="margin-bottom:4px"></div>
+    <div id="treffpunkt-box" style="margin-bottom:4px;position:relative;z-index:10"></div>
+    <div id="notif-start-box" style="margin-bottom:4px;position:relative;z-index:10"></div>
 
     <!-- HEUTE IM PROGRAMM -->
     <div id="heute-box" style="margin-bottom:4px"></div>
@@ -929,18 +929,18 @@ function renderNotifBanner() {
 
   const n = visible[visible.length - 1];
   box.innerHTML = `
-    <div style="background:#1c3d2a;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.08;line-height:1">🔔</div>
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+    <div style="background:#1c3d2a;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;position:relative">
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.08;line-height:1;pointer-events:none;z-index:0">🔔</div>
+      <div style="position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
         <div style="flex:1">
           <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px">Mitteilung · ${n.time}</div>
           <div style="font-size:15px;font-weight:500;color:white;margin-bottom:3px">${n.title}</div>
           <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5">${n.body}</div>
         </div>
         <button data-idx="${n._idx}" onclick="dismissNotifBanner(parseInt(this.dataset.idx))"
-          style="background:rgba(255,255,255,.15);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
+          style="position:relative;z-index:2;background:rgba(255,255,255,.2);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation">×</button>
       </div>
-      ${visible.length > 1 ? `<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">+${visible.length-1} weitere Mitteilung${visible.length>2?'en':''}</div>` : ''}
+      ${visible.length > 1 ? `<div style="position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">+${visible.length-1} weitere Mitteilung${visible.length>2?'en':''}</div>` : ''}
     </div>`;
 }
 
@@ -981,18 +981,19 @@ function renderTreffpunkt() {
   if (!sichtbar.length) { box.innerHTML = ''; return; }
 
   box.innerHTML = sichtbar.map(t => `
-    <div style="background:var(--accent);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.1;line-height:1">📍</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+    <div style="background:var(--accent);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;position:relative">
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.1;line-height:1;pointer-events:none;z-index:0">📍</div>
+      <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <div style="display:flex;align-items:center;gap:8px">
           <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)">Treffpunkt</div>
           ${t.klasse !== 'alle' ? `<span style="font-size:10px;background:rgba(255,255,255,.2);color:white;padding:2px 8px;border-radius:10px">${t.klasse}</span>` : ''}
         </div>
-        <button onclick="dismissTreffpunkt(${t.id})" style="background:rgba(255,255,255,.2);border:none;color:white;width:26px;height:26px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0">×</button>
+        <button onclick="dismissTreffpunkt(${t.id})"
+          style="position:relative;z-index:2;background:rgba(255,255,255,.2);border:none;color:white;width:26px;height:26px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation">×</button>
       </div>
-      <div style="font-size:18px;font-weight:500;color:white;margin-bottom:4px">${t.ort}</div>
-      ${t.uhrzeit ? `<div style="font-size:14px;color:rgba(255,255,255,.8)">🕐 ${t.uhrzeit}</div>` : ''}
-      ${t.info    ? `<div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:6px">${t.info}</div>` : ''}
+      <div style="position:relative;z-index:1;font-size:18px;font-weight:500;color:white;margin-bottom:4px">${t.ort}</div>
+      ${t.uhrzeit ? `<div style="position:relative;z-index:1;font-size:14px;color:rgba(255,255,255,.8)">🕐 ${t.uhrzeit}</div>` : ''}
+      ${t.info    ? `<div style="position:relative;z-index:1;font-size:13px;color:rgba(255,255,255,.65);margin-top:6px">${t.info}</div>` : ''}
     </div>`).join('');
 }
 
