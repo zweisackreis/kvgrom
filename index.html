@@ -915,9 +915,8 @@ function renderNotifBanner() {
   const myKlasse = localStorage.getItem('rom-klasse') || '';
   const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs') || '[]');
 
-  // Neueste ungelesene Mitteilung für meine Klasse finden
-  const visible = (data.notifications || []).filter(n => {
-    if (dismissed.includes(n.time + n.title)) return false;
+  const visible = (data.notifications || []).map((n, i) => ({...n, _idx: i})).filter(n => {
+    if (dismissed.includes(n._idx)) return false;
     const ziel = n.klasse || 'alle';
     if (ziel === 'alle') return true;
     if (myKlasse === 'Lehrkraft') return true;
@@ -928,9 +927,7 @@ function renderNotifBanner() {
 
   if (!visible.length) { box.innerHTML = ''; return; }
 
-  // Neueste anzeigen
   const n = visible[visible.length - 1];
-  const id = n.time + n.title;
   box.innerHTML = `
     <div style="background:#1c3d2a;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden">
       <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.08;line-height:1">🔔</div>
@@ -940,18 +937,25 @@ function renderNotifBanner() {
           <div style="font-size:15px;font-weight:500;color:white;margin-bottom:3px">${n.title}</div>
           <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5">${n.body}</div>
         </div>
-        <button onclick="dismissNotifBanner('${id.replace(/'/g,"\\'")}'); event.stopPropagation()"
-          style="background:rgba(255,255,255,.15);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;line-height:1">×</button>
+        <button data-idx="${n._idx}" onclick="dismissNotifBanner(parseInt(this.dataset.idx))"
+          style="background:rgba(255,255,255,.15);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
       </div>
       ${visible.length > 1 ? `<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">+${visible.length-1} weitere Mitteilung${visible.length>2?'en':''}</div>` : ''}
     </div>`;
 }
 
-function dismissNotifBanner(id) {
+function dismissNotifBanner(idx) {
   const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs') || '[]');
-  if (!dismissed.includes(id)) dismissed.push(id);
+  if (!dismissed.includes(idx)) dismissed.push(idx);
   localStorage.setItem('rom-dismissed-notifs', JSON.stringify(dismissed));
   renderNotifBanner();
+}
+
+function dismissTreffpunkt(id) {
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-tp') || '[]');
+  if (!dismissed.includes(id)) dismissed.push(id);
+  localStorage.setItem('rom-dismissed-tp', JSON.stringify(dismissed));
+  renderTreffpunkt();
 }
 
 function renderTreffpunkt() {
@@ -962,9 +966,11 @@ function renderTreffpunkt() {
 
   // Treffpunkte die für meine Klasse gelten
   const now = Date.now();
+  const dismissedTp = JSON.parse(localStorage.getItem('rom-dismissed-tp') || '[]');
   const sichtbar = (data.treffpunkte || []).filter(t => {
     if (!t.ort) return false;
     if (t.expiry && now > t.expiry) return false; // abgelaufen
+    if (dismissedTp.includes(t.id)) return false;  // weggeklickt
     if (t.klasse === 'alle') return true;
     if (isLehrer) return true;
     if (t.klasse === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) return true;
@@ -978,8 +984,11 @@ function renderTreffpunkt() {
     <div style="background:var(--accent);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;position:relative;overflow:hidden">
       <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.1;line-height:1">📍</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)">Treffpunkt</div>
-        ${t.klasse !== 'alle' ? `<span style="font-size:10px;background:rgba(255,255,255,.2);color:white;padding:2px 8px;border-radius:10px">${t.klasse}</span>` : ''}
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)">Treffpunkt</div>
+          ${t.klasse !== 'alle' ? `<span style="font-size:10px;background:rgba(255,255,255,.2);color:white;padding:2px 8px;border-radius:10px">${t.klasse}</span>` : ''}
+        </div>
+        <button onclick="dismissTreffpunkt(${t.id})" style="background:rgba(255,255,255,.2);border:none;color:white;width:26px;height:26px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0">×</button>
       </div>
       <div style="font-size:18px;font-weight:500;color:white;margin-bottom:4px">${t.ort}</div>
       ${t.uhrzeit ? `<div style="font-size:14px;color:rgba(255,255,255,.8)">🕐 ${t.uhrzeit}</div>` : ''}
