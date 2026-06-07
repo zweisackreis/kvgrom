@@ -953,7 +953,8 @@ function dismissNotifBanner(idx) {
 
 function dismissTreffpunkt(id) {
   const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-tp') || '[]');
-  if (!dismissed.includes(id)) dismissed.push(id);
+  const sid = String(id);
+  if (!dismissed.includes(sid)) dismissed.push(sid);
   localStorage.setItem('rom-dismissed-tp', JSON.stringify(dismissed));
   renderTreffpunkt();
 }
@@ -970,7 +971,7 @@ function renderTreffpunkt() {
   const sichtbar = (data.treffpunkte || []).filter(t => {
     if (!t.ort) return false;
     if (t.expiry && now > t.expiry) return false; // abgelaufen
-    if (dismissedTp.includes(t.id)) return false;  // weggeklickt
+    if (dismissedTp.includes(String(t.id))) return false;  // weggeklickt
     if (t.klasse === 'alle') return true;
     if (isLehrer) return true;
     if (t.klasse === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) return true;
@@ -1027,17 +1028,17 @@ function saveTreffpunkt(aktiv) {
 }
 
 function deleteTreffpunkt(id) {
+  if (!confirm('Treffpunkt wirklich löschen?')) return;
+  const numId = Number(id);
   if (fbDb) {
-    // Aus Firestore löschen → verschwindet sofort auf allen Geräten
     fbDb.collection('treffpunkte').doc(String(id)).delete()
-      .then(() => showForm('treffpunkt'))
+      .then(() => { renderTreffpunkt(); showForm('treffpunkt'); })
       .catch(() => {
-        // Fallback: lokal löschen
-        data.treffpunkte = (data.treffpunkte || []).filter(t => t.id !== id);
+        data.treffpunkte = (data.treffpunkte || []).filter(t => Number(t.id) !== numId);
         save(); renderTreffpunkt(); showForm('treffpunkt');
       });
   } else {
-    data.treffpunkte = (data.treffpunkte || []).filter(t => t.id !== id);
+    data.treffpunkte = (data.treffpunkte || []).filter(t => Number(t.id) !== numId);
     save(); renderTreffpunkt(); showForm('treffpunkt');
   }
 }
