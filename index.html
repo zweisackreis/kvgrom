@@ -522,6 +522,7 @@
     <div class="mehr-item" onclick="switchPageFromMehr('sprache')"><span class="mehr-icon">🇮🇹</span>Italiano</div>
     <div class="mehr-item" onclick="switchPageFromMehr('feedback')"><span class="mehr-icon">💬</span>Mitmachen</div>
     <div class="mehr-item" onclick="switchPageFromMehr('benachrichtigungen')"><span class="mehr-icon">🔔</span>Mitteilungen</div>
+    <div class="mehr-item" onclick="openArcade()"><span class="mehr-icon">🕹️</span>Arcade</div>
     <div class="mehr-item" onclick="switchPageFromMehr('einstellungen')"><span class="mehr-icon">⚙️</span>Einstellungen</div>
   </div>
 </div>
@@ -911,9 +912,11 @@ function renderSights() {
 function renderNotifBanner() {
   const box = document.getElementById('notif-start-box');
   if (!box) return;
+
   const myKlasse = localStorage.getItem('rom-klasse') || '';
-  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
-  const visible = (data.notifications || []).map((n,i) => ({...n,_idx:i})).filter(n => {
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs') || '[]');
+
+  const visible = (data.notifications || []).map((n, i) => ({...n, _idx: i})).filter(n => {
     if (dismissed.includes(n._idx)) return false;
     const ziel = n.klasse || 'alle';
     if (ziel === 'alle') return true;
@@ -922,26 +925,31 @@ function renderNotifBanner() {
     if (ziel === 'Klassen 8-Q2' && ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'].includes(myKlasse)) return true;
     return ziel === myKlasse;
   });
+
   if (!visible.length) { box.innerHTML = ''; return; }
+
   const n = visible[visible.length - 1];
   box.innerHTML = `
     <div style="background:#1c3d2a;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;position:relative">
-      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.08;line-height:1;pointer-events:none">🔔</div>
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.08;line-height:1;pointer-events:none;z-index:0">🔔</div>
       <div style="position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
         <div style="flex:1">
           <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px">Mitteilung · ${n.time}</div>
           <div style="font-size:15px;font-weight:500;color:white;margin-bottom:3px">${n.title}</div>
           <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5">${n.body}</div>
         </div>
-        <button data-idx="${n._idx}"
+        <button data-idx="${n._idx}" onclick="dismissNotifBanner(parseInt(this.dataset.idx))"
           style="position:relative;z-index:2;background:rgba(255,255,255,.2);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation">×</button>
       </div>
       ${visible.length > 1 ? `<div style="position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">+${visible.length-1} weitere Mitteilung${visible.length>2?'en':''}</div>` : ''}
     </div>`;
-  box.querySelector('button[data-idx]').addEventListener('click', function() {
-    dismissNotifPermanent(parseInt(this.dataset.idx));
-    renderNotifBanner();
-  });
+}
+
+function dismissNotifBanner(idx) {
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs') || '[]');
+  if (!dismissed.includes(idx)) dismissed.push(idx);
+  localStorage.setItem('rom-dismissed-notifs', JSON.stringify(dismissed));
+  renderNotifBanner();
 }
 
 function dismissTreffpunkt(id) {
@@ -1245,86 +1253,39 @@ function vote(pollId, optIdx) {
 
 function renderNotifications() {
   const myKlasse = localStorage.getItem('rom-klasse') || 'alle';
-
-  // Read-State aus localStorage — überlebt Refreshes
-  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
-  const dismissedIds = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
-
-  const visible = data.notifications.filter((n, i) => {
-    if (dismissedIds.includes(i)) return false;
+  // Filter: show notification if it targets 'alle', or matches user's class, or user is Lehrkraft
+  const visible = data.notifications.filter(n => {
     const ziel = n.klasse || 'alle';
     if (ziel === 'alle') return true;
     if (myKlasse === 'Lehrkraft') return true;
+    // Group targets like 'Klassen 5-7'
     if (ziel === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) return true;
     if (ziel === 'Klassen 8-Q2' && ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'].includes(myKlasse)) return true;
     return ziel === myKlasse;
   });
-
-  // Glocken-Dot: ungelesen = nicht in readIds
-  const unread = visible.filter((n, i) => {
-    const origIdx = data.notifications.indexOf(n);
-    return !readIds.includes(origIdx);
-  }).length;
+  const unread = visible.filter(n=>!n.read).length;
   document.getElementById('notifDot').classList.toggle('show', unread > 0);
-
   const list = document.getElementById('notif-list');
   if (!visible.length) {
     list.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--text3);font-size:14px">Noch keine Mitteilungen für deine Klasse.</div>';
     return;
   }
-
-  list.innerHTML = visible.slice().reverse().map(n => {
+  list.innerHTML = visible.slice().reverse().map((n,i) => {
     const origIdx = data.notifications.indexOf(n);
-    const isRead = readIds.includes(origIdx);
-    const klasseTag = (n.klasse && n.klasse !== 'alle')
-      ? `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:var(--accent-light);color:var(--accent);margin-left:6px">${n.klasse}</span>`
-      : '';
-    return `<div class="notif-item" style="align-items:flex-start">
-      <div class="notif-dot-left ${isRead?'read':''}" style="margin-top:5px;cursor:pointer" onclick="markNotifRead(${origIdx})"></div>
-      <div style="flex:1;min-width:0">
+    const klasseTag = (n.klasse && n.klasse !== 'alle') ? `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:var(--accent-light);color:var(--accent);margin-left:6px">${n.klasse}</span>` : '';
+    return `<div class="notif-item" onclick="markRead(${origIdx})">
+      <div class="notif-dot-left ${n.read?'read':''}"></div>
+      <div>
         <div class="notif-title">${n.title}${klasseTag}</div>
         <div class="notif-body">${n.body}</div>
         <div class="notif-time">${n.time}</div>
       </div>
-      <button data-notifidx="${origIdx}"
-        style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0 0 0 8px;line-height:1;flex-shrink:0;touch-action:manipulation">×</button>
     </div>`;
   }).join('');
-
-  // Event-Delegation für ×-Buttons
-  list.querySelectorAll('button[data-notifidx]').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      dismissNotifPermanent(parseInt(this.dataset.notifidx));
-    });
-  });
-}
-
-function markNotifRead(idx) {
-  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
-  if (!readIds.includes(idx)) { readIds.push(idx); localStorage.setItem('rom-read-notifs', JSON.stringify(readIds)); }
-  renderNotifications();
-}
-
-function markAllNotifsRead(notifications) {
-  // Wird beim Öffnen der Benachrichtigungsseite aufgerufen
-  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
-  notifications.forEach((n, i) => { if (!readIds.includes(i)) readIds.push(i); });
-  localStorage.setItem('rom-read-notifs', JSON.stringify(readIds));
-}
-
-function dismissNotifPermanent(idx) {
-  // Mitteilung für dieses Gerät dauerhaft ausblenden
-  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
-  if (!dismissed.includes(idx)) { dismissed.push(idx); localStorage.setItem('rom-dismissed-notifs-v2', JSON.stringify(dismissed)); }
-  // Auch als gelesen markieren (damit Glocke stimmt)
-  markNotifRead(idx);
-  renderNotifications();
 }
 
 function markRead(idx) {
-  // Legacy — bleibt für Kompatibilität
-  markNotifRead(idx);
+  if (data.notifications[idx]) { data.notifications[idx].read = true; save(); renderNotifications(); }
 }
 
 function renderFormLinks() {
@@ -1442,8 +1403,7 @@ function switchPage(id) {
   document.getElementById('page-'+id)?.classList.add('active');
   document.querySelector(`[data-page="${id}"]`)?.classList.add('active');
   if (id === 'benachrichtigungen') {
-    markAllNotifsRead(data.notifications);
-    renderNotifications();
+    data.notifications.forEach(n=>n.read=true); save(); renderNotifications();
   }
   window.scrollTo(0,0);
 }
@@ -2399,6 +2359,876 @@ function selectKlasse(klasse) {
 // Nur beim ersten Öffnen zeigen
 if (!localStorage.getItem('rom-klasse')) {
   setTimeout(showKlassenModal, 600);
+}
+</script>
+
+<!-- ════════════════════════════════════════════════════════════
+     ARCADE OVERLAY
+     ════════════════════════════════════════════════════════════ -->
+<div id="arcadeOverlay" style="display:none;position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto;">
+
+  <!-- Topbar -->
+  <div style="position:sticky;top:0;z-index:10;background:rgba(250,250,248,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px">
+    <button onclick="closeArcade()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1">←</button>
+    <span style="font-size:15px;font-weight:500;flex:1">🕹 Winner's Arcade</span>
+  </div>
+
+  <!-- Passwort-Screen -->
+  <div id="arcadePwScreen" style="padding:32px 20px;max-width:400px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:52px;margin-bottom:12px">🏆</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px">Rom Challenge</div>
+      <div style="font-size:15px;font-weight:500;color:var(--text2)">Winner's Arcade</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:6px">KvG Schulfahrt Rom 2026</div>
+    </div>
+    <div style="margin-bottom:12px">
+      <input type="password" id="arcadePwInput" placeholder="Passwort eingeben…"
+        style="width:100%;padding:13px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;text-align:center;letter-spacing:2px"
+        onkeydown="if(event.key==='Enter')checkArcadePw()">
+    </div>
+    <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);margin-bottom:16px;cursor:pointer;justify-content:center">
+      <input type="checkbox" id="arcadeStayLoggedIn" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+      Eingeloggt bleiben
+    </label>
+    <button onclick="checkArcadePw()"
+      style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer">
+      Betreten
+    </button>
+    <p id="arcadePwError" style="color:var(--red);font-size:12px;margin-top:10px;text-align:center;display:none">Falsches Passwort</p>
+  </div>
+
+  <!-- Arcade Inhalt (nach Login) -->
+  <div id="arcadeContent" style="display:none;padding:12px 16px 32px">
+
+    <style>
+    #arcadeContent * { box-sizing: border-box; }
+    .arc-section { font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin:16px 0 8px }
+    .arc-game-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:8px }
+    .arc-card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s }
+    .arc-card:hover,.arc-card:active { background:var(--surface2);border-color:var(--accent) }
+    .arc-card.multi { border-color:var(--accent2);background:rgba(212,168,83,.06) }
+    .arc-icon { font-size:24px;margin-bottom:5px }
+    .arc-name { font-size:12px;font-weight:500;color:var(--text) }
+    .arc-best { font-size:10px;color:var(--text3);margin-top:2px }
+    .arc-badge { font-size:9px;background:rgba(212,168,83,.25);color:var(--accent2);border-radius:4px;padding:1px 5px;margin-top:3px;display:inline-block }
+    .arc-lb { margin-top:4px }
+    .arc-lb-tabs { display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px }
+    .arc-lb-tab { font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif }
+    .arc-lb-tab.active { background:var(--surface);color:var(--text);border-color:var(--text3) }
+    .arc-lb-row { display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px }
+    .arc-lb-rank { width:22px;font-size:11px;color:var(--text3) }
+    .arc-lb-name { flex:1;color:var(--text) }
+    .arc-lb-score { font-weight:500;color:var(--text) }
+    .arc-lb-game { font-size:10px;color:var(--text2);margin-left:3px }
+
+    /* Game screen */
+    #arcadeGameScreen { display:none;position:fixed;inset:0;z-index:310;background:var(--bg);overflow-y:auto }
+    .arc-game-topbar { position:sticky;top:0;z-index:10;background:rgba(250,250,248,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px }
+    .arc-game-title { flex:1;font-size:15px;font-weight:500;color:var(--text) }
+    .arc-score-disp { font-size:12px;color:var(--text2) }
+    .arc-score-val { font-weight:500;color:var(--text) }
+    #arcadeGameContainer { padding:12px 8px 32px }
+
+    /* Result panel */
+    .arc-result { padding:1.5rem 1rem;text-align:center }
+    .arc-result h2 { font-size:20px;font-weight:600;color:var(--text) }
+    .arc-result-score { font-size:52px;font-weight:700;color:var(--text);margin:.5rem 0 }
+    .arc-result-new { font-size:13px;color:var(--green);margin-bottom:1rem }
+    .arc-result-lb { margin:.5rem 0 1rem;text-align:left }
+    .arc-result-btns { display:flex;justify-content:center;gap:8px;flex-wrap:wrap }
+
+    /* Buttons */
+    .arc-btn { padding:8px 18px;font-size:13px;border-radius:10px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);font-family:'DM Sans',sans-serif }
+    .arc-btn:hover { background:var(--surface2) }
+    .arc-btn.primary { background:var(--accent);border-color:var(--accent);color:white }
+    canvas { display:block;border:1px solid var(--border);border-radius:10px;margin:0 auto;background:#0a0a0a }
+    .arc-dpad { display:none;flex-direction:column;align-items:center;gap:6px;margin:12px auto 0;width:160px }
+    .arc-dpad-row { display:flex;gap:6px }
+    .arc-dpad-btn { width:52px;height:52px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;color:var(--text);user-select:none;-webkit-user-select:none;font-family:'DM Sans',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.1) }
+    .arc-dpad-btn:active { background:var(--surface2) }
+    .arc-controls { display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap }
+    .arc-si-controls { display:flex;justify-content:center;gap:10px;margin:10px auto 0 }
+    .arc-si-btn { width:52px;height:42px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text);user-select:none;font-family:'DM Sans',sans-serif }
+    .arc-si-btn:active { background:var(--surface2) }
+
+    /* MP */
+    .arc-mp-box { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin:8px 0;text-align:center }
+    .arc-mp-code { font-size:32px;font-weight:700;letter-spacing:6px;color:var(--accent2);margin:.5rem 0 }
+    .arc-mp-input { width:100%;max-width:180px;padding:8px;text-align:center;font-size:20px;letter-spacing:4px;border-radius:10px;border:1.5px solid var(--accent2);background:transparent;color:var(--text);text-transform:uppercase;font-family:'DM Sans',sans-serif }
+    .arc-bs-grid { display:grid;gap:2px;margin:0 auto }
+    .arc-bs-cell { width:27px;height:27px;border-radius:4px;border:0.5px solid var(--border);background:#0a1a2a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;user-select:none;-webkit-user-select:none }
+    .arc-bs-cell.ship { background:var(--accent-light) }
+    .arc-bs-cell.hit { background:var(--red-light);border-color:var(--red);cursor:default }
+    .arc-bs-cell.miss { background:var(--surface2);cursor:default }
+    .arc-hud { display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding:.2rem 0 .4rem;max-width:400px;margin:0 auto }
+    </style>
+
+    <!-- Name -->
+    <div style="display:flex;gap:8px;margin-bottom:4px">
+      <input type="text" id="arc-player-name" placeholder="Dein Name…" maxlength="16"
+        style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text)"/>
+      <button onclick="arcSaveName()"
+        style="padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--text)">✓</button>
+    </div>
+
+    <!-- Solo -->
+    <div class="arc-section">Einzelspieler</div>
+    <div class="arc-game-grid" id="arc-solo-grid"></div>
+
+    <!-- Multi -->
+    <div class="arc-section">🌐 Multiplayer (online)</div>
+    <div class="arc-game-grid" id="arc-multi-grid"></div>
+
+    <!-- Leaderboard -->
+    <div class="arc-section">🏆 Highscores</div>
+    <div class="arc-lb">
+      <div class="arc-lb-tabs" id="arc-lb-tabs"></div>
+      <div id="arc-lb-list"></div>
+    </div>
+
+  </div><!-- /arcadeContent -->
+</div><!-- /arcadeOverlay -->
+
+<!-- GAME SCREEN (fixed, über allem) -->
+<div id="arcadeGameScreen">
+  <div class="arc-game-topbar">
+    <button onclick="arcGoLobby()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;padding:0">←</button>
+    <div class="arc-game-title" id="arc-gtitle">Spiel</div>
+    <div class="arc-score-disp">Score: <span class="arc-score-val" id="arc-live-score">0</span></div>
+  </div>
+  <div id="arcadeGameContainer"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// ARCADE — Passwort & Auth
+// ══════════════════════════════════════════════════════
+const ARCADE_PW = 'SosehenSiegeraus!';
+const ARCADE_KEY = 'rom-arcade-auth';
+
+function openArcade() {
+  closeMehr();
+  document.getElementById('arcadeOverlay').style.display = 'block';
+  // gespeichertes Login prüfen
+  const saved = localStorage.getItem(ARCADE_KEY);
+  if (saved && parseInt(saved) > Date.now()) {
+    showArcadeContent();
+  } else {
+    document.getElementById('arcadePwScreen').style.display = 'block';
+    document.getElementById('arcadeContent').style.display = 'none';
+    setTimeout(() => document.getElementById('arcadePwInput').focus(), 100);
+  }
+}
+
+function closeArcade() {
+  if (arcCurrentGame) { arcCurrentGame.destroy(); arcCurrentGame = null; }
+  document.getElementById('arcadeOverlay').style.display = 'none';
+  document.getElementById('arcadeGameScreen').style.display = 'none';
+}
+
+function checkArcadePw() {
+  const val = document.getElementById('arcadePwInput').value;
+  if (val === ARCADE_PW) {
+    document.getElementById('arcadePwError').style.display = 'none';
+    document.getElementById('arcadePwInput').value = '';
+    if (document.getElementById('arcadeStayLoggedIn').checked) {
+      // 30 Tage merken
+      localStorage.setItem(ARCADE_KEY, Date.now() + 30 * 24 * 3600 * 1000);
+    }
+    showArcadeContent();
+  } else {
+    document.getElementById('arcadePwError').style.display = 'block';
+    document.getElementById('arcadePwInput').select();
+  }
+}
+
+function showArcadeContent() {
+  document.getElementById('arcadePwScreen').style.display = 'none';
+  document.getElementById('arcadeContent').style.display = 'block';
+  arcRenderLobby();
+}
+
+// ══════════════════════════════════════════════════════
+// ARCADE — Kern
+// ══════════════════════════════════════════════════════
+const ARC_SOLO = [
+  {id:'runner',name:'Runner',icon:'🏃',desc:'Spring über Hindernisse'},
+  {id:'snake',name:'Snake',icon:'🐍',desc:'Friss und wachse'},
+  {id:'tetris',name:'Tetris',icon:'🧱',desc:'Reihen räumen'},
+  {id:'pacman',name:'Pac-Man',icon:'👾',desc:'Punkte fressen'},
+  {id:'asteroids',name:'Asteroids',icon:'🌌',desc:'Asteroiden zerstören'},
+];
+const ARC_MULTI = [
+  {id:'battleship',name:'Schiffe versenken',icon:'🚢',desc:'Online 1v1'},
+  {id:'pong',name:'Pong',icon:'🏓',desc:'Online 1v1'},
+];
+const ARC_ALL = [...ARC_SOLO,...ARC_MULTI];
+let arcPlayerName = 'Spieler', arcCurrentGame = null, arcLbFilter = 'all';
+
+// Firebase Realtime DB (nutzt bestehenden kvg-rom Account)
+const ARC_FB = 'https://kvg-rom-default-rtdb.firebaseio.com';
+async function arcFbSet(p,d){await fetch(`${ARC_FB}/${p}.json`,{method:'PUT',body:JSON.stringify(d)});}
+async function arcFbGet(p){const r=await fetch(`${ARC_FB}/${p}.json`);return r.json();}
+async function arcFbPatch(p,d){await fetch(`${ARC_FB}/${p}.json`,{method:'PATCH',body:JSON.stringify(d)});}
+function arcFbListen(path,cb){
+  let t=null;
+  async function poll(){try{const r=await fetch(`${ARC_FB}/${path}.json`);const d=await r.json();cb(d);}catch(e){}t=setTimeout(poll,900);}
+  poll(); return()=>{if(t)clearTimeout(t);};
+}
+
+async function arcLoadScores(){try{const r=await window.storage.get('arc_scores_v1',true);return r?JSON.parse(r.value):[]}catch(e){return[];}}
+async function arcSaveScore(game,name,score){let s=await arcLoadScores();s.push({game,name,score,ts:Date.now()});s.sort((a,b)=>b.score-a.score);if(s.length>300)s=s.slice(0,300);await window.storage.set('arc_scores_v1',JSON.stringify(s),true);return s;}
+
+async function arcRenderLobby(){
+  try{const r=await window.storage.get('arc_name');if(r){arcPlayerName=r.value;document.getElementById('arc-player-name').value=r.value;}}catch(e){}
+  const scores=await arcLoadScores();
+  function makeGrid(games,elId,multi=false){
+    const el=document.getElementById(elId);if(!el)return;el.innerHTML='';
+    for(const g of games){
+      const my=scores.filter(s=>s.game===g.id&&s.name===arcPlayerName);
+      const best=my.length?my[0].score:null;
+      const div=document.createElement('div');div.className='arc-card'+(multi?' multi':'');
+      div.innerHTML=`<div class="arc-icon">${g.icon}</div><div class="arc-name">${g.name}</div>
+        <div class="arc-best">${best!==null&&!multi?'Best: '+best:g.desc}</div>
+        ${multi?'<div class="arc-badge">2 Spieler</div>':''}`;
+      div.onclick=()=>arcStartGame(g.id);el.appendChild(div);
+    }
+  }
+  makeGrid(ARC_SOLO,'arc-solo-grid');
+  makeGrid(ARC_MULTI,'arc-multi-grid',true);
+  arcRenderLeaderboard(scores);
+}
+function arcRenderLeaderboard(scores){
+  const tabs=document.getElementById('arc-lb-tabs'),list=document.getElementById('arc-lb-list');
+  if(!tabs||!list)return;
+  tabs.innerHTML=[{id:'all',label:'Alle'},...ARC_SOLO.map(g=>({id:g.id,label:g.icon}))].map(t=>
+    `<button class="arc-lb-tab${arcLbFilter===t.id?' active':''}" onclick="arcSetLbFilter('${t.id}')">${t.label}</button>`).join('');
+  const filtered=(arcLbFilter==='all'?scores:scores.filter(s=>s.game===arcLbFilter)).slice(0,10);
+  list.innerHTML=filtered.length?filtered.map((s,i)=>{
+    const g=ARC_ALL.find(x=>x.id===s.game);
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    return`<div class="arc-lb-row"><span class="arc-lb-rank">${medal}</span>
+      <span class="arc-lb-name">${s.name}</span>
+      ${arcLbFilter==='all'?`<span class="arc-lb-game">${g?g.icon:''}</span>`:''}
+      <span class="arc-lb-score">${s.score}</span></div>`;
+  }).join(''):'<div style="font-size:12px;color:var(--text3);padding:8px 0">Noch keine Scores</div>';
+}
+async function arcSetLbFilter(f){arcLbFilter=f;arcRenderLeaderboard(await arcLoadScores());}
+async function arcSaveName(){const v=document.getElementById('arc-player-name').value.trim();if(!v)return;arcPlayerName=v;await window.storage.set('arc_name',v);arcRenderLobby();}
+
+function arcGoLobby(){
+  if(arcCurrentGame){arcCurrentGame.destroy();arcCurrentGame=null;}
+  document.getElementById('arcadeGameScreen').style.display='none';
+  arcRenderLobby();
+}
+function arcStartGame(id){
+  document.getElementById('arcadeGameScreen').style.display='block';
+  const g=ARC_ALL.find(x=>x.id===id);
+  document.getElementById('arc-gtitle').textContent=g.icon+' '+g.name;
+  document.getElementById('arc-live-score').textContent='0';
+  const c=document.getElementById('arcadeGameContainer');c.innerHTML='';
+  if(id==='runner')arcCurrentGame=new ArcRunner(c);
+  else if(id==='snake')arcCurrentGame=new ArcSnake(c);
+  else if(id==='tetris')arcCurrentGame=new ArcTetris(c);
+  else if(id==='pacman')arcCurrentGame=new ArcPacman(c);
+  else if(id==='asteroids')arcCurrentGame=new ArcAsteroids(c);
+  else if(id==='battleship')arcCurrentGame=new ArcBattleship(c);
+  else if(id==='pong')arcCurrentGame=new ArcPong(c);
+}
+function arcUpdateScore(v){document.getElementById('arc-live-score').textContent=v;}
+async function arcGameOver(id,score){
+  if(arcCurrentGame){try{arcCurrentGame.destroy();}catch(e){}arcCurrentGame=null;}
+  // Kurze Verzögerung damit der letzte Frame gerendert ist
+  await new Promise(r=>setTimeout(r,80));
+  const scores=await arcSaveScore(id,arcPlayerName,score);
+  const my=scores.filter(s=>s.game===id&&s.name===arcPlayerName);
+  const isNew=my.length<=1;
+  const top=scores.filter(s=>s.game===id).slice(0,5);
+  const g=ARC_ALL.find(x=>x.id===id);
+  document.getElementById('arcadeGameContainer').innerHTML=`<div class="arc-result">
+    <h2>Game Over</h2>
+    <div class="arc-result-score">${score}</div>
+    ${isNew&&score>0?'<div class="arc-result-new">🎉 Neuer Highscore!</div>':''}
+    <div class="arc-result-lb">
+      <div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin:12px 0 6px;text-align:center">🏆 Top ${g?.icon||''} Scores</div>
+      ${top.map((s,i)=>`<div class="arc-lb-row">
+        <span class="arc-lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
+        <span class="arc-lb-name">${s.name}${s.name===arcPlayerName?'<span style="color:var(--accent2);font-size:10px"> ◀</span>':''}</span>
+        <span class="arc-lb-score">${s.score}</span>
+      </div>`).join('')}
+    </div>
+    <div class="arc-result-btns">
+      <button class="arc-btn" onclick="arcGoLobby()">← Lobby</button>
+      <button class="arc-btn primary" onclick="arcStartGame('${id}')">Nochmal ↺</button>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// RUNNER – Chrome Dino Style
+// ══════════════════════════════════════════════════════
+class ArcRunner{
+  constructor(el){
+    const W=window.innerWidth-32;this.W=W;this.H=Math.round(W*0.35);
+    el.innerHTML=`<canvas id="arc-rc" width="${W}" height="${this.H}" style="background:#f7f7f7;width:100%;border-radius:8px"></canvas>
+      <div class="arc-controls"><button class="arc-btn primary" id="arc-run-btn" style="width:100%;max-width:300px;padding:12px">▶ Starten (Leertaste / Tippen)</button></div>`;
+    this.cv=document.getElementById('arc-rc');this.ctx=this.cv.getContext('2d');
+    this.GY=Math.round(this.H*0.74);this.reset();this.draw();
+    const jump=()=>{
+      if(!this.started){this.started=true;const b=document.getElementById('arc-run-btn');if(b)b.style.display='none';this.loop();}
+      if(this.player.onGround&&this.running){this.player.vy=-13;this.player.onGround=false;}
+    };
+    this._kh=e=>{if(e.key===' '||e.key==='ArrowUp'){e.preventDefault();jump();}};
+    document.addEventListener('keydown',this._kh);
+    this.cv.addEventListener('click',jump);
+    this.cv.addEventListener('touchstart',e=>{e.preventDefault();jump();},{passive:false});
+    document.getElementById('arc-run-btn').addEventListener('click',jump);
+  }
+  reset(){
+    this.player={x:60,y:this.GY-40,w:30,h:40,vy:0,onGround:true,step:0};
+    this.obstacles=[];this.clouds=[];this.score=0;this.speed=5;this.frame=0;
+    this.running=true;this.started=false;this.raf=null;this.groundX=0;
+    for(let i=0;i<4;i++)this.clouds.push({x:Math.random()*this.W,y:20+Math.random()*25,w:40+Math.random()*30});
+  }
+  loop(){if(!this.running)return;this.update();this.draw();this.raf=requestAnimationFrame(()=>this.loop());}
+  update(){
+    this.frame++;this.speed=5+this.score/200;
+    const p=this.player;
+    p.vy+=0.7;p.y+=p.vy;
+    if(p.y>=this.GY-p.h){p.y=this.GY-p.h;p.vy=0;p.onGround=true;}
+    if(p.onGround)p.step+=0.3;
+    this.groundX-=this.speed;
+    this.clouds.forEach(c=>{c.x-=this.speed*.3;if(c.x+c.w<0)c.x=this.W+20;});
+    const gap=Math.max(60,120-this.score/10);
+    if(this.frame%Math.round(gap)===0){
+      if(Math.random()<0.65){
+        const h=30+Math.floor(Math.random()*3)*10;
+        this.obstacles.push({type:'cactus',x:this.W,y:this.GY-h,w:16,h});
+        if(Math.random()<0.35)this.obstacles.push({type:'cactus',x:this.W+28,y:this.GY-h+8,w:14,h:h-8});
+      }else{
+        this.obstacles.push({type:'bird',x:this.W,y:this.GY-(this.score>300&&Math.random()<.5?85:60),w:32,h:20,flap:0});
+      }
+    }
+    this.obstacles.forEach(o=>{o.x-=this.speed;if(o.type==='bird')o.flap+=.25;});
+    const shrink=6;
+    for(const o of this.obstacles){
+      if(p.x+shrink<o.x+o.w-2&&p.x+p.w-shrink>o.x+2&&p.y+shrink<o.y+o.h-2&&p.y+p.h-shrink>o.y+2){
+        this.running=false;if(this.raf){cancelAnimationFrame(this.raf);this.raf=null;}arcGameOver('runner',this.score);return;
+      }
+    }
+    this.obstacles=this.obstacles.filter(o=>o.x+o.w>-10);
+    if(this.frame%2===0){this.score++;arcUpdateScore(this.score);}
+  }
+  draw(){
+    const c=this.ctx,W=this.W,H=this.H,p=this.player;
+    c.fillStyle='#f7f7f7';c.fillRect(0,0,W,H);
+    c.fillStyle='#e0e0e0';
+    this.clouds.forEach(cl=>{c.beginPath();c.ellipse(cl.x+cl.w/2,cl.y,cl.w/2,10,0,0,Math.PI*2);c.ellipse(cl.x+cl.w*.35,cl.y+3,cl.w*.28,8,0,0,Math.PI*2);c.fill();});
+    c.fillStyle='#555';c.fillRect(0,this.GY,W,2);
+    c.fillStyle='#aaa';
+    for(let x=(this.groundX%40);x<W;x+=40)c.fillRect(x,this.GY+8,20,2);
+    this.obstacles.forEach(o=>{
+      if(o.type==='cactus'){
+        c.fillStyle='#4a7c59';
+        c.fillRect(o.x+o.w/2-4,o.y,8,o.h);
+        c.fillRect(o.x,o.y+o.h*.3,o.w/2-2,6);c.fillRect(o.x,o.y+o.h*.3-10,4,12);
+        c.fillRect(o.x+o.w/2+2,o.y+o.h*.45,o.w/2-2,6);c.fillRect(o.x+o.w-4,o.y+o.h*.45-10,4,12);
+      }else{
+        const flap=Math.sin(o.flap)*5;
+        c.fillStyle='#666';c.beginPath();c.ellipse(o.x+16,o.y+10,12,7,0,0,Math.PI*2);c.fill();
+        c.fillStyle='#888';
+        c.beginPath();c.ellipse(o.x+8,o.y+6+flap,9,5,-.3,0,Math.PI*2);c.fill();
+        c.beginPath();c.ellipse(o.x+24,o.y+6-flap,9,5,.3,0,Math.PI*2);c.fill();
+        c.fillStyle='#cc8800';c.fillRect(o.x+27,o.y+9,6,3);
+      }
+    });
+    const leg=p.onGround?Math.sin(p.step)*5:0;
+    c.fillStyle='#555';c.fillRect(p.x+4,p.y,22,26);
+    c.fillRect(p.x+14,p.y-14,16,18);
+    c.fillStyle='#f7f7f7';c.fillRect(p.x+22,p.y-10,6,5);
+    c.fillStyle='#333';c.fillRect(p.x+24,p.y-9,3,3);
+    c.fillStyle='#555';c.fillRect(p.x+2,p.y+8,8,5);c.fillRect(p.x,p.y+18,6,8);
+    c.fillStyle='#444';c.fillRect(p.x+8,p.y+26,8,10+leg);c.fillRect(p.x+18,p.y+26,8,10-leg);
+    if(!this.started){c.fillStyle='rgba(0,0,0,.1)';c.fillRect(W/2-90,55,180,34);c.fillStyle='#555';c.font='bold 14px sans-serif';c.textAlign='center';c.fillText('Tippen zum Starten',W/2,77);c.textAlign='left';}
+    if(this.running&&this.started){c.fillStyle='#999';c.font='bold 13px monospace';c.textAlign='right';c.fillText(String(this.score).padStart(5,'0'),W-8,18);c.textAlign='left';}
+  }
+  destroy(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);document.removeEventListener('keydown',this._kh);}
+}
+
+// ══════════════════════════════════════════════════════
+// SNAKE
+// ══════════════════════════════════════════════════════
+class ArcSnake{
+  constructor(el){
+    const W=window.innerWidth-32;this.SZ=Math.floor(W/22);this.cols=22;this.rows=this.cols;
+    this.W=this.cols*this.SZ;this.H=this.rows*this.SZ;
+    el.innerHTML=`<canvas id="arc-sc" width="${this.W}" height="${this.H}" style="width:100%;border-radius:8px"></canvas>
+      <div class="arc-controls"><button class="arc-btn primary" id="arc-snake-start">Start</button></div>
+      <div class="arc-dpad" id="arc-dpad" style="display:flex">
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-dup">↑</button></div>
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-dleft">←</button><div style="width:52px"></div><button class="arc-dpad-btn" id="arc-dright">→</button></div>
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-ddown">↓</button></div>
+      </div>`;
+    this.cv=document.getElementById('arc-sc');this.ctx=this.cv.getContext('2d');
+    this.dir={x:1,y:0};this.nextDir={x:1,y:0};this.snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+    this.food=this.randFood();this.score=0;this.running=false;this.raf=null;this.draw();
+    document.getElementById('arc-snake-start').onclick=()=>this.startLoop();
+    this._kh=e=>this.kh(e);document.addEventListener('keydown',this._kh);
+    [{id:'arc-dup',d:{x:0,y:-1}},{id:'arc-ddown',d:{x:0,y:1}},{id:'arc-dleft',d:{x:-1,y:0}},{id:'arc-dright',d:{x:1,y:0}}].forEach(({id,d})=>{
+      const b=document.getElementById(id);
+      b.addEventListener('touchstart',ev=>{ev.preventDefault();this.sd(d);},{passive:false});
+      b.onclick=()=>this.sd(d);
+    });
+  }
+  sd(d){if(d.x!==-this.dir.x||d.y!==-this.dir.y)this.nextDir=d;}
+  kh(e){const m={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0}};if(m[e.key]){e.preventDefault();this.sd(m[e.key]);}}
+  randFood(){let f;do{f={x:Math.floor(Math.random()*this.cols),y:Math.floor(Math.random()*this.rows)};}while(this.snake.some(s=>s.x===f.x&&s.y===f.y));return f;}
+  startLoop(){document.getElementById('arc-snake-start').style.display='none';this.running=true;this.last=0;this.raf=requestAnimationFrame(ts=>this.step(ts));}
+  step(ts){if(!this.running)return;const iv=Math.max(80,150-this.score*2);if(ts-this.last>=iv){this.last=ts;this.dir=this.nextDir;const h={x:(this.snake[0].x+this.dir.x+this.cols)%this.cols,y:(this.snake[0].y+this.dir.y+this.rows)%this.rows};if(this.snake.some(s=>s.x===h.x&&s.y===h.y)){this.running=false;arcGameOver('snake',this.score);return;}this.snake.unshift(h);if(h.x===this.food.x&&h.y===this.food.y){this.score++;arcUpdateScore(this.score);this.food=this.randFood();}else this.snake.pop();this.draw();}this.raf=requestAnimationFrame(ts=>this.step(ts));}
+  draw(){const c=this.ctx,S=this.SZ;
+    c.fillStyle='#0a0a0a';c.fillRect(0,0,this.W,this.H);
+    // Grid
+    c.strokeStyle='rgba(255,255,255,.04)';c.lineWidth=.5;
+    for(let x=0;x<=this.W;x+=S){c.beginPath();c.moveTo(x,0);c.lineTo(x,this.H);c.stroke();}
+    for(let y=0;y<=this.H;y+=S){c.beginPath();c.moveTo(0,y);c.lineTo(this.W,y);c.stroke();}
+    this.snake.forEach((s,i)=>{c.fillStyle=i===0?'#81C784':'#4CAF50';c.fillRect(s.x*S+1,s.y*S+1,S-2,S-2);});c.fillStyle='#FF5252';c.fillRect(this.food.x*S+2,this.food.y*S+2,S-4,S-4);}
+  destroy(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);document.removeEventListener('keydown',this._kh);}
+}
+
+// ══════════════════════════════════════════════════════
+// TETRIS
+// ══════════════════════════════════════════════════════
+class ArcTetris{
+  constructor(el){
+    const W=Math.min(220,Math.floor((window.innerWidth-80)/10)*10);this.COLS=10;this.ROWS=20;this.BS=Math.floor(W/10);
+    this.W=this.COLS*this.BS;this.H=this.ROWS*this.BS;
+    el.innerHTML=`<div style="display:flex;gap:12px;justify-content:center;align-items:flex-start">
+      <canvas id="arc-tc" width="${this.W}" height="${this.H}"></canvas>
+      <div style="min-width:56px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:3px">Nächste</div>
+        <canvas id="arc-tn" width="60" height="60" style="background:#0a0a0a;border-radius:4px"></canvas>
+        <div style="font-size:10px;color:var(--text3);margin:6px 0 2px">Level</div>
+        <div id="arc-tlevel" style="font-size:17px;font-weight:500;color:var(--text)">1</div>
+        <div style="font-size:10px;color:var(--text3);margin:5px 0 2px">Reihen</div>
+        <div id="arc-tlines" style="font-size:17px;font-weight:500;color:var(--text)">0</div>
+      </div></div>
+      <div class="arc-controls"><button class="arc-btn primary" id="arc-tetris-start">Start</button></div>
+      <div class="arc-dpad" id="arc-tdpad" style="display:flex">
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-tup">↻</button></div>
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-tleft">←</button><button class="arc-dpad-btn" id="arc-tdown">↓</button><button class="arc-dpad-btn" id="arc-tright">→</button></div>
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-tdrop" style="width:164px;font-size:13px">⬇ Hard Drop</button></div>
+      </div>`;
+    this.cv=document.getElementById('arc-tc');this.ctx=this.cv.getContext('2d');
+    this.nc=document.getElementById('arc-tn');this.nctx=this.nc.getContext('2d');
+    this.P=[{s:[[1,1,1,1]],c:'#00BCD4'},{s:[[1,1],[1,1]],c:'#FFEB3B'},{s:[[1,1,1],[0,0,1]],c:'#2196F3'},{s:[[1,1,1],[1,0,0]],c:'#FF9800'},{s:[[1,1,1],[0,1,0]],c:'#9C27B0'},{s:[[0,1,1],[1,1,0]],c:'#4CAF50'},{s:[[1,1,0],[0,1,1]],c:'#F44336'}];
+    this.board=Array.from({length:this.ROWS},()=>Array(this.COLS).fill(0));
+    this.score=0;this.lines=0;this.level=1;this.running=false;this.raf=null;
+    this.next=this.rp();this.spawn();this.drawB();this.drawN();
+    document.getElementById('arc-tetris-start').onclick=()=>this.sl();
+    this._kh=e=>this.kh(e);document.addEventListener('keydown',this._kh);
+    document.getElementById('arc-tup').onclick=()=>this.rotate();
+    document.getElementById('arc-tleft').onclick=()=>this.mv(-1);
+    document.getElementById('arc-tright').onclick=()=>this.mv(1);
+    document.getElementById('arc-tdown').onclick=()=>this.drop();
+    document.getElementById('arc-tdrop').onclick=()=>this.hdrop();
+  }
+  rp(){return JSON.parse(JSON.stringify(this.P[Math.floor(Math.random()*this.P.length)]));}
+  spawn(){this.p=this.next;this.next=this.rp();this.px=Math.floor(this.COLS/2)-Math.floor(this.p.s[0].length/2);this.py=0;if(!this.valid(this.p.s,this.px,this.py)){this.running=false;arcGameOver('tetris',this.score);}}
+  valid(s,x,y){return s.every((row,r)=>row.every((v,c)=>!v||(y+r>=0&&y+r<this.ROWS&&x+c>=0&&x+c<this.COLS&&!this.board[y+r][x+c])));}
+  mv(d){if(this.valid(this.p.s,this.px+d,this.py)){this.px+=d;this.drawB();}}
+  drop(){if(this.valid(this.p.s,this.px,this.py+1)){this.py++;this.drawB();}else this.lock();}
+  hdrop(){while(this.valid(this.p.s,this.px,this.py+1))this.py++;this.lock();}
+  rotate(){const r=this.p.s[0].map((_,i)=>this.p.s.map(row=>row[i]).reverse());if(this.valid(r,this.px,this.py)){this.p.s=r;this.drawB();}}
+  lock(){this.p.s.forEach((row,r)=>row.forEach((v,c)=>{if(v)this.board[this.py+r][this.px+c]=this.p.c;}));this.cl();this.spawn();this.drawB();this.drawN();}
+  cl(){let n=0;for(let r=this.ROWS-1;r>=0;r--){if(this.board[r].every(v=>v)){this.board.splice(r,1);this.board.unshift(Array(this.COLS).fill(0));n++;r++;}}if(n){const pts=[0,100,300,500,800];this.score+=pts[n]*this.level;this.lines+=n;this.level=Math.floor(this.lines/10)+1;arcUpdateScore(this.score);document.getElementById('arc-tlevel').textContent=this.level;document.getElementById('arc-tlines').textContent=this.lines;}}
+  kh(e){const m={ArrowLeft:()=>this.mv(-1),ArrowRight:()=>this.mv(1),ArrowDown:()=>this.drop(),ArrowUp:()=>this.rotate(),' ':()=>this.hdrop()};if(m[e.key]){e.preventDefault();m[e.key]();}}
+  sl(){document.getElementById('arc-tetris-start').style.display='none';this.running=true;this.last=0;this.raf=requestAnimationFrame(ts=>this.loop(ts));}
+  loop(ts){if(!this.running)return;const sp=Math.max(80,500-this.level*40);if(ts-this.last>=sp){this.last=ts;this.drop();}this.raf=requestAnimationFrame(ts=>this.loop(ts));}
+  drawB(){const c=this.ctx,B=this.BS;c.fillStyle='#0a0a0a';c.fillRect(0,0,this.W,this.H);c.strokeStyle='#1a1a1a';for(let r=0;r<this.ROWS;r++)for(let col=0;col<this.COLS;col++){if(this.board[r][col]){c.fillStyle=this.board[r][col];c.fillRect(col*B+1,r*B+1,B-2,B-2);}else c.strokeRect(col*B+.5,r*B+.5,B-1,B-1);}let gy=this.py;while(this.valid(this.p.s,this.px,gy+1))gy++;c.globalAlpha=.2;this.p.s.forEach((row,r)=>row.forEach((v,cl)=>{if(v){c.fillStyle=this.p.c;c.fillRect((this.px+cl)*B+1,(gy+r)*B+1,B-2,B-2);}}));c.globalAlpha=1;this.p.s.forEach((row,r)=>row.forEach((v,cl)=>{if(v){c.fillStyle=this.p.c;c.fillRect((this.px+cl)*B+1,(this.py+r)*B+1,B-2,B-2);}}));}
+  drawN(){const c=this.nctx,B=12;c.fillStyle='#0a0a0a';c.fillRect(0,0,60,60);const ox=Math.floor((4-this.next.s[0].length)/2),oy=Math.floor((4-this.next.s.length)/2);c.fillStyle=this.next.c;this.next.s.forEach((row,r)=>row.forEach((v,cl)=>{if(v)c.fillRect((ox+cl)*B+4,(oy+r)*B+4,B-2,B-2);}));}
+  destroy(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);document.removeEventListener('keydown',this._kh);}
+}
+
+// ══════════════════════════════════════════════════════
+// PAC-MAN
+// ══════════════════════════════════════════════════════
+class ArcPacman{
+  constructor(el){
+    this.MAP=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,1],[1,3,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,3,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,1,0,1],[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],[1,1,1,1,0,1,1,1,2,1,1,1,2,1,1,1,0,1,1,1,1],[1,1,1,1,0,1,2,2,2,2,2,2,2,2,2,1,0,1,1,1,1],[1,1,1,1,0,1,2,1,9,9,9,9,9,1,2,1,0,1,1,1,1],[2,2,2,2,0,2,2,1,9,9,9,9,9,1,2,2,0,2,2,2,2],[1,1,1,1,0,1,2,1,1,1,1,1,1,1,2,1,0,1,1,1,1],[1,1,1,1,0,1,2,2,2,2,2,2,2,2,2,1,0,1,1,1,1],[1,1,1,1,0,1,2,1,1,1,1,1,1,1,2,1,0,1,1,1,1],[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,1],[1,3,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,1,0,3,1],[1,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1,1],[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],[1,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
+    this.ROWS=this.MAP.length;this.COLS=this.MAP[0].length;
+    const mW=window.innerWidth-32;this.BS=Math.floor(mW/this.COLS);this.W=this.COLS*this.BS;this.H=this.ROWS*this.BS;
+    el.innerHTML=`<canvas id="arc-pc" width="${this.W}" height="${this.H}" style="width:100%;border-radius:8px"></canvas>
+      <div class="arc-controls"><button class="arc-btn primary" id="arc-pac-start">Start</button></div>
+      <div class="arc-dpad" id="arc-pdpad" style="display:flex">
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-pup">↑</button></div>
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-pleft">←</button><div style="width:52px"></div><button class="arc-dpad-btn" id="arc-pright">→</button></div>
+        <div class="arc-dpad-row"><button class="arc-dpad-btn" id="arc-pdown">↓</button></div>
+      </div>`;
+    this.cv=document.getElementById('arc-pc');this.ctx=this.cv.getContext('2d');
+    this.initDots();this.pac={x:10,y:16,dir:{x:0,y:0},nd:{x:0,y:0},anim:0};
+    this.ghosts=[{x:9,y:9,sx:9,sy:9,c:'#FF5252',dir:{x:1,y:0},scared:0,mode:'house'},{x:10,y:9,sx:10,sy:9,c:'#FF9800',dir:{x:-1,y:0},scared:0,mode:'house'},{x:9,y:10,sx:9,sy:10,c:'#E91E63',dir:{x:0,y:1},scared:0,mode:'house'},{x:10,y:10,sx:10,sy:10,c:'#00BCD4',dir:{x:0,y:-1},scared:0,mode:'house'}];
+    this.score=0;this.lives=3;this.running=false;this.raf=null;this.frame=0;this.releaseTimer=0;this.draw();
+    document.getElementById('arc-pac-start').onclick=()=>this.startLoop();
+    this._kh=e=>this.kh(e);document.addEventListener('keydown',this._kh);
+    [{id:'arc-pup',d:{x:0,y:-1}},{id:'arc-pdown',d:{x:0,y:1}},{id:'arc-pleft',d:{x:-1,y:0}},{id:'arc-pright',d:{x:1,y:0}}].forEach(({id,d})=>{
+      const b=document.getElementById(id);b.addEventListener('touchstart',ev=>{ev.preventDefault();this.pac.nd=d;},{passive:false});b.onclick=()=>this.pac.nd=d;
+    });
+  }
+  initDots(){this.dots=[];this.energizers=[];for(let r=0;r<this.ROWS;r++)for(let c=0;c<this.COLS;c++){if(this.MAP[r][c]===0)this.dots.push({x:c,y:r,eaten:false});if(this.MAP[r][c]===3)this.energizers.push({x:c,y:r,eaten:false});}}
+  canGo(x,y,dx,dy){const ny=y+dy;if(ny<0||ny>=this.ROWS)return false;const nc=((Math.round(x+dx))%this.COLS+this.COLS)%this.COLS;return this.MAP[Math.round(ny)][nc]!==1;}
+  kh(e){const m={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0}};if(m[e.key]){e.preventDefault();this.pac.nd=m[e.key];}}
+  startLoop(){document.getElementById('arc-pac-start').style.display='none';this.running=true;this.last=0;this.raf=requestAnimationFrame(ts=>this.loop(ts));}
+  loop(ts){if(!this.running)return;if(ts-this.last>=120){this.last=ts;this.update();}this.raf=requestAnimationFrame(ts=>this.loop(ts));}
+  update(){
+    this.frame++;this.releaseTimer++;
+    if(this.releaseTimer%40===0){const gh=this.ghosts.find(g=>g.mode==='house');if(gh){gh.mode='free';gh.x=10;gh.y=8;}}
+    const p=this.pac;
+    // Richtungswechsel nur auf Gitterpunkten (snap)
+    const snapX=Math.abs(p.x-Math.round(p.x))<0.2;
+    const snapY=Math.abs(p.y-Math.round(p.y))<0.2;
+    if((snapX||p.nd.x===0)&&(snapY||p.nd.y===0)&&this.canGo(Math.round(p.x),Math.round(p.y),p.nd.x,p.nd.y)){
+      p.dir=p.nd;p.x=Math.round(p.x);p.y=Math.round(p.y);
+    }
+    if(this.canGo(Math.round(p.x),Math.round(p.y),p.dir.x,p.dir.y)){p.x+=p.dir.x*.4;p.y+=p.dir.y*.4;p.x=((p.x%this.COLS)+this.COLS)%this.COLS;}
+    p.anim+=.2;
+    const px=Math.round(p.x),py=Math.round(p.y);
+    const di=this.dots.findIndex(d=>!d.eaten&&d.x===px&&d.y===py);if(di>=0){this.dots[di].eaten=true;this.score+=10;arcUpdateScore(this.score);}
+    const ei=this.energizers.findIndex(e=>!e.eaten&&e.x===px&&e.y===py);if(ei>=0){this.energizers[ei].eaten=true;this.score+=50;arcUpdateScore(this.score);this.ghosts.forEach(g=>{if(g.mode!=='house')g.scared=40;});}
+    if(this.dots.every(d=>d.eaten)&&this.energizers.every(e=>e.eaten)){this.running=false;arcGameOver('pacman',this.score);return;}
+    const dirs=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+    this.ghosts.forEach(g=>{
+      if(g.mode==='house')return;if(g.scared>0)g.scared--;
+      // Geister: Richtung nur auf Gitterpunkten wählen, dann flüssig bewegen
+      const gSnap=Math.abs(g.x-Math.round(g.x))<0.15&&Math.abs(g.y-Math.round(g.y))<0.15;
+      if(gSnap){
+        const valid=dirs.filter(d=>this.canGo(Math.round(g.x),Math.round(g.y),d.x,d.y)&&!(d.x===-g.dir.x&&d.y===-g.dir.y));
+        const opts=valid.length?valid:dirs.filter(d=>this.canGo(Math.round(g.x),Math.round(g.y),d.x,d.y));
+        if(opts.length){const chosen=g.scared>0?opts[Math.floor(Math.random()*opts.length)]:opts.reduce((b,d)=>(d.x*(p.x-g.x)+d.y*(p.y-g.y))>(b.x*(p.x-g.x)+b.y*(p.y-g.y))?d:b,opts[0]);g.dir=chosen;g.x=Math.round(g.x);g.y=Math.round(g.y);}
+      }
+      g.x+=g.dir.x*.25;g.y+=g.dir.y*.25;
+      if(Math.abs(g.x-p.x)<.8&&Math.abs(g.y-p.y)<.8){if(g.scared>0){g.scared=0;g.x=g.sx;g.y=g.sy;g.mode='house';this.score+=200;arcUpdateScore(this.score);}else{this.lives--;if(this.lives<=0){this.running=false;arcGameOver('pacman',this.score);}else{p.x=10;p.y=16;p.dir={x:0,y:0};p.nd={x:0,y:0};}}}
+    });this.draw();
+  }
+  draw(){
+    const c=this.ctx,B=this.BS;c.fillStyle='#0a0a0a';c.fillRect(0,0,this.W,this.H);
+    for(let r=0;r<this.ROWS;r++)for(let col=0;col<this.COLS;col++){if(this.MAP[r][col]===1){c.fillStyle='#1565C0';c.fillRect(col*B,r*B,B,B);c.strokeStyle='#1976D2';c.lineWidth=.5;c.strokeRect(col*B+.5,r*B+.5,B-1,B-1);}}
+    const cx=col=>col*B+B/2,cy=row=>row*B+B/2;
+    c.fillStyle='#FFEE58';this.dots.forEach(d=>{if(!d.eaten){c.beginPath();c.arc(cx(d.x),cy(d.y),1.5,0,Math.PI*2);c.fill();}});
+    if(this.frame%20<10){c.fillStyle='#FFF176';this.energizers.forEach(e=>{if(!e.eaten){c.beginPath();c.arc(cx(e.x),cy(e.y),4,0,Math.PI*2);c.fill();}});}
+    this.ghosts.forEach(g=>{if(g.mode==='house')return;const gx=g.x*B+B/2,gy=g.y*B+B/2,gr=B/2-1,sc=g.scared>0;c.fillStyle=sc?(g.scared<10&&this.frame%6<3?'#eee':'#3344ff'):g.c;c.beginPath();c.arc(gx,gy-1,gr,Math.PI,0);const sw=(gr*2)/3;c.lineTo(gx+gr,gy+gr);for(let i=3;i>=0;i--){const bx=gx-gr+i*sw;c.quadraticCurveTo(bx-sw/2,gy+(i%2===0?gr/2:gr),bx,gy+(i%2===0?gr:gr/2));}c.closePath();c.fill();});
+    const p=this.pac,ppx=p.x*B+B/2,ppy=p.y*B+B/2,pr=B/2-1;
+    const ang=Math.atan2(p.dir.y,p.dir.x)||(p.dir.x<0?Math.PI:0);
+    const mouth=.15+.12*Math.sin(p.anim);
+    c.fillStyle='#FFEB3B';c.beginPath();c.moveTo(ppx,ppy);c.arc(ppx,ppy,pr,ang+mouth,ang+Math.PI*2-mouth);c.closePath();c.fill();
+    c.fillStyle='rgba(255,255,255,.7)';c.font=`${B}px sans-serif`;for(let i=0;i<this.lives;i++)c.fillText('•',4+i*14,this.H-2);
+  }
+  destroy(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);document.removeEventListener('keydown',this._kh);}
+}
+
+// ══════════════════════════════════════════════════════
+// ASTEROIDS
+// ══════════════════════════════════════════════════════
+class ArcAsteroids{
+  constructor(el){
+    const W=window.innerWidth-32,H=Math.round(W*0.9);
+    this.W=W;this.H=H;
+    el.innerHTML=`<div class="arc-hud"><div>❤️ <span id="arc-ast-lives">3</span></div><div>Level <span id="arc-ast-level">1</span></div></div>
+      <canvas id="arc-ac" width="${W}" height="${H}"></canvas>
+      <div class="arc-controls"><button class="arc-btn primary" id="arc-ast-start">Start</button></div>
+      <div style="display:flex;justify-content:center;gap:6px;margin-top:8px">
+        <button class="arc-si-btn" id="arc-ast-left">←</button>
+        <button class="arc-si-btn" id="arc-ast-fire" style="font-size:12px">🔥</button>
+        <button class="arc-si-btn" id="arc-ast-thrust">↑</button>
+        <button class="arc-si-btn" id="arc-ast-right">→</button>
+      </div>`;
+    this.cv=document.getElementById('arc-ac');this.ctx=this.cv.getContext('2d');
+    this.keys={};this.firePressed=false;this.lastFire=0;
+    this.score=0;this.lives=3;this.level=1;this.running=false;this.raf=null;
+    this._stars=Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2}));
+    this.initLevel();this.draw();
+    document.getElementById('arc-ast-start').onclick=()=>this.startLoop();
+    this._kh=e=>{this.keys[e.key]=true;if(e.key===' ')e.preventDefault();};
+    this._ku=e=>{this.keys[e.key]=false;};
+    document.addEventListener('keydown',this._kh);document.addEventListener('keyup',this._ku);
+    ['arc-ast-left','arc-ast-right','arc-ast-thrust'].forEach(id=>{
+      document.getElementById(id).addEventListener('touchstart',e=>{e.preventDefault();this.keys[id]=true;},{passive:false});
+      document.getElementById(id).addEventListener('touchend',e=>{e.preventDefault();this.keys[id]=false;},{passive:false});
+      document.getElementById(id).addEventListener('mousedown',()=>this.keys[id]=true);
+      document.getElementById(id).addEventListener('mouseup',()=>this.keys[id]=false);
+    });
+    const f=document.getElementById('arc-ast-fire');
+    f.addEventListener('touchstart',e=>{e.preventDefault();this.firePressed=true;},{passive:false});
+    f.addEventListener('touchend',e=>{e.preventDefault();this.firePressed=false;},{passive:false});
+    f.addEventListener('mousedown',()=>this.firePressed=true);
+    f.addEventListener('mouseup',()=>this.firePressed=false);
+  }
+  initLevel(){
+    this.ship={x:this.W/2,y:this.H/2,angle:-Math.PI/2,vx:0,vy:0,invincible:120};
+    this.bullets=[];this.asteroids=[];this.particles=[];
+    for(let i=0;i<3+this.level;i++){
+      let x,y;do{x=Math.random()*this.W;y=Math.random()*this.H;}while(Math.hypot(x-this.W/2,y-this.H/2)<80);
+      this.spawnAsteroid(x,y,'large');
+    }
+  }
+  spawnAsteroid(x,y,size){
+    const sz={large:{r:28,pts:20,speed:1},medium:{r:16,pts:50,speed:1.6},small:{r:8,pts:100,speed:2.4}}[size];
+    const a=Math.random()*Math.PI*2;
+    const verts=Array.from({length:9},(_,i)=>({a:i/9*Math.PI*2,r:sz.r*(.75+Math.random()*.5)}));
+    this.asteroids.push({x,y,vx:Math.cos(a)*sz.speed,vy:Math.sin(a)*sz.speed,r:sz.r,size,pts:sz.pts,verts,angle:0,spin:(Math.random()-.5)*.04});
+  }
+  startLoop(){document.getElementById('arc-ast-start').style.display='none';this.running=true;this.last=0;this.raf=requestAnimationFrame(ts=>this.loop(ts));}
+  loop(ts){if(!this.running)return;this.last=ts;this.update();this.draw();this.raf=requestAnimationFrame(ts=>this.loop(ts));}
+  update(){
+    const s=this.ship,now=performance.now();
+    if(this.keys['arc-ast-left']||this.keys['ArrowLeft'])s.angle-=.06;
+    if(this.keys['arc-ast-right']||this.keys['ArrowRight'])s.angle+=.06;
+    if(this.keys['arc-ast-thrust']||this.keys['ArrowUp']){s.vx+=Math.cos(s.angle)*.25;s.vy+=Math.sin(s.angle)*.25;}
+    s.vx*=.97;s.vy*=.97;
+    s.x=(s.x+s.vx+this.W)%this.W;s.y=(s.y+s.vy+this.H)%this.H;
+    if(s.invincible>0)s.invincible--;
+    if((this.keys[' ']||this.firePressed)&&now-this.lastFire>220){
+      this.lastFire=now;
+      this.bullets.push({x:s.x+Math.cos(s.angle)*16,y:s.y+Math.sin(s.angle)*16,vx:Math.cos(s.angle)*8+s.vx,vy:Math.sin(s.angle)*8+s.vy,life:55});
+    }
+    this.bullets.forEach(b=>{b.x=(b.x+b.vx+this.W)%this.W;b.y=(b.y+b.vy+this.H)%this.H;b.life--;});
+    this.bullets=this.bullets.filter(b=>b.life>0);
+    this.asteroids.forEach(a=>{a.x=(a.x+a.vx+this.W)%this.W;a.y=(a.y+a.vy+this.H)%this.H;a.angle+=a.spin;});
+    this.particles=this.particles.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.life--;return p.life>0;});
+    for(let bi=this.bullets.length-1;bi>=0;bi--){
+      const b=this.bullets[bi];
+      for(let ai=this.asteroids.length-1;ai>=0;ai--){
+        const a=this.asteroids[ai];
+        if(Math.hypot(b.x-a.x,b.y-a.y)<a.r){
+          this.score+=a.pts;arcUpdateScore(this.score);
+          for(let i=0;i<8;i++)this.particles.push({x:a.x,y:a.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,life:20+Math.random()*15});
+          if(a.size==='large'){this.spawnAsteroid(a.x,a.y,'medium');this.spawnAsteroid(a.x,a.y,'medium');}
+          else if(a.size==='medium'){this.spawnAsteroid(a.x,a.y,'small');this.spawnAsteroid(a.x,a.y,'small');}
+          this.asteroids.splice(ai,1);this.bullets.splice(bi,1);break;
+        }
+      }
+    }
+    if(s.invincible===0){
+      for(const a of this.asteroids){
+        if(Math.hypot(s.x-a.x,s.y-a.y)<a.r+10){
+          this.lives--;document.getElementById('arc-ast-lives').textContent=this.lives;
+          s.invincible=150;
+          for(let i=0;i<15;i++)this.particles.push({x:s.x,y:s.y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:30});
+          if(this.lives<=0){this.running=false;arcGameOver('asteroids',this.score);}
+          break;
+        }
+      }
+    }
+    if(this.asteroids.length===0){this.level++;document.getElementById('arc-ast-level').textContent=this.level;this.initLevel();}
+  }
+  draw(){
+    const c=this.ctx,W=this.W,H=this.H;
+    c.fillStyle='#060612';c.fillRect(0,0,W,H);
+    c.fillStyle='rgba(255,255,255,.5)';this._stars.forEach(s=>{c.beginPath();c.arc(s.x,s.y,s.r,0,Math.PI*2);c.fill();});
+    this.particles.forEach(p=>{c.fillStyle=`rgba(255,180,60,${p.life/30})`;c.fillRect(p.x,p.y,3,3);});
+    this.asteroids.forEach(a=>{c.strokeStyle='#aaa';c.lineWidth=1.5;c.beginPath();a.verts.forEach((v,i)=>{const x=a.x+Math.cos(a.angle+v.a)*v.r,y=a.y+Math.sin(a.angle+v.a)*v.r;i===0?c.moveTo(x,y):c.lineTo(x,y);});c.closePath();c.stroke();});
+    c.fillStyle='#FF5';this.bullets.forEach(b=>{c.beginPath();c.arc(b.x,b.y,2.5,0,Math.PI*2);c.fill();});
+    const s=this.ship;
+    if(s.invincible===0||Math.floor(s.invincible/8)%2===0){
+      c.strokeStyle='#4FC3F7';c.lineWidth=2;c.beginPath();
+      c.moveTo(s.x+Math.cos(s.angle)*16,s.y+Math.sin(s.angle)*16);
+      c.lineTo(s.x+Math.cos(s.angle+2.4)*12,s.y+Math.sin(s.angle+2.4)*12);
+      c.lineTo(s.x+Math.cos(s.angle+Math.PI)*6,s.y+Math.sin(s.angle+Math.PI)*6);
+      c.lineTo(s.x+Math.cos(s.angle-2.4)*12,s.y+Math.sin(s.angle-2.4)*12);
+      c.closePath();c.stroke();
+      if(this.keys['arc-ast-thrust']||this.keys['ArrowUp']){c.strokeStyle='rgba(255,120,0,.8)';c.lineWidth=1.5;c.beginPath();c.moveTo(s.x+Math.cos(s.angle+Math.PI)*8,s.y+Math.sin(s.angle+Math.PI)*8);c.lineTo(s.x+Math.cos(s.angle+Math.PI)*(13+Math.random()*7),s.y+Math.sin(s.angle+Math.PI)*(13+Math.random()*7));c.stroke();}
+    }
+  }
+  destroy(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);document.removeEventListener('keydown',this._kh);document.removeEventListener('keyup',this._ku);}
+}
+
+// ══════════════════════════════════════════════════════
+// BATTLESHIP – Firebase Online
+// ══════════════════════════════════════════════════════
+class ArcBattleship{
+  constructor(el){
+    this.el=el;this.SHIPS=[5,4,3,3,2];
+    this.roomCode=null;this.myRole=null;this.stopListen=null;
+    this.phase='setup';
+    this.myBoard=Array.from({length:10},()=>Array(10).fill(0));
+    this.myHits=Array.from({length:10},()=>Array(10).fill(0));
+    this.enemyHits=Array.from({length:10},()=>Array(10).fill(0));
+    this.pendingShips=[...this.SHIPS];this.myTurn=false;
+    this.render();
+  }
+  render(){
+    const el=this.el;
+    if(this.phase==='setup'){
+      el.innerHTML=`<div style="padding:8px 0"><div class="arc-mp-box">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px">Raum erstellen oder beitreten</div>
+        <button class="arc-btn primary" onclick="window._arcbs.createRoom()" style="margin:4px">Neues Spiel erstellen</button>
+        <div style="margin:10px 0;font-size:12px;color:var(--text3)">— oder —</div>
+        <input class="arc-mp-input" id="arc-bs-code" placeholder="CODE" maxlength="4"/>
+        <br><button class="arc-btn" onclick="window._arcbs.joinRoom()" style="margin-top:8px">Beitreten</button>
+      </div></div>`;
+      window._arcbs=this;
+    }else if(this.phase==='place'){
+      const next=this.pendingShips[0];
+      el.innerHTML=`<div style="padding:8px 0">
+        <div style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:4px">Platziere Schiff der Länge <strong style="color:var(--text)">${next}</strong> (noch ${this.pendingShips.length} übrig)</div>
+        <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:8px">Klicke Start-Zelle, dann End-Zelle</div>
+        <div id="arc-bs-my-grid" class="arc-bs-grid" style="grid-template-columns:repeat(10,27px)"></div>
+        <div style="margin-top:8px;text-align:center"><button class="arc-btn" onclick="window._arcbs.toggleOrient()" id="arc-orient-btn">↔ Horizontal</button></div>
+      </div>`;
+      window._arcbs=this;this.renderMyGrid('place');
+    }else if(this.phase==='wait'){
+      el.innerHTML=`<div style="padding:8px 0"><div class="arc-mp-box">
+        <div class="arc-mp-code">${this.roomCode}</div>
+        <div style="font-size:13px;color:var(--text2)">Code dem Gegner mitteilen!</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px" id="arc-wait-status">⏳ Warte auf Gegner…</div>
+      </div></div>`;
+      this.pollForOpponent();
+    }else if(this.phase==='battle'){
+      el.innerHTML=`<div style="padding:8px 0">
+        <div style="font-size:13px;font-weight:500;text-align:center;margin-bottom:6px;color:var(--text)" id="arc-turn-info">${this.myTurn?'🎯 Du bist dran!':'⏳ Gegner ist dran…'}</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Gegnerisches Feld</div>
+        <div id="arc-bs-enemy-grid" class="arc-bs-grid" style="grid-template-columns:repeat(10,27px)"></div>
+        <div style="font-size:11px;color:var(--text3);margin:8px 0 3px">Dein Feld</div>
+        <div id="arc-bs-my-grid2" class="arc-bs-grid" style="grid-template-columns:repeat(10,27px)"></div>
+      </div>`;
+      window._arcbs=this;this.renderBattleGrids();this.listenBattle();
+    }
+  }
+  async createRoom(){this.roomCode=Math.random().toString(36).substr(2,4).toUpperCase();this.myRole='host';await arcFbSet(`arcade_bs/${this.roomCode}`,{host:{ready:false},status:'waiting'});this.phase='place';this.horizontal=true;this.selecting=null;this.render();}
+  async joinRoom(){const code=document.getElementById('arc-bs-code').value.trim().toUpperCase();if(!code)return;const d=await arcFbGet(`arcade_bs/${code}`);if(!d||d.status!=='waiting'){alert('Raum nicht gefunden!');return;}this.roomCode=code;this.myRole='guest';this.phase='place';this.horizontal=true;this.selecting=null;this.render();}
+  toggleOrient(){this.horizontal=!this.horizontal;const b=document.getElementById('arc-orient-btn');if(b)b.textContent=this.horizontal?'↔ Horizontal':'↕ Vertikal';}
+  renderMyGrid(mode){
+    const grid=document.getElementById(mode==='place'?'arc-bs-my-grid':'arc-bs-my-grid2');if(!grid)return;
+    grid.innerHTML='';
+    for(let r=0;r<10;r++)for(let c=0;c<10;c++){
+      const cell=document.createElement('div');cell.className='arc-bs-cell';
+      if(mode==='battle'){const hv=this.myHits[r][c];if(hv===2)cell.className='arc-bs-cell hit';else if(hv===1)cell.className='arc-bs-cell miss';else if(this.myBoard[r][c])cell.className='arc-bs-cell ship';}
+      else if(this.myBoard[r][c])cell.className='arc-bs-cell ship';
+      if(mode==='place')cell.onclick=()=>this.placeShipClick(r,c);
+      grid.appendChild(cell);
+    }
+  }
+  placeShipClick(r,c){
+    if(!this.selecting){this.selecting={r,c};return;}
+    const s=this.selecting;this.selecting=null;const len=this.pendingShips[0];
+    const horiz=Math.abs(c-s.c)>=Math.abs(r-s.r);
+    const cells=[];
+    if(horiz){const minC=Math.min(c,s.c);for(let i=0;i<len;i++)cells.push({r:s.r,c:minC+i});}
+    else{const minR=Math.min(r,s.r);for(let i=0;i<len;i++)cells.push({r:minR+i,c:s.c});}
+    if(cells.some(({r,c})=>r<0||r>=10||c<0||c>=10||this.myBoard[r][c])){alert('Ungültige Position!');return;}
+    cells.forEach(({r,c})=>this.myBoard[r][c]=1);this.pendingShips.shift();
+    if(this.pendingShips.length===0)this.finishPlacement();else this.render();
+  }
+  async finishPlacement(){
+    await arcFbPatch(`arcade_bs/${this.roomCode}`,{[this.myRole]:{board:this.myBoard.map(r=>r.join('')).join(','),ready:true}});
+    this.phase='wait';this.render();
+    const other=this.myRole==='host'?'guest':'host';
+    this.stopListen=arcFbListen(`arcade_bs/${this.roomCode}`,d=>{if(d&&d[other]&&d[other].ready){if(this.stopListen)this.stopListen();this.myTurn=this.myRole==='host';this.phase='battle';this.render();}});
+  }
+  pollForOpponent(){
+    const other=this.myRole==='host'?'guest':'host';
+    this.stopListen=arcFbListen(`arcade_bs/${this.roomCode}`,d=>{if(d&&d[other]&&d[other].ready){if(this.stopListen)this.stopListen();this.myTurn=this.myRole==='host';this.phase='battle';this.render();}});
+  }
+  renderBattleGrids(){
+    const eg=document.getElementById('arc-bs-enemy-grid');
+    if(eg){eg.innerHTML='';for(let r=0;r<10;r++)for(let c=0;c<10;c++){const cell=document.createElement('div');const v=this.enemyHits[r][c];cell.className='arc-bs-cell'+(v===2?' hit':v===1?' miss':'');if(!v&&this.myTurn)cell.onclick=()=>this.fireAt(r,c);eg.appendChild(cell);}}
+    this.renderMyGrid('battle');
+  }
+  listenBattle(){
+    const other=this.myRole==='host'?'guest':'host';
+    this.stopListen=arcFbListen(`arcade_bs/${this.roomCode}`,d=>{
+      if(!d)return;
+      const shots=d[`shots_at_${this.myRole}`];
+      if(shots)shots.split(',').filter(Boolean).forEach(s=>{const[r,c]=s.split(':').map(Number);if(this.myHits[r][c]===0)this.myHits[r][c]=this.myBoard[r][c]===1?2:1;});
+      const myShots=d[`shots_at_${other}`];
+      if(myShots){const ob=d[other]?.board?d[other].board.split(',').map(r=>r.split('').map(Number)):null;if(ob)myShots.split(',').filter(Boolean).forEach(s=>{const[r,c]=s.split(':').map(Number);if(this.enemyHits[r][c]===0)this.enemyHits[r][c]=ob[r]?.[c]===1?2:1;});}
+      this.myTurn=d.turn===this.myRole;
+      if(d.winner){if(this.stopListen)this.stopListen();const won=d.winner===this.myRole;document.getElementById('arcadeGameContainer').innerHTML=`<div class="arc-result"><h2>${won?'🎉 Du hast gewonnen!':'😢 Niederlage'}</h2><div class="arc-result-score">${won?'SIEG':'NIEDERL.'}</div><div class="arc-result-btns"><button class="arc-btn" onclick="arcGoLobby()">← Lobby</button></div></div>`;return;}
+      const ti=document.getElementById('arc-turn-info');if(ti)ti.textContent=this.myTurn?'🎯 Du bist dran!':'⏳ Gegner ist dran…';
+      this.renderBattleGrids();
+    });
+  }
+  async fireAt(r,c){
+    if(!this.myTurn||this.enemyHits[r][c])return;
+    const other=this.myRole==='host'?'guest':'host';
+    const key=`shots_at_${other}`;
+    const prev=(await arcFbGet(`arcade_bs/${this.roomCode}/${key}`))||'';
+    const ob=await arcFbGet(`arcade_bs/${this.roomCode}/${other}/board`);
+    let hit=false;if(ob){const rows=ob.split(',').map(r=>r.split('').map(Number));hit=rows[r]?.[c]===1;}
+    this.enemyHits[r][c]=hit?2:1;
+    const allHits=this.enemyHits.flat().filter(v=>v===2).length;
+    const total=this.SHIPS.reduce((a,b)=>a+b,0);
+    const updates={[key]:prev+`${r}:${c},`,turn:other};
+    if(allHits>=total)updates.winner=this.myRole;
+    await arcFbPatch(`arcade_bs/${this.roomCode}`,updates);
+    this.myTurn=false;
+    const ti=document.getElementById('arc-turn-info');if(ti)ti.textContent='⏳ Gegner ist dran…';
+    this.renderBattleGrids();
+  }
+  destroy(){if(this.stopListen)this.stopListen();}
+}
+
+// ══════════════════════════════════════════════════════
+// PONG – Firebase Online
+// ══════════════════════════════════════════════════════
+class ArcPong{
+  constructor(el){
+    this.el=el;this.roomCode=null;this.myRole=null;this.stopListen=null;
+    this.W=Math.min(360,window.innerWidth-24);this.H=Math.round(this.W*.65);
+    this.running=false;this.raf=null;this.state={left:{y:.5,score:0},right:{y:.5,score:0},ball:{x:.5,y:.5,vx:.012,vy:.008}};
+    this.renderLobby();
+  }
+  renderLobby(){
+    this.el.innerHTML=`<div style="padding:8px 0"><div class="arc-mp-box">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:10px">Pong – Online 1v1</div>
+      <button class="arc-btn primary" onclick="window._arcpong.createRoom()" style="margin:4px">Spiel erstellen</button>
+      <div style="margin:10px 0;font-size:12px;color:var(--text3)">— oder —</div>
+      <input class="arc-mp-input" id="arc-pong-code" placeholder="CODE" maxlength="4"/>
+      <br><button class="arc-btn" onclick="window._arcpong.joinRoom()" style="margin-top:8px">Beitreten</button>
+    </div></div>`;
+    window._arcpong=this;
+  }
+  async createRoom(){this.roomCode=Math.random().toString(36).substr(2,4).toUpperCase();this.myRole='left';await arcFbSet(`arcade_pong/${this.roomCode}`,{status:'waiting',left:{y:.5,score:0},right:{y:.5,score:0},ball:{x:.5,y:.5,vx:.012,vy:.008}});this.el.innerHTML=`<div style="padding:8px 0"><div class="arc-mp-box"><div class="arc-mp-code">${this.roomCode}</div><div style="font-size:13px;color:var(--text2)">Code teilen – warte auf Gegner…</div></div></div>`;this.stopListen=arcFbListen(`arcade_pong/${this.roomCode}`,d=>{if(d&&d.status==='ready'){if(this.stopListen)this.stopListen();this.startPong();}});}
+  async joinRoom(){const code=document.getElementById('arc-pong-code').value.trim().toUpperCase();if(!code)return;const d=await arcFbGet(`arcade_pong/${code}`);if(!d||d.status!=='waiting'){alert('Raum nicht gefunden!');return;}this.roomCode=code;this.myRole='right';await arcFbPatch(`arcade_pong/${this.roomCode}`,{status:'ready'});this.startPong();}
+  startPong(){
+    const W=this.W,H=this.H;
+    this.el.innerHTML=`<div style="text-align:center;font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px" id="arc-pong-score">0 : 0</div>
+      <canvas id="arc-pong-cv" width="${W}" height="${H}" style="touch-action:none"></canvas>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px">Du spielst ${this.myRole==='left'?'Links 🟦':'Rechts 🟦'} — Finger/Maus bewegt Paddle</div>`;
+    this.cv=document.getElementById('arc-pong-cv');this.ctx=this.cv.getContext('2d');
+    const moveY=(cy)=>{const r=this.cv.getBoundingClientRect();this.myY=Math.max(.05,Math.min(.95,(cy-r.top)/H));this.pushMyY();};
+    this.cv.addEventListener('mousemove',e=>moveY(e.clientY));
+    this.cv.addEventListener('touchmove',e=>{e.preventDefault();moveY(e.touches[0].clientY);},{passive:false});
+    this.running=true;this.myY=.5;
+    this.stopListen=arcFbListen(`arcade_pong/${this.roomCode}`,d=>{if(d){this.state=d;const sc=`${d.left?.score||0} : ${d.right?.score||0}`;const el=document.getElementById('arc-pong-score');if(el)el.textContent=sc;}});
+    const drawLoop=()=>{if(!this.running)return;this.drawPong();this.raf=requestAnimationFrame(drawLoop);};
+    if(this.myRole==='left'){const hl=()=>{if(!this.running)return;this.hostTick();setTimeout(hl,30);};hl();}
+    drawLoop();
+  }
+  async pushMyY(){await arcFbPatch(`arcade_pong/${this.roomCode}`,{[this.myRole]:{y:this.myY,score:this.state[this.myRole]?.score||0}});}
+  async hostTick(){
+    const s=this.state;if(!s?.ball)return;
+    let{x,y,vx,vy}=s.ball;const ly=s.left?.y??0.5,ry=s.right?.y??0.5;
+    x+=vx;y+=vy;if(y<.04||y>.96)vy*=-1;
+    const ph=.12;
+    if(x<.05&&y>ly-ph&&y<ly+ph){vx=Math.abs(vx)*1.05;vy+=(y-ly)*.02;}
+    if(x>.95&&y>ry-ph&&y<ry+ph){vx=-Math.abs(vx)*1.05;vy+=(y-ry)*.02;}
+    let ls=s.left?.score||0,rs=s.right?.score||0;
+    if(x<0){rs++;x=.5;y=.5;vx=.012;vy=(Math.random()-.5)*.015;}
+    if(x>1){ls++;x=.5;y=.5;vx=-.012;vy=(Math.random()-.5)*.015;}
+    vx=Math.max(-.04,Math.min(.04,vx));vy=Math.max(-.035,Math.min(.035,vy));
+    await arcFbPatch(`arcade_pong/${this.roomCode}`,{ball:{x,y,vx,vy},left:{y:this.myRole==='left'?this.myY:ly,score:ls},right:{y:this.myRole==='right'?this.myY:ry,score:rs}});
+  }
+  drawPong(){
+    if(!this.ctx)return;const c=this.ctx,W=this.W,H=this.H,s=this.state;if(!s?.ball)return;
+    c.fillStyle='#0a0a0a';c.fillRect(0,0,W,H);
+    c.setLineDash([8,8]);c.strokeStyle='#333';c.beginPath();c.moveTo(W/2,0);c.lineTo(W/2,H);c.stroke();c.setLineDash([]);
+    const ph=Math.round(H*.12),pw=10;
+    c.fillStyle='#4FC3F7';
+    c.fillRect(8,Math.round((s.left?.y||.5)*H)-ph/2,pw,ph);
+    c.fillRect(W-8-pw,Math.round((s.right?.y||.5)*H)-ph/2,pw,ph);
+    c.fillStyle='#fff';c.beginPath();c.arc(s.ball.x*W,s.ball.y*H,7,0,Math.PI*2);c.fill();
+  }
+  destroy(){this.running=false;if(this.stopListen)this.stopListen();if(this.raf)cancelAnimationFrame(this.raf);}
 }
 </script>
 
