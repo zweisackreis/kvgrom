@@ -912,10 +912,9 @@ function renderSights() {
 function renderNotifBanner() {
   const box = document.getElementById('notif-start-box');
   if (!box) return;
-
   const myKlasse = localStorage.getItem('rom-klasse') || '';
-  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs') || '[]');
-
+  // Gleicher Store wie Glockenansicht
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
   const visible = (data.notifications || []).map((n, i) => ({...n, _idx: i})).filter(n => {
     if (dismissed.includes(n._idx)) return false;
     const ziel = n.klasse || 'alle';
@@ -925,31 +924,29 @@ function renderNotifBanner() {
     if (ziel === 'Klassen 8-Q2' && ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'].includes(myKlasse)) return true;
     return ziel === myKlasse;
   });
-
   if (!visible.length) { box.innerHTML = ''; return; }
-
   const n = visible[visible.length - 1];
   box.innerHTML = `
     <div style="background:#1c3d2a;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;position:relative">
-      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.08;line-height:1;pointer-events:none;z-index:0">🔔</div>
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.08;line-height:1;pointer-events:none">🔔</div>
       <div style="position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
         <div style="flex:1">
           <div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px">Mitteilung · ${n.time}</div>
           <div style="font-size:15px;font-weight:500;color:white;margin-bottom:3px">${n.title}</div>
           <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5">${n.body}</div>
         </div>
-        <button data-idx="${n._idx}" onclick="dismissNotifBanner(parseInt(this.dataset.idx))"
+        <button data-idx="${n._idx}"
           style="position:relative;z-index:2;background:rgba(255,255,255,.2);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation">×</button>
       </div>
       ${visible.length > 1 ? `<div style="position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">+${visible.length-1} weitere Mitteilung${visible.length>2?'en':''}</div>` : ''}
     </div>`;
+  box.querySelector('button[data-idx]').addEventListener('click', function() {
+    dismissNotifPermanent(parseInt(this.dataset.idx));
+  });
 }
 
 function dismissNotifBanner(idx) {
-  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs') || '[]');
-  if (!dismissed.includes(idx)) dismissed.push(idx);
-  localStorage.setItem('rom-dismissed-notifs', JSON.stringify(dismissed));
-  renderNotifBanner();
+  dismissNotifPermanent(idx);
 }
 
 function dismissTreffpunkt(id) {
@@ -1253,40 +1250,77 @@ function vote(pollId, optIdx) {
 
 function renderNotifications() {
   const myKlasse = localStorage.getItem('rom-klasse') || 'alle';
-  // Filter: show notification if it targets 'alle', or matches user's class, or user is Lehrkraft
-  const visible = data.notifications.filter(n => {
+  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
+  const dismissedIds = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
+
+  const visible = data.notifications.filter((n, i) => {
+    if (dismissedIds.includes(i)) return false;
     const ziel = n.klasse || 'alle';
     if (ziel === 'alle') return true;
     if (myKlasse === 'Lehrkraft') return true;
-    // Group targets like 'Klassen 5-7'
     if (ziel === 'Klassen 5-7' && ['5a','5b','5c','6a','6b','6c','7a','7b','7c'].includes(myKlasse)) return true;
     if (ziel === 'Klassen 8-Q2' && ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'].includes(myKlasse)) return true;
     return ziel === myKlasse;
   });
-  const unread = visible.filter(n=>!n.read).length;
+
+  // Glocken-Dot: ungelesen = Index nicht in readIds
+  const unread = visible.filter(n => !readIds.includes(data.notifications.indexOf(n))).length;
   document.getElementById('notifDot').classList.toggle('show', unread > 0);
+
   const list = document.getElementById('notif-list');
   if (!visible.length) {
     list.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--text3);font-size:14px">Noch keine Mitteilungen für deine Klasse.</div>';
     return;
   }
-  list.innerHTML = visible.slice().reverse().map((n,i) => {
+
+  list.innerHTML = visible.slice().reverse().map(n => {
     const origIdx = data.notifications.indexOf(n);
-    const klasseTag = (n.klasse && n.klasse !== 'alle') ? `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:var(--accent-light);color:var(--accent);margin-left:6px">${n.klasse}</span>` : '';
-    return `<div class="notif-item" onclick="markRead(${origIdx})">
-      <div class="notif-dot-left ${n.read?'read':''}"></div>
-      <div>
+    const isRead = readIds.includes(origIdx);
+    const klasseTag = (n.klasse && n.klasse !== 'alle')
+      ? `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:var(--accent-light);color:var(--accent);margin-left:6px">${n.klasse}</span>`
+      : '';
+    return `<div class="notif-item" style="align-items:flex-start">
+      <div class="notif-dot-left ${isRead?'read':''}" style="margin-top:5px;cursor:pointer" onclick="markNotifRead(${origIdx})"></div>
+      <div style="flex:1;min-width:0">
         <div class="notif-title">${n.title}${klasseTag}</div>
         <div class="notif-body">${n.body}</div>
         <div class="notif-time">${n.time}</div>
       </div>
+      <button data-notifidx="${origIdx}"
+        style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:0 0 0 8px;line-height:1;flex-shrink:0;touch-action:manipulation">×</button>
     </div>`;
   }).join('');
+
+  // Event-Delegation für ×-Buttons
+  list.querySelectorAll('button[data-notifidx]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dismissNotifPermanent(parseInt(this.dataset.notifidx));
+    });
+  });
 }
 
-function markRead(idx) {
-  if (data.notifications[idx]) { data.notifications[idx].read = true; save(); renderNotifications(); }
+function markNotifRead(idx) {
+  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
+  if (!readIds.includes(idx)) { readIds.push(idx); localStorage.setItem('rom-read-notifs', JSON.stringify(readIds)); }
+  renderNotifications();
 }
+
+function markAllNotifsRead(notifications) {
+  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
+  notifications.forEach((n, i) => { if (!readIds.includes(i)) readIds.push(i); });
+  localStorage.setItem('rom-read-notifs', JSON.stringify(readIds));
+}
+
+function dismissNotifPermanent(idx) {
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
+  if (!dismissed.includes(idx)) { dismissed.push(idx); localStorage.setItem('rom-dismissed-notifs-v2', JSON.stringify(dismissed)); }
+  markNotifRead(idx);
+  renderNotifications();
+  renderNotifBanner();
+}
+
+function markRead(idx) { markNotifRead(idx); }
 
 function renderFormLinks() {
   const fb = data.formsLinks.feedback || '#';
@@ -1403,7 +1437,7 @@ function switchPage(id) {
   document.getElementById('page-'+id)?.classList.add('active');
   document.querySelector(`[data-page="${id}"]`)?.classList.add('active');
   if (id === 'benachrichtigungen') {
-    data.notifications.forEach(n=>n.read=true); save(); renderNotifications();
+    data.notifications.forEach(n=>n.read=true); save(); markAllNotifsRead(data.notifications); renderNotifications();
   }
   window.scrollTo(0,0);
 }
@@ -2784,7 +2818,7 @@ class ArcSnake{
   kh(e){const m={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0}};if(m[e.key]){e.preventDefault();this.sd(m[e.key]);}}
   randFood(){let f;do{f={x:Math.floor(Math.random()*this.cols),y:Math.floor(Math.random()*this.rows)};}while(this.snake.some(s=>s.x===f.x&&s.y===f.y));return f;}
   startLoop(){document.getElementById('arc-snake-start').style.display='none';this.running=true;this.last=0;this.raf=requestAnimationFrame(ts=>this.step(ts));}
-  step(ts){if(!this.running)return;const iv=Math.max(80,150-this.score*2);if(ts-this.last>=iv){this.last=ts;this.dir=this.nextDir;const h={x:(this.snake[0].x+this.dir.x+this.cols)%this.cols,y:(this.snake[0].y+this.dir.y+this.rows)%this.rows};if(this.snake.some(s=>s.x===h.x&&s.y===h.y)){this.running=false;arcGameOver('snake',this.score);return;}this.snake.unshift(h);if(h.x===this.food.x&&h.y===this.food.y){this.score++;arcUpdateScore(this.score);this.food=this.randFood();}else this.snake.pop();this.draw();}this.raf=requestAnimationFrame(ts=>this.step(ts));}
+  step(ts){if(!this.running)return;const iv=Math.max(80,150-this.score*2);if(ts-this.last>=iv){this.last=ts;this.dir=this.nextDir;const h={x:(this.snake[0].x+this.dir.x+this.cols)%this.cols,y:(this.snake[0].y+this.dir.y+this.rows)%this.rows};if(this.snake.some(s=>s.x===h.x&&s.y===h.y)){this.running=false;if(this.raf){cancelAnimationFrame(this.raf);this.raf=null;}arcGameOver('snake',this.score);return;}this.snake.unshift(h);if(h.x===this.food.x&&h.y===this.food.y){this.score++;arcUpdateScore(this.score);this.food=this.randFood();}else this.snake.pop();this.draw();}this.raf=requestAnimationFrame(ts=>this.step(ts));}
   draw(){const c=this.ctx,S=this.SZ;
     c.fillStyle='#0a0a0a';c.fillRect(0,0,this.W,this.H);
     // Grid
@@ -2833,7 +2867,7 @@ class ArcTetris{
     document.getElementById('arc-tdrop').onclick=()=>this.hdrop();
   }
   rp(){return JSON.parse(JSON.stringify(this.P[Math.floor(Math.random()*this.P.length)]));}
-  spawn(){this.p=this.next;this.next=this.rp();this.px=Math.floor(this.COLS/2)-Math.floor(this.p.s[0].length/2);this.py=0;if(!this.valid(this.p.s,this.px,this.py)){this.running=false;arcGameOver('tetris',this.score);}}
+  spawn(){this.p=this.next;this.next=this.rp();this.px=Math.floor(this.COLS/2)-Math.floor(this.p.s[0].length/2);this.py=0;if(!this.valid(this.p.s,this.px,this.py)){this.running=false;if(this.raf){cancelAnimationFrame(this.raf);this.raf=null;}arcGameOver('tetris',this.score);}}
   valid(s,x,y){return s.every((row,r)=>row.every((v,c)=>!v||(y+r>=0&&y+r<this.ROWS&&x+c>=0&&x+c<this.COLS&&!this.board[y+r][x+c])));}
   mv(d){if(this.valid(this.p.s,this.px+d,this.py)){this.px+=d;this.drawB();}}
   drop(){if(this.valid(this.p.s,this.px,this.py+1)){this.py++;this.drawB();}else this.lock();}
@@ -2894,7 +2928,7 @@ class ArcPacman{
     const px=Math.round(p.x),py=Math.round(p.y);
     const di=this.dots.findIndex(d=>!d.eaten&&d.x===px&&d.y===py);if(di>=0){this.dots[di].eaten=true;this.score+=10;arcUpdateScore(this.score);}
     const ei=this.energizers.findIndex(e=>!e.eaten&&e.x===px&&e.y===py);if(ei>=0){this.energizers[ei].eaten=true;this.score+=50;arcUpdateScore(this.score);this.ghosts.forEach(g=>{if(g.mode!=='house')g.scared=40;});}
-    if(this.dots.every(d=>d.eaten)&&this.energizers.every(e=>e.eaten)){this.running=false;arcGameOver('pacman',this.score);return;}
+    if(this.dots.every(d=>d.eaten)&&this.energizers.every(e=>e.eaten)){this.running=false;if(this.raf){cancelAnimationFrame(this.raf);this.raf=null;}arcGameOver('pacman',this.score);return;}
     const dirs=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
     this.ghosts.forEach(g=>{
       if(g.mode==='house')return;if(g.scared>0)g.scared--;
@@ -2906,7 +2940,7 @@ class ArcPacman{
         if(opts.length){const chosen=g.scared>0?opts[Math.floor(Math.random()*opts.length)]:opts.reduce((b,d)=>(d.x*(p.x-g.x)+d.y*(p.y-g.y))>(b.x*(p.x-g.x)+b.y*(p.y-g.y))?d:b,opts[0]);g.dir=chosen;g.x=Math.round(g.x);g.y=Math.round(g.y);}
       }
       g.x+=g.dir.x*.25;g.y+=g.dir.y*.25;
-      if(Math.abs(g.x-p.x)<.8&&Math.abs(g.y-p.y)<.8){if(g.scared>0){g.scared=0;g.x=g.sx;g.y=g.sy;g.mode='house';this.score+=200;arcUpdateScore(this.score);}else{this.lives--;if(this.lives<=0){this.running=false;arcGameOver('pacman',this.score);}else{p.x=10;p.y=16;p.dir={x:0,y:0};p.nd={x:0,y:0};}}}
+      if(Math.abs(g.x-p.x)<.8&&Math.abs(g.y-p.y)<.8){if(g.scared>0){g.scared=0;g.x=g.sx;g.y=g.sy;g.mode='house';this.score+=200;arcUpdateScore(this.score);}else{this.lives--;if(this.lives<=0){this.running=false;if(this.raf){cancelAnimationFrame(this.raf);this.raf=null;}arcGameOver('pacman',this.score);}else{p.x=10;p.y=16;p.dir={x:0,y:0};p.nd={x:0,y:0};}}}
     });this.draw();
   }
   draw(){
@@ -3013,7 +3047,7 @@ class ArcAsteroids{
           this.lives--;document.getElementById('arc-ast-lives').textContent=this.lives;
           s.invincible=150;
           for(let i=0;i<15;i++)this.particles.push({x:s.x,y:s.y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:30});
-          if(this.lives<=0){this.running=false;arcGameOver('asteroids',this.score);}
+          if(this.lives<=0){this.running=false;if(this.raf){cancelAnimationFrame(this.raf);this.raf=null;}arcGameOver('asteroids',this.score);}
           break;
         }
       }
