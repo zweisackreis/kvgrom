@@ -2610,12 +2610,12 @@ function arcFbListen(path,cb){
   poll(); return()=>{if(t)clearTimeout(t);};
 }
 
-async function arcLoadScores(){try{const r=await window.storage.get('arc_scores_v1',true);return r?JSON.parse(r.value):[]}catch(e){return[];}}
-async function arcSaveScore(game,name,score){let s=await arcLoadScores();s.push({game,name,score,ts:Date.now()});s.sort((a,b)=>b.score-a.score);if(s.length>300)s=s.slice(0,300);await window.storage.set('arc_scores_v1',JSON.stringify(s),true);return s;}
+function arcLoadScores(){try{const r=localStorage.getItem('arc_scores_v1');return r?JSON.parse(r):[]}catch(e){return[];}}
+function arcSaveScore(game,name,score){let s=arcLoadScores();s.push({game,name,score,ts:Date.now()});s.sort((a,b)=>b.score-a.score);if(s.length>300)s=s.slice(0,300);try{localStorage.setItem('arc_scores_v1',JSON.stringify(s));}catch(e){}return s;}
 
 async function arcRenderLobby(){
-  try{const r=await window.storage.get('arc_name');if(r){arcPlayerName=r.value;document.getElementById('arc-player-name').value=r.value;}}catch(e){}
-  const scores=await arcLoadScores();
+  try{const r=localStorage.getItem('arc_name');if(r){arcPlayerName=r;document.getElementById('arc-player-name').value=r;}}catch(e){}
+  const scores=arcLoadScores();
   function makeGrid(games,elId,multi=false){
     const el=document.getElementById(elId);if(!el)return;el.innerHTML='';
     for(const g of games){
@@ -2647,8 +2647,8 @@ function arcRenderLeaderboard(scores){
       <span class="arc-lb-score">${s.score}</span></div>`;
   }).join(''):'<div style="font-size:12px;color:var(--text3);padding:8px 0">Noch keine Scores</div>';
 }
-async function arcSetLbFilter(f){arcLbFilter=f;arcRenderLeaderboard(await arcLoadScores());}
-async function arcSaveName(){const v=document.getElementById('arc-player-name').value.trim();if(!v)return;arcPlayerName=v;await window.storage.set('arc_name',v);arcRenderLobby();}
+function arcSetLbFilter(f){arcLbFilter=f;arcRenderLeaderboard(arcLoadScores());}
+async function arcSaveName(){const v=document.getElementById('arc-player-name').value.trim();if(!v)return;arcPlayerName=v;localStorage.setItem('arc_name',v);arcRenderLobby();}
 
 function arcGoLobby(){
   if(arcCurrentGame){arcCurrentGame.destroy();arcCurrentGame=null;}
@@ -2670,11 +2670,9 @@ function arcStartGame(id){
   else if(id==='pong')arcCurrentGame=new ArcPong(c);
 }
 function arcUpdateScore(v){document.getElementById('arc-live-score').textContent=v;}
-async function arcGameOver(id,score){
+function arcGameOver(id,score){
   if(arcCurrentGame){try{arcCurrentGame.destroy();}catch(e){}arcCurrentGame=null;}
-  // Kurze Verzögerung damit der letzte Frame gerendert ist
-  await new Promise(r=>setTimeout(r,80));
-  const scores=await arcSaveScore(id,arcPlayerName,score);
+  const scores=arcSaveScore(id,arcPlayerName,score);
   const my=scores.filter(s=>s.game===id&&s.name===arcPlayerName);
   const isNew=my.length<=1;
   const top=scores.filter(s=>s.game===id).slice(0,5);
