@@ -2636,17 +2636,71 @@ async function arcRenderLobby(){
 function arcRenderLeaderboard(scores){
   const tabs=document.getElementById('arc-lb-tabs'),list=document.getElementById('arc-lb-list');
   if(!tabs||!list)return;
+
+  // Filter-Tabs
   tabs.innerHTML=[{id:'all',label:'Alle'},...ARC_SOLO.map(g=>({id:g.id,label:g.icon}))].map(t=>
     `<button class="arc-lb-tab${arcLbFilter===t.id?' active':''}" onclick="arcSetLbFilter('${t.id}')">${t.label}</button>`).join('');
-  const filtered=(arcLbFilter==='all'?scores:scores.filter(s=>s.game===arcLbFilter)).slice(0,20);
-  list.innerHTML=filtered.length?filtered.map((s,i)=>{
-    const g=ARC_ALL.find(x=>x.id===s.game);
-    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-    return`<div class="arc-lb-row"><span class="arc-lb-rank">${medal}</span>
-      <span class="arc-lb-name">${s.name}</span>
-      ${arcLbFilter==='all'?`<span class="arc-lb-game">${g?g.icon:''}</span>`:''}
-      <span class="arc-lb-score">${s.score}</span></div>`;
-  }).join(''):'<div style="font-size:12px;color:var(--text3);padding:8px 0">Noch keine Scores</div>';
+
+  const allFiltered = arcLbFilter==='all' ? scores : scores.filter(s=>s.game===arcLbFilter);
+  const filtered = allFiltered.slice(0,20);
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0">Noch keine Scores</div>';
+    return;
+  }
+
+  // Admin-Buttons nur wenn Lehrkraft eingeloggt
+  const isAdmin = adminMode;
+
+  list.innerHTML = `
+    ${isAdmin ? `<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button onclick="arcDeleteAllScores()" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1.5px solid #fcd5d0;background:#fdf3f2;color:#9b2a1a;cursor:pointer;font-family:'DM Sans',sans-serif">🗑 Alle löschen</button>
+      <button onclick="arcDeleteByFilter()" style="font-size:11px;padding:5px 12px;border-radius:20px;border:1.5px solid #fcd5d0;background:#fdf3f2;color:#9b2a1a;cursor:pointer;font-family:'DM Sans',sans-serif">🗑 Dieses Spiel löschen</button>
+    </div>` : ''}
+    ${filtered.map((s,i)=>{
+      const g=ARC_ALL.find(x=>x.id===s.game);
+      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+      const isMe=s.name===arcPlayerName;
+      return`<div style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border)${isMe?';background:var(--accent-light);border-radius:8px;padding:8px':''}">
+        <span style="width:28px;font-size:12px;color:var(--text3);flex-shrink:0">${medal}</span>
+        <span style="flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${isMe?'color:var(--accent);font-weight:500':''}">${s.name}</span>
+        ${arcLbFilter==='all'?`<span style="font-size:16px">${g?g.icon:''}</span>`:''}
+        <span style="font-size:13px;font-weight:500;min-width:48px;text-align:right">${s.score}</span>
+        ${isAdmin?`<button data-ts="${s.ts}" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:0 0 0 4px;flex-shrink:0;touch-action:manipulation">×</button>`:''}
+      </div>`;
+    }).join('')}`;
+
+  // Löschen-Buttons mit Event-Delegation
+  if (isAdmin) {
+    list.querySelectorAll('button[data-ts]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        arcDeleteScore(parseInt(this.dataset.ts));
+      });
+    });
+  }
+}
+
+function arcDeleteScore(ts) {
+  if (!confirm('Diesen Eintrag löschen?')) return;
+  let s = arcLoadScores();
+  s = s.filter(x => x.ts !== ts);
+  localStorage.setItem('arc_scores_v1', JSON.stringify(s));
+  arcRenderLeaderboard(s);
+}
+
+function arcDeleteByFilter() {
+  const label = arcLbFilter === 'all' ? 'alle Spiele' : ARC_ALL.find(x=>x.id===arcLbFilter)?.name || arcLbFilter;
+  if (!confirm(`Alle Scores für "${label}" löschen?`)) return;
+  let s = arcLoadScores();
+  s = arcLbFilter === 'all' ? [] : s.filter(x => x.game !== arcLbFilter);
+  localStorage.setItem('arc_scores_v1', JSON.stringify(s));
+  arcRenderLeaderboard(s);
+}
+
+function arcDeleteAllScores() {
+  if (!confirm('Wirklich ALLE Highscores löschen? Das kann nicht rückgängig gemacht werden.')) return;
+  localStorage.removeItem('arc_scores_v1');
+  arcRenderLeaderboard([]);
 }
 function arcSetLbFilter(f){arcLbFilter=f;arcRenderLeaderboard(arcLoadScores());}
 async function arcSaveName(){const v=document.getElementById('arc-player-name').value.trim();if(!v)return;arcPlayerName=v;localStorage.setItem('arc_name',v);}
