@@ -2500,6 +2500,7 @@ if (!localStorage.getItem('rom-klasse')) {
     <!-- Name -->
     <div style="display:flex;gap:8px;margin-bottom:4px">
       <input type="text" id="arc-player-name" placeholder="Dein Name…" maxlength="16"
+        oninput="arcPlayerName=this.value.trim()||'Anonym';localStorage.setItem('arc_name',arcPlayerName)"
         style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text)"/>
       <button onclick="arcSaveName()"
         style="padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--text)">✓</button>
@@ -2597,7 +2598,7 @@ const ARC_MULTI = [
   {id:'pong',name:'Pong',icon:'🏓',desc:'Online 1v1'},
 ];
 const ARC_ALL = [...ARC_SOLO,...ARC_MULTI];
-let arcPlayerName = 'Spieler', arcCurrentGame = null, arcLbFilter = 'all';
+let arcPlayerName = localStorage.getItem('arc_name') || 'Anonym', arcCurrentGame = null, arcLbFilter = 'all';
 
 // Firebase Realtime DB (nutzt bestehenden kvg-rom Account)
 const ARC_FB = 'https://kvg-rom-default-rtdb.firebaseio.com';
@@ -2614,7 +2615,7 @@ function arcLoadScores(){try{const r=localStorage.getItem('arc_scores_v1');retur
 function arcSaveScore(game,name,score){let s=arcLoadScores();s.push({game,name,score,ts:Date.now()});s.sort((a,b)=>b.score-a.score);if(s.length>300)s=s.slice(0,300);try{localStorage.setItem('arc_scores_v1',JSON.stringify(s));}catch(e){}return s;}
 
 async function arcRenderLobby(){
-  try{const r=localStorage.getItem('arc_name');if(r){arcPlayerName=r;document.getElementById('arc-player-name').value=r;}}catch(e){}
+  try{const r=localStorage.getItem('arc_name');if(r){arcPlayerName=r;}const inp=document.getElementById('arc-player-name');if(inp)inp.value=arcPlayerName;}catch(e){}
   const scores=arcLoadScores();
   function makeGrid(games,elId,multi=false){
     const el=document.getElementById(elId);if(!el)return;el.innerHTML='';
@@ -2637,7 +2638,7 @@ function arcRenderLeaderboard(scores){
   if(!tabs||!list)return;
   tabs.innerHTML=[{id:'all',label:'Alle'},...ARC_SOLO.map(g=>({id:g.id,label:g.icon}))].map(t=>
     `<button class="arc-lb-tab${arcLbFilter===t.id?' active':''}" onclick="arcSetLbFilter('${t.id}')">${t.label}</button>`).join('');
-  const filtered=(arcLbFilter==='all'?scores:scores.filter(s=>s.game===arcLbFilter)).slice(0,10);
+  const filtered=(arcLbFilter==='all'?scores:scores.filter(s=>s.game===arcLbFilter)).slice(0,20);
   list.innerHTML=filtered.length?filtered.map((s,i)=>{
     const g=ARC_ALL.find(x=>x.id===s.game);
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
@@ -2648,7 +2649,7 @@ function arcRenderLeaderboard(scores){
   }).join(''):'<div style="font-size:12px;color:var(--text3);padding:8px 0">Noch keine Scores</div>';
 }
 function arcSetLbFilter(f){arcLbFilter=f;arcRenderLeaderboard(arcLoadScores());}
-async function arcSaveName(){const v=document.getElementById('arc-player-name').value.trim();if(!v)return;arcPlayerName=v;localStorage.setItem('arc_name',v);arcRenderLobby();}
+async function arcSaveName(){const v=document.getElementById('arc-player-name').value.trim();if(!v)return;arcPlayerName=v;localStorage.setItem('arc_name',v);}
 
 function arcGoLobby(){
   if(arcCurrentGame){arcCurrentGame.destroy();arcCurrentGame=null;}
@@ -2656,6 +2657,11 @@ function arcGoLobby(){
   arcRenderLobby();
 }
 function arcStartGame(id){
+  // Name nochmals frisch einlesen bevor gespielt wird
+  const inp=document.getElementById('arc-player-name');
+  if(inp&&inp.value.trim())arcPlayerName=inp.value.trim();
+  if(!arcPlayerName||arcPlayerName==='Anonym')arcPlayerName=prompt('Bitte gib deinen Namen ein:')||'Anonym';
+  localStorage.setItem('arc_name',arcPlayerName);
   document.getElementById('arcadeGameScreen').style.display='block';
   const g=ARC_ALL.find(x=>x.id===id);
   document.getElementById('arc-gtitle').textContent=g.icon+' '+g.name;
@@ -2675,7 +2681,7 @@ function arcGameOver(id,score){
   const scores=arcSaveScore(id,arcPlayerName,score);
   const my=scores.filter(s=>s.game===id&&s.name===arcPlayerName);
   const isNew=my.length<=1;
-  const top=scores.filter(s=>s.game===id).slice(0,5);
+  const top=scores.filter(s=>s.game===id).slice(0,10);
   const g=ARC_ALL.find(x=>x.id===id);
   document.getElementById('arcadeGameContainer').innerHTML=`<div class="arc-result">
     <h2>Game Over</h2>
