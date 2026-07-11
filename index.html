@@ -1530,6 +1530,15 @@ function openDetail(id) {
           referrerpolicy="no-referrer-when-downgrade">
         </iframe>
       </div>` : ''}
+    ${g.audioEmbed ? `
+      <h3>🔊 Audio</h3>
+      <div style="border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:12px;background:var(--surface2)">
+        <iframe src="${g.audioEmbed}"
+          width="100%" height="80" style="border:0;display:block"
+          allow="autoplay"
+          loading="lazy">
+        </iframe>
+      </div>` : ''}
     <p style="font-size:12px;color:var(--text3);margin-top:16px">Eintrag von ${g.autor}</p>`;
   document.getElementById('detail-view').classList.add('open');
 }
@@ -1626,6 +1635,14 @@ function showForm(type) {
         <input id="f-gmaps" placeholder="https://www.google.com/maps/embed?pb=...">
         <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.6">
           So geht's: Google Maps → Ort suchen → Teilen → Karte einbetten → nur die URL aus dem src="..." kopieren
+        </div>
+      </div>
+      <div class="input-group">
+        <label>🔊 Audio (Google Drive)</label>
+        <input id="f-gaudio" placeholder="https://drive.google.com/file/d/DATEI-ID/preview">
+        <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.6">
+          So geht's: Google Drive → Datei teilen (Jeder mit Link) → Link kopieren → <strong>DATEI-ID</strong> aus dem Link entnehmen → URL zusammensetzen:<br>
+          <code style="font-size:10px;background:var(--surface2);padding:2px 6px;border-radius:4px">https://drive.google.com/file/d/<em>DATEI-ID</em>/preview</code>
         </div>
       </div>
       <div class="input-group"><label>Verfasst von</label><input id="f-gaut" placeholder="Name der Lehrkraft"></div>
@@ -1817,6 +1834,7 @@ function pushGuide(photoData) {
     tipp: document.getElementById('f-gtipp').value,
     adresse: document.getElementById('f-gaddr').value,
     mapsEmbed: document.getElementById('f-gmaps')?.value || '',
+    audioEmbed: document.getElementById('f-gaudio')?.value.trim() || '',
     autor: document.getElementById('f-gaut').value
   });
   save(); renderGuides(); renderHome(); closeAdminOverlay();
@@ -1867,6 +1885,11 @@ function editGuide(id) {
       <input id="e-gmaps" value="${g.mapsEmbed||''}" placeholder="https://www.google.com/maps/embed?pb=...">
       <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">Google Maps → Teilen → Karte einbetten → URL aus src="..." kopieren</div>
     </div>
+    <div class="input-group">
+      <label>🔊 Audio (Google Drive)</label>
+      <input id="e-gaudio" value="${g.audioEmbed||''}" placeholder="https://drive.google.com/file/d/DATEI-ID/preview">
+      <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">drive.google.com/file/d/<em>DATEI-ID</em>/preview</div>
+    </div>
     <div class="input-group"><label>Verfasst von</label><input id="e-gaut" value="${g.autor}"></div>
     <button class="btn-primary" onclick="updateGuide(${id})">Änderungen speichern</button>
     <button class="btn-cancel" onclick="closeAdminOverlay()">Abbrechen</button>`;
@@ -1882,8 +1905,9 @@ function updateGuide(id) {
   g.details = document.getElementById('e-gdetails').value;
   g.tipp    = document.getElementById('e-gtipp').value;
   g.adresse   = document.getElementById('e-gaddr').value;
-  g.mapsEmbed = document.getElementById('e-gmaps')?.value || g.mapsEmbed || '';
-  g.autor     = document.getElementById('e-gaut').value;
+  g.mapsEmbed  = document.getElementById('e-gmaps')?.value || g.mapsEmbed || '';
+  g.audioEmbed = document.getElementById('e-gaudio')?.value.trim() || g.audioEmbed || '';
+  g.autor      = document.getElementById('e-gaut').value;
   save(); renderGuides(); renderHome(); closeAdminOverlay();
 }
 
