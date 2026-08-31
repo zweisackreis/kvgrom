@@ -2367,31 +2367,60 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 });
 
 // ── Service Worker Update-Erkennung ──
+// ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
+const APP_VERSION = 'kvgrom-v20260831-1218';
+
 let newWorker;
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').then(reg => {
+
+    // Sofort auf Update prüfen (nicht nur beim nächsten Besuch)
+    reg.update();
+
     reg.addEventListener('updatefound', () => {
       newWorker = reg.installing;
       newWorker.addEventListener('statechange', () => {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          // Neue Version gefunden — Banner zeigen
-          document.getElementById('updateBanner').style.display = 'flex';
+          // iOS: sofort neu laden statt nur Banner zeigen
+          if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+            setTimeout(() => window.location.reload(true), 500);
+          } else {
+            document.getElementById('updateBanner').style.display = 'flex';
+          }
+        }
+        // Neu installiert (erster Besuch oder nach Deinstallation)
+        if (newWorker.state === 'activated') {
+          if (!navigator.serviceWorker.controller) return;
         }
       });
     });
+
+    // Alle 60 Sekunden im Hintergrund auf Updates prüfen
+    setInterval(() => reg.update(), 60000);
+
   }).catch(() => {});
+
+  // controllerchange = neuer SW hat übernommen → neu laden
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload(true);
+  });
 
   // Nachricht vom Service Worker empfangen
   navigator.serviceWorker.addEventListener('message', e => {
     if (e.data?.type === 'UPDATE_AVAILABLE') {
-      document.getElementById('updateBanner').style.display = 'flex';
+      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        window.location.reload(true);
+      } else {
+        document.getElementById('updateBanner').style.display = 'flex';
+      }
     }
   });
 }
 
 function applyUpdate() {
   if (newWorker) newWorker.postMessage({ type: 'SKIP_WAITING' });
-  window.location.reload();
+  window.location.reload(true);
 }
 
 function manualRefresh() {

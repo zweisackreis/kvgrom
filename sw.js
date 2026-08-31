@@ -1,51 +1,45 @@
-// Cache-Version — bei jedem Update automatisch hochgezählt
-const CACHE = 'kvgrom-v20260831-1213';
+// !! CACHE-VERSION — automatisch bei jedem Build aktualisiert !!
+const CACHE = 'kvgrom-v20260831-1218';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png', './hero-bg.jpg'];
 
-// ── Installation ──
-// skipWaiting() sorgt dafür dass der neue SW sofort übernimmt
-// ohne dass der Nutzer den Tab schließen muss
+// Installation: Cache befüllen + SOFORT übernehmen (skipWaiting)
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
       .then(c => c.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+      .then(() => self.skipWaiting())  // nicht warten — sofort aktiv
   );
 });
 
-// ── Aktivierung ──
-// ALLE alten Caches löschen + sofort alle offenen Tabs übernehmen
+// Aktivierung: ALLE alten Caches löschen + alle Tabs übernehmen
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE).map(k => {
-          console.log('[SW] Lösche alten Cache:', k);
-          return caches.delete(k);
-        })
+        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
-      .then(() => {
-        // Update-Meldung an alle Tabs
-        return self.clients.matchAll({ type: 'window' }).then(clients => {
-          clients.forEach(c => c.postMessage({ type: 'UPDATE_AVAILABLE', version: 'kvgrom-v20260829-0711' }));
-        });
-      })
+      .then(() => self.clients.matchAll({ type: 'window' }).then(clients =>
+        clients.forEach(c => c.postMessage({ type: 'UPDATE_AVAILABLE', version: 'kvgrom-v20260831-1218' }))
+      ))
   );
 });
 
-// ── Fetch: Network-first mit Cache-Busting für HTML ──
+// Fetch: index.html IMMER vom Netz (nie aus Cache)
+// Alles andere: Network-first, Cache als Fallback
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
 
-  // index.html immer frisch vom Netz holen (kein Cache für Hauptdatei)
-  if (e.request.url.endsWith('/') || e.request.url.includes('index.html')) {
+  const url = new URL(e.request.url);
+  const isHtml = url.pathname === '/' || url.pathname.endsWith('.html') || url.pathname.endsWith('/kvgrom/') || url.pathname.endsWith('/kvgrom');
+
+  if (isHtml) {
+    // HTML: immer frisch, nie aus Cache
     e.respondWith(
-      fetch(e.request, { cache: 'no-cache' })
+      fetch(e.request, { cache: 'no-store' })
         .then(res => {
           if (res && res.status === 200) {
-            const clone = res.clone();
-            caches.open(CACHE).then(c => c.put(e.request, clone));
+            caches.open(CACHE).then(c => c.put(e.request, res.clone()));
           }
           return res;
         })
@@ -54,13 +48,12 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Alle anderen Assets: Network-first, Cache als Fallback
+  // Assets: Network-first
   e.respondWith(
     fetch(e.request)
       .then(res => {
         if (res && res.status === 200 && res.type !== 'opaque') {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
+          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
         }
         return res;
       })
@@ -68,12 +61,12 @@ self.addEventListener('fetch', e => {
   );
 });
 
-// ── SKIP_WAITING Nachricht vom Client empfangen ──
+// SKIP_WAITING auf Anfrage
 self.addEventListener('message', e => {
   if (e.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
-// ── Firebase Push-Benachrichtigungen ──
+// Push-Benachrichtigungen
 self.addEventListener('push', e => {
   if (!e.data) return;
   const payload = e.data.json();
