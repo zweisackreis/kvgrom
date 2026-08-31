@@ -937,9 +937,9 @@ function renderNotifBanner() {
   if (!box) return;
   const myKlasse = localStorage.getItem('rom-klasse') || '';
   // Gleicher Store wie Glockenansicht
-  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
-  const visible = (data.notifications || []).map((n, i) => ({...n, _idx: i})).filter(n => {
-    if (dismissed.includes(n._idx)) return false;
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v3') || '[]');
+  const visible = (data.notifications || []).filter(n => {
+    if (dismissed.includes(notifId(n))) return false;
     const ziel = n.klasse || 'alle';
     if (ziel === 'alle') return true;
     if (myKlasse === 'Lehrkraft') return true;
@@ -958,19 +958,17 @@ function renderNotifBanner() {
           <div style="font-size:15px;font-weight:500;color:white;margin-bottom:3px">${n.title}</div>
           <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5">${n.body}</div>
         </div>
-        <button data-idx="${n._idx}"
+        <button data-nid="${notifId(n)}"
           style="position:relative;z-index:2;background:rgba(255,255,255,.2);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation">×</button>
       </div>
       ${visible.length > 1 ? `<div style="position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,.4);margin-top:8px">+${visible.length-1} weitere Mitteilung${visible.length>2?'en':''}</div>` : ''}
     </div>`;
-  box.querySelector('button[data-idx]').addEventListener('click', function() {
-    dismissNotifPermanent(parseInt(this.dataset.idx));
+  box.querySelector('button[data-nid]').addEventListener('click', function() {
+    dismissNotifPermanent(this.dataset.nid);
   });
 }
 
-function dismissNotifBanner(idx) {
-  dismissNotifPermanent(idx);
-}
+function dismissNotifBanner(nid) { dismissNotifPermanent(nid); }
 
 function dismissTreffpunkt(id) {
   const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-tp') || '[]');
@@ -1271,13 +1269,16 @@ function vote(pollId, optIdx) {
   renderPolls();
 }
 
+// Stabile ID für eine Mitteilung: Timestamp + Titel (unveränderlich)
+function notifId(n) { return (n.ts || n.time || '') + '|' + (n.title || ''); }
+
 function renderNotifications() {
   const myKlasse = localStorage.getItem('rom-klasse') || 'alle';
-  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
-  const dismissedIds = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
+  const readIds    = JSON.parse(localStorage.getItem('rom-read-notifs-v3') || '[]');
+  const dismissIds = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v3') || '[]');
 
-  const visible = data.notifications.filter((n, i) => {
-    if (dismissedIds.includes(i)) return false;
+  const visible = data.notifications.filter(n => {
+    if (dismissIds.includes(notifId(n))) return false;
     const ziel = n.klasse || 'alle';
     if (ziel === 'alle') return true;
     if (myKlasse === 'Lehrkraft') return true;
@@ -1286,8 +1287,7 @@ function renderNotifications() {
     return ziel === myKlasse;
   });
 
-  // Glocken-Dot: ungelesen = Index nicht in readIds
-  const unread = visible.filter(n => !readIds.includes(data.notifications.indexOf(n))).length;
+  const unread = visible.filter(n => !readIds.includes(notifId(n))).length;
   document.getElementById('notifDot').classList.toggle('show', unread > 0);
 
   const list = document.getElementById('notif-list');
@@ -1297,53 +1297,52 @@ function renderNotifications() {
   }
 
   list.innerHTML = visible.slice().reverse().map(n => {
-    const origIdx = data.notifications.indexOf(n);
-    const isRead = readIds.includes(origIdx);
+    const nid = notifId(n);
+    const isRead = readIds.includes(nid);
     const klasseTag = (n.klasse && n.klasse !== 'alle')
       ? `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:var(--accent-light);color:var(--accent);margin-left:6px">${n.klasse}</span>`
       : '';
     return `<div class="notif-item" style="align-items:flex-start">
-      <div class="notif-dot-left ${isRead?'read':''}" style="margin-top:5px;cursor:pointer" onclick="markNotifRead(${origIdx})"></div>
+      <div class="notif-dot-left ${isRead?'read':''}" style="margin-top:5px;cursor:pointer" data-nid="${nid}" onclick="markNotifRead(this.dataset.nid)"></div>
       <div style="flex:1;min-width:0">
         <div class="notif-title">${n.title}${klasseTag}</div>
         <div class="notif-body">${n.body}</div>
         <div class="notif-time">${n.time}</div>
       </div>
-      <button data-notifidx="${origIdx}"
+      <button data-nid="${nid}"
         style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:0 0 0 8px;line-height:1;flex-shrink:0;touch-action:manipulation">×</button>
     </div>`;
   }).join('');
 
-  // Event-Delegation für ×-Buttons
-  list.querySelectorAll('button[data-notifidx]').forEach(btn => {
+  list.querySelectorAll('button[data-nid]').forEach(btn => {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
-      dismissNotifPermanent(parseInt(this.dataset.notifidx));
+      dismissNotifPermanent(this.dataset.nid);
     });
   });
 }
 
-function markNotifRead(idx) {
-  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
-  if (!readIds.includes(idx)) { readIds.push(idx); localStorage.setItem('rom-read-notifs', JSON.stringify(readIds)); }
+function markNotifRead(nid) {
+  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs-v3') || '[]');
+  if (!readIds.includes(nid)) { readIds.push(nid); localStorage.setItem('rom-read-notifs-v3', JSON.stringify(readIds)); }
   renderNotifications();
 }
 
 function markAllNotifsRead(notifications) {
-  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs') || '[]');
-  notifications.forEach((n, i) => { if (!readIds.includes(i)) readIds.push(i); });
-  localStorage.setItem('rom-read-notifs', JSON.stringify(readIds));
+  const readIds = JSON.parse(localStorage.getItem('rom-read-notifs-v3') || '[]');
+  notifications.forEach(n => { const nid = notifId(n); if (!readIds.includes(nid)) readIds.push(nid); });
+  localStorage.setItem('rom-read-notifs-v3', JSON.stringify(readIds));
 }
 
-function dismissNotifPermanent(idx) {
-  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v2') || '[]');
-  if (!dismissed.includes(idx)) { dismissed.push(idx); localStorage.setItem('rom-dismissed-notifs-v2', JSON.stringify(dismissed)); }
-  markNotifRead(idx);
+function dismissNotifPermanent(nid) {
+  const dismissed = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v3') || '[]');
+  if (!dismissed.includes(nid)) { dismissed.push(nid); localStorage.setItem('rom-dismissed-notifs-v3', JSON.stringify(dismissed)); }
+  markNotifRead(nid);
   renderNotifications();
   renderNotifBanner();
 }
 
-function markRead(idx) { markNotifRead(idx); }
+function markRead(idx) { /* legacy */ }
 
 function renderFormLinks() {
   const fb = data.formsLinks.feedback || '#';
@@ -1460,7 +1459,7 @@ function switchPage(id) {
   document.getElementById('page-'+id)?.classList.add('active');
   document.querySelector(`[data-page="${id}"]`)?.classList.add('active');
   if (id === 'benachrichtigungen') {
-    data.notifications.forEach(n=>n.read=true); save(); markAllNotifsRead(data.notifications); renderNotifications();
+    markAllNotifsRead(data.notifications); renderNotifications();
   }
   window.scrollTo(0,0);
 }
