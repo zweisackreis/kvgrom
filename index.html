@@ -628,8 +628,9 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
   ],
   zeitplan: [
     { tag: 'Tag 1 — Fr. 09.10. (Anreise)', eintraege: [
-      { time: '', label: 'Gottesdienst / Segen an der Schule', sub: '', highlight: true },
-      { time: '', label: 'Busse beladen & Abfahrt', sub: 'Treffpunkt Schule', highlight: false }
+      { time: '14:30', label: 'Beladen der Busse', sub: 'Bitte an den Sportstätten parken!', highlight: false },
+      { time: '15:00', label: 'Reisesegen', sub: '', highlight: true },
+      { time: '', label: 'Abfahrt nach Rom', sub: '', highlight: true }
     ]},
     { tag: 'Tag 2 — Sa. 10.10. (Ankunft)', eintraege: [
       { time: 'Mittags', label: 'Ankunft in Rom', sub: '', highlight: true },
