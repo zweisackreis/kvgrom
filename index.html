@@ -711,17 +711,43 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
 
 // Migration: alte treffpunkt-Struktur auf treffpunkte-Array upgraden
 (function migrateData() {
-  if (data.treffpunkt !== undefined && !data.treffpunkte) {
-    data.treffpunkte = data.treffpunkt?.aktiv
-      ? [{ id: Date.now(), ...data.treffpunkt }]
-      : [];
-    delete data.treffpunkt;
-    save();
-  }
-  if (!data.treffpunkte) { data.treffpunkte = []; save(); }
 
-  // Regeln immer auf aktuelle Version setzen
-  const CURRENT_RULES = [
+  // ── Struktur-Fixes ──
+  if (data.treffpunkt !== undefined && !data.treffpunkte) {
+    data.treffpunkte = data.treffpunkt?.aktiv ? [{ id: Date.now(), ...data.treffpunkt }] : [];
+    delete data.treffpunkt;
+  }
+  if (!data.treffpunkte) data.treffpunkte = [];
+
+  // Abgelaufene Treffpunkte bereinigen
+  const nowClean = Date.now();
+  data.treffpunkte = (data.treffpunkte || []).filter(t => !t.expiry || nowClean <= t.expiry);
+
+  // ══════════════════════════════════════════════════════════
+  // STATISCHE INHALTE — werden bei jedem Start überschrieben
+  // Änderungen hier → sofort auf allen Geräten sichtbar
+  // ══════════════════════════════════════════════════════════
+
+  // Lehrkräfte
+  data.teachers = [
+    {name:'Linda Klüner',               role:'Lehrkraft',                   tel:'+4915679653775'},
+    {name:'Anja Lenzen',                role:'Lehrkraft',                   tel:'+4915679604111'},
+    {name:'Ina Lucas',                  role:'Lehrkraft',                   tel:'+4915679830008'},
+    {name:'Niklas Markus',              role:'Lehrkraft',                   tel:'+4915679616653'},
+    {name:'Natascha Meyer zu Bergsten', role:'Lehrkraft',                   tel:'+4915679275102'},
+    {name:'Manuel Misera',              role:'Lehrkraft',                   tel:'+4915679583201'},
+    {name:'Sebastian Musli',            role:'Lehrkraft / Notfallkontakt',  tel:'+4915679829890'},
+    {name:'Ann-Kathrin Pottmeier',      role:'Lehrkraft',                   tel:'+4915679829410'},
+    {name:'Melanie Puchalla',           role:'Lehrkraft',                   tel:'+4915679828915'},
+    {name:'Malte Rohlmann',             role:'Lehrkraft',                   tel:'+4915679829376'},
+    {name:'Saskia Rotthaus',            role:'Lehrkraft',                   tel:'+4915679828059'},
+    {name:'Nicole Schulte',             role:'Lehrkraft',                   tel:'+4915679282337'},
+    {name:'Silke Weglage',              role:'Lehrkraft',                   tel:'+4915679829409'},
+    {name:'Maike Zumwalde',             role:'Lehrkraft',                   tel:'+4915679021763'},
+  ];
+
+  // Regeln
+  data.rules = [
     'Grundsätzlich sind Handys erlaubt. 5er und 6er geben ihre Telefone allerdings abends bei den Klassenlehrer*innen ab. Wir empfehlen bei den Mittelstufenklassen eine Bildschirmzeit von 7–20 Uhr einzustellen.',
     'Wir werden gut versorgt. Die Küchen in den Bungalows (Herd, Backofen) dürfen also nicht benutzt werden.',
     'Alkohol, Zigaretten oder Vapes sind nicht erlaubt.',
@@ -731,15 +757,72 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
     'Wir werden sicher und zuverlässig transportiert. In den einzelnen Stationen ist Laufen gut möglich. Es dürfen keine E-Scooter oder Uber (o. Ä.) genutzt werden.',
     'Rom ist teuer. Wir werden aber rundum verpflegt und auch das Programm ist abgedeckt. Wir empfehlen einen Betrag zwischen 50 und 75 Euro als Taschengeld. Damit kommt man schon weit.',
   ];
-  if (JSON.stringify(data.rules) !== JSON.stringify(CURRENT_RULES)) {
-    data.rules = CURRENT_RULES;
-    save();
-  }
-  // Abgelaufene Treffpunkte bereinigen
-  const nowClean = Date.now();
-  const before = (data.treffpunkte || []).length;
-  data.treffpunkte = (data.treffpunkte || []).filter(t => !t.expiry || nowClean <= t.expiry);
-  if (data.treffpunkte.length < before) save();
+
+  // Packliste
+  data.pack = [
+    'Personalausweis & Kopie (oder Kinderreisepass)',
+    'Europäische Krankenversicherungskarte (EHIC)',
+    'Impfbuch / Impfausweis (Kopie reicht)',
+    'Taschengeld (im beschrifteten Briefumschlag + Zipper-Beutel beim Betreuer abgeben)',
+    'Handtücher',
+    'Trinkflasche',
+    'Schlafsack (empfohlen) oder Decke & Kopfkissen',
+    'Feste Schuhe / bequeme Laufschuhe',
+    'Sonnencreme & Mückenschutz',
+    'Regenjacke',
+    'Warmer Pullover / Jacke für den Abend',
+    'Powerbank',
+    'Handy-Ladekabel',
+    'Personalausweis-Kopie extra (für die Tasche)',
+    'Kleines Erste-Hilfe-Set (Pflaster, Blasenpflaster)',
+    'Sonnenhut / Kappe',
+    'Sonnenschutzbrille',
+    'Notizblock & Stift',
+  ];
+
+  // Zeitplan
+  data.zeitplan = [
+    { tag: 'Tag 1 — Fr. 09.10. (Anreise)', eintraege: [
+      { time: '14:30', label: 'Beladen der Busse', sub: 'Bitte an den Sportstätten parken!', highlight: false },
+      { time: '15:00', label: 'Reisesegen', sub: '', highlight: true },
+      { time: '',      label: 'Abfahrt nach Rom', sub: '', highlight: true }
+    ]},
+    { tag: 'Tag 2 — Sa. 10.10. (Ankunft)', eintraege: [
+      { time: 'Mittags', label: 'Ankunft in Rom', sub: '', highlight: true },
+      { time: '',        label: 'Imbiss & Einquartierung', sub: 'Erkundung des Platzes', highlight: false },
+      { time: 'Abends',  label: 'Abendessen & Eröffnungsabend', sub: 'Vorbereitung auf Projekttage', highlight: true }
+    ]},
+    { tag: 'Tag 3 — So. 11.10.', eintraege: [
+      { time: '', label: 'Klassen 5–7: Kleiner Stadtrundgang', sub: 'Anschließend Programmende', highlight: false },
+      { time: '', label: 'Klassen 8–Q2: Kolosseum & Forum Romanum', sub: 'Ggf. Besuch St. Paul vor den Mauern', highlight: true },
+      { time: 'Abends', label: 'Lichterfahrt / Trastevere', sub: 'Nur Oberstufe', highlight: false }
+    ]},
+    { tag: 'Tag 4 — Mo. 12.10.', eintraege: [
+      { time: '', label: 'Klassen 5–7: Kolosseum & Forum Romanum', sub: '', highlight: true },
+      { time: '', label: 'Klassen 8–Q2: Großer Stadtrundgang & Freizeit', sub: 'Ggf. einzelne Angebote durch Lehrkräfte', highlight: false },
+      { time: '', label: 'Petersdom', sub: 'Kuppelbesteigung optional', highlight: false },
+      { time: '', label: 'Ggf. Gottesdienst', sub: '', highlight: false }
+    ]},
+    { tag: 'Tag 5 — Di. 13.10. (Tagesausflüge)', eintraege: [
+      { time: '', label: 'Klassen 5–7: Ostia Antica', sub: 'Inkl. Führung', highlight: true },
+      { time: '', label: 'Klassen 8–Q2: Monte Cassino & Pompeji', sub: 'Ca. 15 € pro Person', highlight: true }
+    ]},
+    { tag: 'Tag 6 — Mi. 14.10.', eintraege: [
+      { time: 'Morgens', label: 'Generalaudienz Papst', sub: '', highlight: true },
+      { time: '',        label: 'Optionale Angebote (nach Stufen / Interessen)', sub: 'Kuppel Petersdom · Olympiastadion · Katakomben · Vatikanische Museen · Villa Borghese', highlight: false },
+      { time: 'Ggf.',   label: 'Gottesdienst', sub: 'Ca. 2–3 € pro Person', highlight: false },
+      { time: 'Abends', label: 'Abschlussparty', sub: '', highlight: true }
+    ]},
+    { tag: 'Tag 7 — Do. 15.10. (Abreise)', eintraege: [
+      { time: 'Morgens', label: 'Frühstück & Busse beladen', sub: '', highlight: false },
+      { time: '',        label: 'Abfahrt', sub: '', highlight: true }
+    ]},
+    { tag: 'Tag 8 — Fr. 16.10. (Ankunft)', eintraege: [
+      { time: '', label: 'Ankunft in Mettingen', sub: '', highlight: true }
+    ]}
+  ];
+
+  save();
 })();
 
 // ════════════════════════════════════════════
@@ -2545,6 +2628,14 @@ if (!localStorage.getItem('rom-klasse')) {
     .arc-lb-name { flex:1;color:var(--text) }
     .arc-lb-score { font-weight:500;color:var(--text) }
     .arc-lb-game { font-size:10px;color:var(--text2);margin-left:3px }
+    .arc-nav { display:flex;border-bottom:1px solid var(--border);margin-bottom:14px;gap:0 }
+    .arc-nav-tab { flex:1;padding:9px 4px;font-size:13px;font-weight:500;text-align:center;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif;transition:color .15s }
+    .arc-nav-tab.active { color:var(--accent);border-bottom-color:var(--accent) }
+    .arc-view { display:none }
+    .arc-view.active { display:block }
+    .arc-refresh-row { display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px }
+    .arc-refresh-btn { font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif }
+    .arc-refresh-ts { font-size:11px;color:var(--text3) }
 
     /* Game screen */
     #arcadeGameScreen { display:none;position:fixed;inset:0;z-index:310;background:var(--bg);overflow-y:auto }
@@ -2598,17 +2689,29 @@ if (!localStorage.getItem('rom-klasse')) {
     </div>
 
     <!-- Solo -->
-    <div class="arc-section">Einzelspieler</div>
-    <div class="arc-game-grid" id="arc-solo-grid"></div>
+    <!-- Tab-Navigation -->
+    <div class="arc-nav">
+      <button class="arc-nav-tab active" id="arc-tab-lobby" onclick="arcSwitchTab('lobby')">🎮 Spiele</button>
+      <button class="arc-nav-tab" id="arc-tab-scores" onclick="arcSwitchTab('scores')">🏆 Rangliste</button>
+    </div>
 
-    <!-- Multi -->
-    <div class="arc-section">🌐 Multiplayer (online)</div>
-    <div class="arc-game-grid" id="arc-multi-grid"></div>
+    <!-- Lobby -->
+    <div class="arc-view active" id="arc-view-lobby">
+      <div class="arc-section">Einzelspieler</div>
+      <div class="arc-game-grid" id="arc-solo-grid"></div>
+      <div class="arc-section">🌐 Multiplayer (online)</div>
+      <div class="arc-game-grid" id="arc-multi-grid"></div>
+    </div>
 
-    <!-- Leaderboard -->
-    <div class="arc-section">🏆 Highscores</div>
-    <div class="arc-lb">
-      <div class="arc-lb-tabs" id="arc-lb-tabs"></div>
+    <!-- Rangliste -->
+    <div class="arc-view" id="arc-view-scores">
+      <div class="arc-refresh-row">
+        <div class="arc-lb-tabs" id="arc-lb-tabs"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="arc-refresh-ts" id="arc-lb-ts"></span>
+          <button class="arc-refresh-btn" onclick="arcRefreshScores()">↻</button>
+        </div>
+      </div>
       <div id="arc-lb-list"></div>
     </div>
 
@@ -2671,6 +2774,7 @@ function checkArcadePw() {
 function showArcadeContent() {
   document.getElementById('arcadePwScreen').style.display = 'none';
   document.getElementById('arcadeContent').style.display = 'block';
+  arcSwitchTab('lobby');
   arcRenderLobby();
 }
 
@@ -2722,8 +2826,34 @@ async function arcRenderLobby(){
   }
   makeGrid(ARC_SOLO,'arc-solo-grid');
   makeGrid(ARC_MULTI,'arc-multi-grid',true);
-  arcRenderLeaderboard(scores);
 }
+let arcLbInterval = null;
+
+function arcSwitchTab(tab) {
+  document.querySelectorAll('.arc-nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.arc-view').forEach(v => v.classList.remove('active'));
+  const tabBtn = document.getElementById('arc-tab-'+tab);
+  const tabView = document.getElementById('arc-view-'+tab);
+  if (tabBtn) tabBtn.classList.add('active');
+  if (tabView) tabView.classList.add('active');
+  if (tab === 'scores') {
+    arcRefreshScores();
+    if (!arcLbInterval) arcLbInterval = setInterval(arcRefreshScores, 30000);
+  } else {
+    if (arcLbInterval) { clearInterval(arcLbInterval); arcLbInterval = null; }
+  }
+}
+
+function arcRefreshScores() {
+  const scores = arcLoadScores();
+  arcRenderLeaderboard(scores);
+  const ts = document.getElementById('arc-lb-ts');
+  if (ts) {
+    const n = new Date();
+    ts.textContent = String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+' Uhr';
+  }
+}
+
 function arcRenderLeaderboard(scores){
   const tabs=document.getElementById('arc-lb-tabs'),list=document.getElementById('arc-lb-list');
   if(!tabs||!list)return;
