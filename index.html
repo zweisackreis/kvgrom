@@ -666,17 +666,7 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
       { time: '', label: 'Ankunft in Mettingen', sub: '', highlight: true }
     ]}
   ],
-  teachers: [{ name: 'Sebastian Musli', role: 'Lehrkraft / Notfallkontakt', tel: '01774215984' }], hotel: { name: 'Fabulous Village / Höffmann Bungalowpark', adresse: 'Via di Malafede 225, 00125 Rom (Latium), Italien', tel: '' },
-  rules: [
-    'Handys sind grundsätzlich erlaubt. Schüler/innen der Klassen 5 und 6 geben ihre Handys abends bei den Klassenlehrer*innen ab.',
-    'Wir möchten gemeinsam Rom erleben. Deshalb gilt: Während des Programms sind Handys lediglich für Fotos zu nutzen.',
-    'Wir werden gut versorgt. Die Küchen in den Bungalows (Herd, Backofen) müssen nicht benutzt werden.',
-    'Alkohol und Zigaretten sind nicht erlaubt.',
-    'Treffpunkte und Abfahrtszeiten sind verbindlich. Seid bitte eher fünf Minuten zu früh da als zu spät.',
-    'Ruhezeiten: Klassen 5–6 ab 22:00 Uhr · Klassen 7–10 ab 23:00 Uhr · Oberstufe ab 23:30 Uhr.',
-    'Bleibt bitte auf der Anlage und entfernt euch nicht von dieser.',
-    'Bei den einzelnen Stationen kann gut zu Fuß gegangen werden. Es dürfen keine E-Scooter, Leihräder, Uber oder Ähnliches genutzt werden.',
-  ],
+  teachers: [{"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}],
   pack: [
     'Personalausweis & Kopie (oder Kinderreisepass)',
     'Europäische Krankenversicherungskarte (EHIC)',
@@ -704,7 +694,17 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
   ],
   notifications: [],
   formsLinks: { feedback: '', fragen: '' },
-  treffpunkte: []
+  treffpunkte: [],
+  rules: [
+    'Grundsätzlich sind Handys erlaubt. 5er und 6er geben ihre Telefone allerdings abends bei den Klassenlehrer*innen ab. Wir empfehlen bei den Mittelstufenklassen eine Bildschirmzeit von 7–20 Uhr einzustellen.',
+    'Wir werden gut versorgt. Die Küchen in den Bungalows (Herd, Backofen) dürfen also nicht benutzt werden.',
+    'Alkohol, Zigaretten oder Vapes sind nicht erlaubt.',
+    'Treffpunkte und Abfahrtszeiten sind verbindlich. Seid bitte eher 10 Minuten zu früh da als zu spät.',
+    'Ruhezeiten: Klassen 5–10 ab 22:00 Uhr, Oberstufe ab 23:00 Uhr (Ruhezeit auf dem Platz). Von da an haltet euch bitte ausschließlich in euren Bungalows auf.',
+    'Bleibt außerhalb der Programmpunkte bitte auf der Anlage und entfernt euch nicht eigenständig.',
+    'Wir werden sicher und zuverlässig transportiert. In den einzelnen Stationen ist Laufen gut möglich. Es dürfen keine E-Scooter oder Uber (o. Ä.) genutzt werden.',
+    'Rom ist teuer. Wir werden aber rundum verpflegt und auch das Programm ist abgedeckt. Wir empfehlen einen Betrag zwischen 50 und 75 Euro als Taschengeld. Damit kommt man schon weit.',
+  ]
 };
 
 function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
@@ -719,6 +719,22 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
     save();
   }
   if (!data.treffpunkte) { data.treffpunkte = []; save(); }
+
+  // Regeln immer auf aktuelle Version setzen
+  const CURRENT_RULES = [
+    'Grundsätzlich sind Handys erlaubt. 5er und 6er geben ihre Telefone allerdings abends bei den Klassenlehrer*innen ab. Wir empfehlen bei den Mittelstufenklassen eine Bildschirmzeit von 7–20 Uhr einzustellen.',
+    'Wir werden gut versorgt. Die Küchen in den Bungalows (Herd, Backofen) dürfen also nicht benutzt werden.',
+    'Alkohol, Zigaretten oder Vapes sind nicht erlaubt.',
+    'Treffpunkte und Abfahrtszeiten sind verbindlich. Seid bitte eher 10 Minuten zu früh da als zu spät.',
+    'Ruhezeiten: Klassen 5–10 ab 22:00 Uhr, Oberstufe ab 23:00 Uhr (Ruhezeit auf dem Platz). Von da an haltet euch bitte ausschließlich in euren Bungalows auf.',
+    'Bleibt außerhalb der Programmpunkte bitte auf der Anlage und entfernt euch nicht eigenständig.',
+    'Wir werden sicher und zuverlässig transportiert. In den einzelnen Stationen ist Laufen gut möglich. Es dürfen keine E-Scooter oder Uber (o. Ä.) genutzt werden.',
+    'Rom ist teuer. Wir werden aber rundum verpflegt und auch das Programm ist abgedeckt. Wir empfehlen einen Betrag zwischen 50 und 75 Euro als Taschengeld. Damit kommt man schon weit.',
+  ];
+  if (JSON.stringify(data.rules) !== JSON.stringify(CURRENT_RULES)) {
+    data.rules = CURRENT_RULES;
+    save();
+  }
   // Abgelaufene Treffpunkte bereinigen
   const nowClean = Date.now();
   const before = (data.treffpunkte || []).length;
