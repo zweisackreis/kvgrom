@@ -1,6 +1,6 @@
 // !! CACHE-VERSION — automatisch bei jedem Build aktualisiert !!
-const CACHE = 'kvgrom-v20260916-0905';
-const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png', './hero-bg.jpg'];
+const CACHE = 'kvgrom-v20260924-0623';
+const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png', './hero-bg.jpg', './song.mp3'];
 
 // Installation: Cache befüllen + SOFORT übernehmen (skipWaiting)
 self.addEventListener('install', e => {
