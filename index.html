@@ -882,13 +882,29 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
 // ════════════════════════════════════════════
 // RENDER
 // ════════════════════════════════════════════
+function safeRender(fn, name) {
+  try { fn(); } catch(e) { console.warn('Fehler in ' + name + ':', e.message); }
+}
+
 function renderAll() {
-  renderHome(); renderGuides(); renderZeitplan(); renderTeachers();
-  renderHotel(); renderRules(); renderPack(); renderSights();
-  renderPolls(); renderNotifications();
-  renderCountdown(); renderTreffpunkt(); renderNotifBanner(); renderHeute(); renderSprache();
-  renderEinstellungen();
-  initAudioPlayer();
+  safeRender(renderHome,            'renderHome');
+  safeRender(renderGuides,          'renderGuides');
+  safeRender(renderZeitplan,        'renderZeitplan');
+  safeRender(renderTeachers,        'renderTeachers');
+  safeRender(renderHotel,           'renderHotel');
+  safeRender(renderRules,           'renderRules');
+  safeRender(renderPack,            'renderPack');
+  safeRender(renderSights,          'renderSights');
+  safeRender(renderPolls,           'renderPolls');
+  safeRender(renderNotifications,   'renderNotifications');
+  safeRender(renderFormLinks,       'renderFormLinks');
+  safeRender(renderCountdown,       'renderCountdown');
+  safeRender(renderTreffpunkt,      'renderTreffpunkt');
+  safeRender(renderNotifBanner,     'renderNotifBanner');
+  safeRender(renderHeute,           'renderHeute');
+  safeRender(renderSprache,         'renderSprache');
+  safeRender(renderEinstellungen,   'renderEinstellungen');
+  safeRender(initAudioPlayer,       'initAudioPlayer');
 }
 
 // Kategorie → Farbe
@@ -1095,18 +1111,6 @@ function renderPack() {
   if (!data.pack) data.pack = [];
   if (!data.checkedPack) data.checkedPack = [];
   const n = data.checkedPack.length, total = data.pack.length;
-  document.getElementById('pack-bar').style.width = total ? (n/total*100)+'%' : '0%';
-  document.getElementById('pack-status').textContent = `${n} von ${total} Dingen gepackt`;
-  document.getElementById('pack-list').innerHTML = data.pack.map((item,i) => {
-    const checked = data.checkedPack.includes(i);
-    return `<div class="pack-item ${checked?'done':''}" style="flex-wrap:wrap">
-      <div class="pack-check ${checked?'checked':''}" onclick="togglePack(${i})"></div>
-      <span class="pack-label" style="flex:1" onclick="togglePack(${i})">${item}</span>
-      ${adminMode ? `<button onclick="editPack(${i})" style="padding:3px 8px;border:1.5px solid var(--accent);border-radius:6px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️</button>
-      <button onclick="deleteItem('pack',${i});renderPack()" style="padding:3px 8px;border:1.5px solid #fcd5d0;border-radius:6px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>` : ''}
-    </div>`;
-  }).join('');
-}
   document.getElementById('pack-bar').style.width = total ? (n/total*100)+'%' : '0%';
   document.getElementById('pack-status').textContent = `${n} von ${total} Dingen gepackt`;
   document.getElementById('pack-list').innerHTML = data.pack.map((item,i) => {
