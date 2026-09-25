@@ -664,7 +664,7 @@
 // ════════════════════════════════════════════
 // CONFIG — hier anpassen
 // ════════════════════════════════════════════
-const ADMIN_PW = 'kvgrom26';
+const ADMIN_PW = 'kvgrom2026';
 let adminMode = false;
 
 // Firebase-Konfiguration (nach Firebase-Setup eintragen):
@@ -2396,7 +2396,7 @@ function renderEinstellungen() {
   if (headerSub) headerSub.textContent = myKlasse ? `Klasse ${myKlasse}` : 'Klasse noch nicht gewählt';
 
   if (grid) {
-    grid.innerHTML = KLASSEN.map(k => {
+    grid.innerHTML = KLASSEN.filter(k => k !== 'Lehrkraft').map(k => {
       const active = k === myKlasse;
       return `<button onclick="selectKlasseEinst('${k}')"
         style="padding:9px 4px;border:1.5px solid ${active ? 'var(--accent)' : 'var(--border)'};
@@ -2673,6 +2673,7 @@ function manualRefresh() {
 const KLASSEN = ['5a','5b','5c','6a','6b','6c','7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2','Lehrkraft'];
 
 renderAll();
+checkAdminSession();
 
 function showKlassenModal() {
   const overlay = document.createElement('div');
@@ -2687,7 +2688,7 @@ function showKlassenModal() {
         <div style="font-size:14px;color:var(--text2);line-height:1.5">In welcher Klasse bist du?<br>So können Lehrkräfte Mitteilungen gezielt senden.</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px" id="klassen-grid">
-        ${KLASSEN.map(k => `<button onclick="selectKlasse('${k}')" style="padding:10px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--text)">${k}</button>`).join('')}
+        ${KLASSEN.filter(k => k !== 'Lehrkraft').map(k => `<button onclick="selectKlasse('${k}')" style="padding:10px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--text)">${k}</button>`).join('')}
       </div>
       <button onclick="selectKlasse('unbekannt')" style="width:100%;padding:12px;background:none;border:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Lieber nicht angeben</button>
     </div>`;

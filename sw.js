@@ -1,5 +1,5 @@
 // !! CACHE-VERSION — automatisch bei jedem Build aktualisiert !!
-const CACHE = 'kvgrom-v20260925-0951';
+const CACHE = 'kvgrom-v20260925-1038';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png', './hero-bg.jpg', './song.mp3'];
 
 // Installation: Cache befüllen + SOFORT übernehmen (skipWaiting)
