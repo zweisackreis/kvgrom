@@ -1462,8 +1462,10 @@ function renderSprache() {
 
 function renderPolls() {
   if (!data.polls) data.polls = [];
+  const pollsList = document.getElementById('polls-list');
+  if (!pollsList) return;
   const votedPolls = JSON.parse(localStorage.getItem('rom-voted') || '[]');
-  document.getElementById('polls-list').innerHTML = data.polls.map(p => {
+  pollsList.innerHTML = data.polls.map(p => {
     const total = p.votes.reduce((a,b)=>a+b,0);
     const voted = votedPolls.includes(p.id);
     return `<div class="poll-card">
@@ -1578,8 +1580,10 @@ function renderFormLinks() {
   if (!data.formsLinks) return;
   const fb = data.formsLinks.feedback || '#';
   const fq = data.formsLinks.fragen || '#';
-  document.getElementById('feedback-link').href = fb;
-  document.getElementById('fragen-link').href = fq;
+  const elFb = document.getElementById('feedback-link');
+  const elFq = document.getElementById('fragen-link');
+  if (elFb) elFb.href = fb;
+  if (elFq) elFq.href = fq;
 }
 
 // ════════════════════════════════════════════
