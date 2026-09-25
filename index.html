@@ -278,12 +278,7 @@
         <div style="font-size:14px;font-weight:500;color:#633806">Reiseführer</div>
         <div style="font-size:11px;color:#854F0B;margin-top:2px" id="guide-count-home">Einträge ansehen</div>
       </div>
-      <div onclick="switchPage('feedback')" style="background:#EEEDFE;border-radius:var(--radius);padding:16px;cursor:pointer;position:relative;overflow:hidden">
-        <div style="position:absolute;right:-4px;bottom:-6px;font-size:48px;opacity:.15">💬</div>
-        <div style="font-size:30px;margin-bottom:8px">💬</div>
-        <div style="font-size:14px;font-weight:500;color:#3C3489">Mitmachen</div>
-        <div style="font-size:11px;color:#534AB7;margin-top:2px">Abstimmungen & Feedback</div>
-      </div>
+
     </div>
 
     <!-- Instagram -->
@@ -474,24 +469,6 @@
 
   </div><!-- /page-unterhaltung -->
 
-  <div class="page" id="page-feedback">
-    <div class="section-label">Abstimmungen</div>
-    <div id="polls-list"></div>
-
-    <div class="section-label">Feedback & Kommentare</div>
-    <div class="card">
-      <p style="font-size:14px;color:var(--text2);margin-bottom:14px;line-height:1.6">Hast du Feedback zur Fahrt, Fragen oder Kommentare zu Sehenswürdigkeiten? Füll das Formular aus — die Lehrkräfte sehen deine Antwort.</p>
-      <a id="feedback-link" href="#" target="_blank" class="forms-btn">
-        💬 Feedback-Formular öffnen
-      </a>
-      <a id="fragen-link" href="#" target="_blank" class="forms-btn forms-btn-secondary">
-        ❓ Fragen stellen
-      </a>
-      <p style="font-size:11px;color:var(--text3);margin-top:8px">Die Links führen zu Google Forms. Im Bearbeiten-Modus konfigurierbar.</p>
-    </div>
-  </div>
-
-  <!-- BENACHRICHTIGUNGEN -->
   <div class="page" id="page-benachrichtigungen">
     <div class="section-label">Mitteilungen der Lehrkräfte</div>
     <div class="card" id="notif-list">
@@ -613,7 +590,6 @@
     <div class="mehr-item" onclick="switchPageFromMehr('karte')"><span class="mehr-icon">🗺️</span>Karte</div>
     <div class="mehr-item" onclick="switchPageFromMehr('sprache')"><span class="mehr-icon">🇮🇹</span>Italiano</div>
     <div class="mehr-item" onclick="switchPageFromMehr('unterhaltung')"><span class="mehr-icon">🎧</span>Unterhaltung</div>
-    <div class="mehr-item" onclick="switchPageFromMehr('feedback')"><span class="mehr-icon">💬</span>Mitmachen</div>
     <div class="mehr-item" onclick="switchPageFromMehr('benachrichtigungen')"><span class="mehr-icon">🔔</span>Mitteilungen</div>
     <div class="mehr-item" onclick="openArcade()"><span class="mehr-icon">🕹️</span>Arcade</div>
     <div class="mehr-item" onclick="switchPageFromMehr('einstellungen')"><span class="mehr-icon">⚙️</span>Einstellungen</div>
@@ -909,7 +885,7 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
 function renderAll() {
   renderHome(); renderGuides(); renderZeitplan(); renderTeachers();
   renderHotel(); renderRules(); renderPack(); renderSights();
-  renderPolls(); renderNotifications(); renderFormLinks();
+  renderPolls(); renderNotifications();
   renderCountdown(); renderTreffpunkt(); renderNotifBanner(); renderHeute(); renderSprache();
   renderEinstellungen();
   initAudioPlayer();
@@ -1008,7 +984,7 @@ function renderHome() {
 function renderGuides() {
   const list = document.getElementById('guide-list');
   const empty = document.getElementById('guide-empty');
-  if (!data.guides.length) { list.innerHTML=''; empty.style.display='block'; return; }
+  if (!data.guides || !data.guides.length) { list.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display='none';
   list.innerHTML = data.guides.map(g => `
     <div class="guide-card">
@@ -1034,6 +1010,7 @@ function renderGuides() {
 }
 
 function renderZeitplan() {
+  if (!data.zeitplan) data.zeitplan = [];
   // Heute automatisch aufklappen
   if (typeof window._zeitplanOpen === 'undefined') {
     const heute = new Date();
@@ -1076,6 +1053,7 @@ function renderZeitplan() {
 }
 
 function renderTeachers() {
+  if (!data.teachers) data.teachers = [];
   const list = document.getElementById('teachers-list');
   if (!data.teachers.length) { list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Im Bearbeiten-Modus eintragen</div>'; return; }
   list.innerHTML = data.teachers.map((t,i) => `
@@ -1091,6 +1069,7 @@ function renderTeachers() {
 }
 
 function renderHotel() {
+  if (!data.hotel) return;
   if (data.hotel.name) {
     document.getElementById('hotel-detail').innerHTML = `
       <div class="contact-name">${data.hotel.name}</div>
@@ -1100,7 +1079,7 @@ function renderHotel() {
 }
 
 function renderRules() {
-  if (!data.rules.length) return;
+  if (!data.rules || !data.rules.length) return;
   document.getElementById('rules-list').innerHTML = data.rules.map((r,i) => `
     <div class="rule-item" style="flex-wrap:wrap">
       <div class="rule-num">${String(i+1).padStart(2,'0')}</div>
@@ -1113,7 +1092,21 @@ function renderRules() {
 }
 
 function renderPack() {
+  if (!data.pack) data.pack = [];
+  if (!data.checkedPack) data.checkedPack = [];
   const n = data.checkedPack.length, total = data.pack.length;
+  document.getElementById('pack-bar').style.width = total ? (n/total*100)+'%' : '0%';
+  document.getElementById('pack-status').textContent = `${n} von ${total} Dingen gepackt`;
+  document.getElementById('pack-list').innerHTML = data.pack.map((item,i) => {
+    const checked = data.checkedPack.includes(i);
+    return `<div class="pack-item ${checked?'done':''}" style="flex-wrap:wrap">
+      <div class="pack-check ${checked?'checked':''}" onclick="togglePack(${i})"></div>
+      <span class="pack-label" style="flex:1" onclick="togglePack(${i})">${item}</span>
+      ${adminMode ? `<button onclick="editPack(${i})" style="padding:3px 8px;border:1.5px solid var(--accent);border-radius:6px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">✏️</button>
+      <button onclick="deleteItem('pack',${i});renderPack()" style="padding:3px 8px;border:1.5px solid #fcd5d0;border-radius:6px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer">🗑</button>` : ''}
+    </div>`;
+  }).join('');
+}
   document.getElementById('pack-bar').style.width = total ? (n/total*100)+'%' : '0%';
   document.getElementById('pack-status').textContent = `${n} von ${total} Dingen gepackt`;
   document.getElementById('pack-list').innerHTML = data.pack.map((item,i) => {
@@ -1134,6 +1127,7 @@ function togglePack(i) {
 }
 
 function renderSights() {
+  if (!data.sights) data.sights = [];
   // Einträge mit eigenem Link
   const customLinks = {
     'Gelateria della Palma (150 Sorten Eis)': 'https://maps.app.goo.gl/sVVBKoTJEsXra8NE9',
@@ -1467,6 +1461,7 @@ function renderSprache() {
 
 
 function renderPolls() {
+  if (!data.polls) data.polls = [];
   const votedPolls = JSON.parse(localStorage.getItem('rom-voted') || '[]');
   document.getElementById('polls-list').innerHTML = data.polls.map(p => {
     const total = p.votes.reduce((a,b)=>a+b,0);
@@ -1507,6 +1502,7 @@ function vote(pollId, optIdx) {
 function notifId(n) { return (n.ts || n.time || '') + '|' + (n.title || ''); }
 
 function renderNotifications() {
+  if (!data.notifications) data.notifications = [];
   const myKlasse = localStorage.getItem('rom-klasse') || 'alle';
   const readIds    = JSON.parse(localStorage.getItem('rom-read-notifs-v3') || '[]');
   const dismissIds = JSON.parse(localStorage.getItem('rom-dismissed-notifs-v3') || '[]');
@@ -1579,6 +1575,7 @@ function dismissNotifPermanent(nid) {
 function markRead(idx) { /* legacy */ }
 
 function renderFormLinks() {
+  if (!data.formsLinks) return;
   const fb = data.formsLinks.feedback || '#';
   const fq = data.formsLinks.fragen || '#';
   document.getElementById('feedback-link').href = fb;
