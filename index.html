@@ -675,14 +675,6 @@ const FIREBASE_VAPID_KEY = "BFFkdNWF-1pXAQLA3pVWo6iMTAUiC4L1PZv4SA27mk1B5ytcIjwF
 let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
   trip: { title: 'Rom 2026', dates: '09.–16. Oktober 2026', klasse: 'Klasse eintragen' },
   guides: [
-    { id: 10, emoji: '🛁', photo: 'https://zweisackreis.github.io/kvgrom/picture/caracalla.jpg', photoCredit: 'Ethan Doyle White, CC BY-SA 4.0, Wikimedia Commons', category: 'Antikes Rom', title: 'Caracalla-Thermen',
-      desc: 'Die Caracalla-Thermen gehören zu den besterhaltenen Badeanlagen der Antike — ein gigantisches Freizeitbad für bis zu 1.600 Badegäste gleichzeitig.',
-      details: 'Erbaut zwischen 212 und 216 n. Chr. unter Kaiser Caracalla. Die Anlage umfasste nicht nur Bäder, sondern auch Bibliotheken, Gymnasien und Gärten.\n\nDie Thermen waren für alle Bürger Roms kostenlos zugänglich und symbolisierten die Großzügigkeit des Kaisers. Heute sind die mächtigen Ruinen bis zu 30 Meter hoch.',
-      tipp: 'Im Sommer finden hier Open-Air-Opernaufführungen statt.',
-      adresse: 'Viale delle Terme di Caracalla, 52, 00153 Rom',
-      mapsEmbed: '',
-      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/caracalla.mp3',
-      autor: '' },
     { id: 2, emoji: '⛪', photo: null, category: 'Kirchen', title: 'Petersdom & Vatikan',
       desc: 'Der Petersdom ist die größte Kirche der Welt und das Zentrum der katholischen Christenheit.',
       details: 'Die Basilika steht auf dem Petersplatz im Vatikan. Michelangelos Pietà und Berninis Baldachin sind Höhepunkte.',
@@ -1057,6 +1049,23 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
         ]
     }
 ];
+
+  // ── Reiseführer: Code-Einträge mit localStorage zusammenführen ──
+  // Einträge aus dem Code (static) werden immer aktuell gehalten;
+  // manuell via App hinzugefügte Einträge (id >= 1000) bleiben erhalten.
+  const staticGuides = [
+    { id: 10, emoji: '🛁', photo: 'https://zweisackreis.github.io/kvgrom/picture/caracalla.jpg', photoCredit: 'Ethan Doyle White, CC BY-SA 4.0, Wikimedia Commons', category: 'Antikes Rom', title: 'Caracalla-Thermen',
+      desc: 'Die Caracalla-Thermen gehören zu den besterhaltenen Badeanlagen der Antike — ein gigantisches Freizeitbad für bis zu 1.600 Badegäste gleichzeitig.',
+      details: 'Erbaut zwischen 212 und 216 n. Chr. unter Kaiser Caracalla. Die Anlage umfasste nicht nur Bäder, sondern auch Bibliotheken, Gymnasien und Gärten.\n\nDie Thermen waren für alle Bürger Roms kostenlos zugänglich und symbolisierten die Großzügigkeit des Kaisers. Heute sind die mächtigen Ruinen bis zu 30 Meter hoch.',
+      tipp: 'Im Sommer finden hier Open-Air-Opernaufführungen statt.',
+      adresse: 'Viale delle Terme di Caracalla, 52, 00153 Rom',
+      mapsEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/caracalla.mp3',
+      autor: '' },
+  ];
+  // Manuell hinzugefügte Einträge (hohe IDs) behalten
+  const userGuides = (data.guides || []).filter(g => g.id >= 1000);
+  data.guides = [...staticGuides, ...userGuides];
 
   save();
 })();
