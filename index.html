@@ -675,10 +675,14 @@ const FIREBASE_VAPID_KEY = "BFFkdNWF-1pXAQLA3pVWo6iMTAUiC4L1PZv4SA27mk1B5ytcIjwF
 let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
   trip: { title: 'Rom 2026', dates: '09.–16. Oktober 2026', klasse: 'Klasse eintragen' },
   guides: [
-    { id: 1, emoji: '🏟️', photo: null, category: 'Antikes Rom', title: 'Das Kolosseum',
-      desc: 'Das Kolosseum ist das größte je erbaute Amphitheater der Antike. Es fasste bis zu 80.000 Zuschauer.',
-      details: 'Gebaut zwischen 70 und 80 n. Chr. unter den Kaisern Vespasian und Titus.\n\nTipp: Tickets unbedingt vorab online buchen.',
-      tipp: 'Kombikarte mit dem Forum Romanum kaufen', adresse: 'Piazza del Colosseo, 1, 00184 Rom', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.076245!2d12.4913!3d41.8902!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f61b383a9d4d1%3A0xa840fd491ce4de1f!2sKolosseum!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde', autor: 'Frau Müller' },
+    { id: 10, emoji: '🛁', photo: 'https://zweisackreis.github.io/kvgrom/picture/caracalla.jpg', photoCredit: 'Ethan Doyle White, CC BY-SA 4.0, Wikimedia Commons', category: 'Antikes Rom', title: 'Caracalla-Thermen',
+      desc: 'Die Caracalla-Thermen gehören zu den besterhaltenen Badeanlagen der Antike — ein gigantisches Freizeitbad für bis zu 1.600 Badegäste gleichzeitig.',
+      details: 'Erbaut zwischen 212 und 216 n. Chr. unter Kaiser Caracalla. Die Anlage umfasste nicht nur Bäder, sondern auch Bibliotheken, Gymnasien und Gärten.\n\nDie Thermen waren für alle Bürger Roms kostenlos zugänglich und symbolisierten die Großzügigkeit des Kaisers. Heute sind die mächtigen Ruinen bis zu 30 Meter hoch.',
+      tipp: 'Im Sommer finden hier Open-Air-Opernaufführungen statt.',
+      adresse: 'Viale delle Terme di Caracalla, 52, 00153 Rom',
+      mapsEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/caracalla.mp3',
+      autor: '' },
     { id: 2, emoji: '⛪', photo: null, category: 'Kirchen', title: 'Petersdom & Vatikan',
       desc: 'Der Petersdom ist die größte Kirche der Welt und das Zentrum der katholischen Christenheit.',
       details: 'Die Basilika steht auf dem Petersplatz im Vatikan. Michelangelos Pietà und Berninis Baldachin sind Höhepunkte.',
@@ -1952,7 +1956,8 @@ function openDetail(id) {
   document.getElementById('detail-nav-title').textContent = g.title;
   document.getElementById('detail-content').innerHTML = `
     ${g.photo
-      ? `<img src="${g.photo}" alt="${g.title}" style="width:100%;height:220px;object-fit:cover;border-radius:var(--radius);margin-bottom:16px">`
+      ? `<img src="${g.photo}" alt="${g.title}" style="width:100%;height:220px;object-fit:cover;border-radius:var(--radius);margin-bottom:${g.photoCredit ? '4px' : '16px'}">
+         ${g.photoCredit ? `<div style="font-size:10px;color:var(--text3);margin-bottom:16px;padding:0 2px">© ${g.photoCredit}</div>` : ''}`
       : `<div style="font-size:60px;margin-bottom:16px;text-align:center">${g.emoji}</div>`}
     <div style="display:inline-block;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:10px;${getCategoryStyle(g.category)}">${g.category}</div>
     <h2>${g.title}</h2>
@@ -1972,11 +1977,10 @@ function openDetail(id) {
     ${g.audioEmbed ? `
       <h3>🔊 Audio</h3>
       <div style="border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:12px;background:var(--surface2)">
-        <iframe src="${g.audioEmbed}"
-          width="100%" height="80" style="border:0;display:block"
-          allow="autoplay"
-          loading="lazy">
-        </iframe>
+        ${g.audioEmbed.endsWith('.mp3') || g.audioEmbed.endsWith('.m4a') || g.audioEmbed.endsWith('.ogg')
+          ? `<audio controls src="${g.audioEmbed}" style="width:100%;display:block;height:48px" preload="none"></audio>`
+          : `<iframe src="${g.audioEmbed}" width="100%" height="80" style="border:0;display:block" allow="autoplay" loading="lazy"></iframe>`
+        }
       </div>` : ''}
     <p style="font-size:12px;color:var(--text3);margin-top:16px">Eintrag von ${g.autor}</p>`;
   document.getElementById('detail-view').classList.add('open');
