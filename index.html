@@ -326,12 +326,15 @@
 
   <!-- REISEFÜHRER -->
   <div class="page" id="page-reisefuehrer">
-    <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px">
-      <img src="logo-fahrt.jpeg" alt="Rome 2026" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0">
-      <div>
-        <div style="font-family:'DM Serif Display',serif;font-size:18px;line-height:1.2">Reiseführer <em style="color:var(--accent)">Rom</em></div>
-        <div style="font-size:12px;color:var(--text2);margin-top:2px">Von Lehrkräften kuratierte Einträge</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <img src="logo-fahrt.jpeg" alt="Rome 2026" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0">
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:18px;line-height:1.2">Reiseführer <em style="color:var(--accent)">Rom</em></div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">KvG Gymnasium Mettingen · Oktober 2026</div>
+        </div>
       </div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;margin:0">Dieser Reiseführer ist ein echtes Gemeinschaftswerk: Viele Schülerinnen und Schüler haben sich intensiv mit den Orten beschäftigt, die wir auf unserer Romfahrt besuchen — sie haben recherchiert, Texte geschrieben und Audioguides aufgenommen. Wir sind stolz auf das, was entstanden ist, und hoffen, dass der Reiseführer euch begleitet, neugierig macht und Lust auf Entdeckungen weckt. <em style="color:var(--accent)">Grazie mille!</em> 🙏</p>
     </div>
     <div class="section-label">Einträge</div>
     <div id="guide-list"></div>
@@ -1301,27 +1304,51 @@ function renderGuides() {
   const empty = document.getElementById('guide-empty');
   if (!data.guides || !data.guides.length) { list.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display='none';
-  list.innerHTML = data.guides.map(g => `
-    <div class="guide-card">
-      <div class="guide-img-wrap" onclick="openDetail(${g.id})">
-        ${g.photo
-          ? `<img src="${g.photo}" alt="${g.title}">`
-          : `<div class="guide-img-emoji">${g.emoji}</div>`}
-      </div>
-      <div class="guide-body" onclick="openDetail(${g.id})">
-        <div style="display:inline-block;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-bottom:6px;${getCategoryStyle(g.category)}">${g.category}</div>
-        <div class="guide-title">${g.title}</div>
-        <div class="guide-desc">${g.desc}</div>
-        <div class="guide-meta">
-          <span>📍 ${g.adresse ? g.adresse.split(',')[0] : 'Rom'}</span>
-          <span>✍️ ${g.autor}</span>
-        </div>
-      </div>
-      ${adminMode ? `<div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border)">
-        <button onclick="editGuide(${g.id})" style="flex:1;padding:8px;border:1.5px solid var(--accent);border-radius:8px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer">✏️ Bearbeiten</button>
-        <button onclick="deleteGuideById(${g.id})" style="padding:8px 12px;border:1.5px solid #fcd5d0;border-radius:8px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🗑</button>
-      </div>` : ''}
+
+  // Group by first letter
+  const groups = {};
+  data.guides.forEach(g => {
+    const letter = g.title[0].toUpperCase();
+    if (!groups[letter]) groups[letter] = [];
+    groups[letter].push(g);
+  });
+  const letters = Object.keys(groups).sort();
+
+  // Index bar
+  const indexBar = `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)">
+    <span style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;width:100%;margin-bottom:4px">Inhalt</span>
+    ${letters.map(l => `<a href="#guide-letter-${l}" onclick="event.preventDefault();document.getElementById('guide-letter-${l}')?.scrollIntoView({behavior:'smooth',block:'start'})"
+      style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--accent-light);color:var(--accent);font-size:13px;font-weight:700;text-decoration:none;border:1.5px solid var(--border)">${l}</a>`).join('')}
+  </div>`;
+
+  // Cards grouped by letter
+  const groupedCards = letters.map(letter => `
+    <div id="guide-letter-${letter}" style="scroll-margin-top:60px">
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent);padding:4px 0 8px;margin-bottom:4px;border-bottom:2px solid var(--accent-light)">${letter}</div>
+      ${groups[letter].map(g => `
+        <div class="guide-card">
+          <div class="guide-img-wrap" onclick="openDetail(${g.id})">
+            ${g.photo
+              ? `<img src="${g.photo}" alt="${g.title}">`
+              : `<div class="guide-img-emoji">${g.emoji}</div>`}
+          </div>
+          <div class="guide-body" onclick="openDetail(${g.id})">
+            <div style="display:inline-block;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-bottom:6px;${getCategoryStyle(g.category)}">${g.category}</div>
+            <div class="guide-title">${g.title}</div>
+            <div class="guide-desc">${g.desc}</div>
+            <div class="guide-meta">
+              <span>📍 ${g.adresse ? g.adresse.split(',')[0] : 'Rom'}</span>
+              <span>✍️ ${g.autor}</span>
+            </div>
+          </div>
+          ${adminMode ? `<div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border)">
+            <button onclick="editGuide(${g.id})" style="flex:1;padding:8px;border:1.5px solid var(--accent);border-radius:8px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer">✏️ Bearbeiten</button>
+            <button onclick="deleteGuideById(${g.id})" style="padding:8px 12px;border:1.5px solid #fcd5d0;border-radius:8px;background:#fdf3f2;color:#9b2a1a;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🗑</button>
+          </div>` : ''}
+        </div>`).join('')}
     </div>`).join('');
+
+  list.innerHTML = indexBar + groupedCards;
 }
 
 function renderZeitplan() {
