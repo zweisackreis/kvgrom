@@ -1,0 +1,312 @@
+<title>Milchmarkt Preis-Mengen-Diagramm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: Diagramm links als Tafelbild, rechts ein Bedienpult (Preis wählen → Ergebnis → Anpassung), Datentabelle darunter */
+:root{
+  --bg:#F5F7F4; --panel:#FFFFFF; --fg:#1F2A24; --muted:#5E6B63; --line:#D5DDD6; --grid:#E7ECE7;
+  --demand:#2563A8; --supply:#C2410C; --eq:#1F7A4D; --excessS:#E8A23A; --excessD:#7C4DBC;
+  --chip:#EEF2EE; --chipOn:#1F2A24; --chipOnFg:#FFFFFF;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141A16; --panel:#1C2420; --fg:#E7EEE9; --muted:#9AA8A0; --line:#34413A; --grid:#26302A;
+  --demand:#6FA8E8; --supply:#F08A4B; --eq:#4CC38A; --excessS:#F2B95C; --excessD:#A98BE6;
+  --chip:#26302A; --chipOn:#E7EEE9; --chipOnFg:#141A16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141A16; --panel:#1C2420; --fg:#E7EEE9; --muted:#9AA8A0; --line:#34413A; --grid:#26302A;
+  --demand:#6FA8E8; --supply:#F08A4B; --eq:#4CC38A; --excessS:#F2B95C; --excessD:#A98BE6;
+  --chip:#26302A; --chipOn:#E7EEE9; --chipOnFg:#141A16; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;padding-inline:16px;padding-block:20px 32px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:18px}
+header h1{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3vw,2.2rem);margin:0;text-wrap:balance;letter-spacing:.01em}
+header p{margin:.2rem 0 0;color:var(--muted);max-width:70ch}
+.main{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.chartbox{padding:8px 8px 4px}
+svg{display:block;width:100%;height:auto;font-family:var(--body);user-select:none}
+.label{font-size:12px;fill:var(--muted)}
+.axtitle{font-size:14px;font-weight:600;fill:var(--fg)}
+.cap{font-family:var(--display);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+.chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+button{font:inherit;color:inherit;cursor:pointer}
+.chip{background:var(--chip);border:1px solid var(--line);border-radius:7px;padding:8px 4px;font-weight:600;font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{background:var(--chipOn);color:var(--chipOnFg);border-color:var(--chipOn)}
+.chip.eqc{box-shadow:inset 0 -3px 0 var(--eq)}
+button:focus-visible{outline:3px solid var(--demand);outline-offset:2px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:4px}
+.toggles label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.sw{width:14px;height:4px;border-radius:2px;display:inline-block}
+.result{display:grid;gap:10px}
+.state{display:inline-block;font-family:var(--display);font-weight:700;font-size:1.15rem;padding:3px 10px;border-radius:6px;color:#fff}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.num{border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.num b{display:block;font-family:var(--display);font-size:1.35rem;font-variant-numeric:tabular-nums}
+.num span{font-size:12.5px;color:var(--muted)}
+.explain{margin:0;color:var(--fg)}
+.explain ol{margin:.3rem 0 0;padding-left:1.2rem}
+.explain li{margin:.15rem 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--fg);background:var(--fg);color:var(--bg);border-radius:7px;padding:8px 12px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--fg)}
+.btn:disabled{opacity:.4;cursor:default}
+.task{border-left:4px solid var(--eq);padding:8px 12px;background:var(--chip);border-radius:0 8px 8px 0;font-size:15px}
+.task b{font-family:var(--display);letter-spacing:.03em}
+.quick{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;min-width:420px}
+th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{font-family:var(--display);font-weight:600;font-size:14px;color:var(--muted);letter-spacing:.03em}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--chip)}
+tbody tr.on{background:var(--chip);box-shadow:inset 4px 0 0 var(--fg)}
+.foot{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Milchmarkt: Angebot, Nachfrage und Marktpreis</h1>
+    <p>Wählen Sie einen Preis (Knopf, Tabellenzeile oder Klick ins Diagramm). Das Diagramm zeigt, welche Mengen nachgefragt und angeboten werden und ob ein Überschuss entsteht. Fiktive Daten aus dem Lehrbuch.</p>
+  </header>
+
+  <div class="main">
+    <div class="card chartbox">
+      <svg id="chart" viewBox="0 0 720 500" role="img" aria-label="Preis-Mengen-Diagramm für den Milchmarkt"></svg>
+    </div>
+
+    <div class="result">
+      <div class="card">
+        <p class="cap">Preis wählen (€ je Liter)</p>
+        <div class="chips" id="chips"></div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn ghost" id="btnEq" type="button">Marktgleichgewicht markieren</button>
+          <button class="btn ghost" id="btnReset" type="button">Zurücksetzen</button>
+        </div>
+      </div>
+
+      <div class="card" id="out" aria-live="polite"></div>
+
+      <div class="card">
+        <p class="cap">Anzeige</p>
+        <div class="toggles">
+          <label><input type="checkbox" id="tD" checked> <span class="sw" style="background:var(--demand)"></span> Nachfragekurve</label>
+          <label><input type="checkbox" id="tS" checked> <span class="sw" style="background:var(--supply)"></span> Angebotskurve</label>
+          <label><input type="checkbox" id="tP" checked> Datenpunkte</label>
+        </div>
+        <p class="foot" style="margin:.5rem 0 0">Tipp: Kurven ausblenden, Schüler:innen zeichnen lassen, dann zum Vergleich einblenden.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="task">
+    <b>Aufgabe:</b> Kennzeichnen Sie in Ihrer Grafik aus Aufgabe 2 den Angebots- und Nachfrageüberschuss bei einem Preis von 0,50 € bzw. 0,30 € pro Liter Milch. Erklären Sie, wie jeweils wieder ein Marktgleichgewicht hergestellt wird.
+    <div class="quick">
+      <button class="btn ghost" type="button" data-q="0.5">Lösung zeigen: 0,50 €</button>
+      <button class="btn ghost" type="button" data-q="0.3">Lösung zeigen: 0,30 €</button>
+    </div>
+  </div>
+
+  <div class="card tablewrap">
+    <p class="cap">Milchnachfrage und Milchangebot in Abhängigkeit vom Milchpreis (fiktives Beispiel)</p>
+    <table>
+      <thead><tr><th>Preis für Milch (€/Liter)</th><th>Haushaltsnachfrage (Liter)</th><th>Angebot (Liter)</th><th>Differenz A − N</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const DATA=[[0.20,20000,9000],[0.25,15000,9500],[0.30,14000,10000],[0.35,12500,10500],[0.40,11000,11000],[0.45,10200,11800],[0.50,9500,14000],[0.55,9000,15700]];
+const PEQ=0.40, QEQ=11000;
+const fmtP=p=>p.toFixed(2).replace('.',',')+' €';
+const fmtQ=q=>Math.round(q).toLocaleString('de-DE');
+// scales (axis break: x from 8.000, y from 0,15)
+const W=720,H=500,L=78,R=24,T=24,B=64;
+const X0=8000,X1=21000,Y0=0.15,Y1=0.60;
+const sx=q=>L+(q-X0)/(X1-X0)*(W-L-R);
+const sy=p=>H-B-(p-Y0)/(Y1-Y0)*(H-T-B);
+const py=y=>Y0+(H-B-y)/(H-T-B)*(Y1-Y0);
+function interp(p,col){ // linear between data points
+  if(p<=DATA[0][0])return DATA[0][col];
+  for(let i=1;i<DATA.length;i++){const a=DATA[i-1],b=DATA[i];if(p<=b[0]){const t=(p-a[0])/(b[0]-a[0]);return a[col]+t*(b[col]-a[col]);}}
+  return DATA[DATA.length-1][col];
+}
+const svg=document.getElementById('chart');
+const NS='http://www.w3.org/2000/svg';
+const el=(tag,attrs,parent=svg)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent.appendChild(e);return e;};
+
+function drawStatic(){
+  const g=el('g',{});
+  for(let q=8000;q<=21000;q+=1000){
+    el('line',{x1:sx(q),x2:sx(q),y1:T,y2:H-B,stroke:'var(--grid)','stroke-width':1},g);
+    if(q%2000===0 && q>8000) el('text',{x:sx(q),y:H-B+20,'text-anchor':'middle',class:'label'},g).textContent=fmtQ(q);
+  }
+  for(let i=0;i<=9;i++){const p=0.15+i*0.05;
+    el('line',{x1:L,x2:W-R,y1:sy(p),y2:sy(p),stroke:'var(--grid)','stroke-width':1},g);
+    if(p>0.16) el('text',{x:L-10,y:sy(p)+4,'text-anchor':'end',class:'label'},g).textContent=p.toFixed(2).replace('.',',');
+  }
+  // axes with arrows
+  el('defs',{}).innerHTML='<marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--fg)"/></marker>';
+  el('line',{x1:L,y1:H-B,x2:W-R+8,y2:H-B,stroke:'var(--fg)','stroke-width':1.6,'marker-end':'url(#ar)'},g);
+  el('line',{x1:L,y1:H-B,x2:L,y2:T-10,stroke:'var(--fg)','stroke-width':1.6,'marker-end':'url(#ar)'},g);
+  // axis break marks
+  const zz=(x,y,rot)=>el('path',{d:'M-6,4 L-2,-4 L2,4 L6,-4',transform:`translate(${x},${y}) rotate(${rot})`,fill:'none',stroke:'var(--fg)','stroke-width':1.6},g);
+  zz(L+14,H-B,0); zz(L,H-B-14,90);
+  el('text',{x:L-10,y:H-B+20,'text-anchor':'end',class:'label'},g).textContent='0';
+  el('text',{x:W-R,y:H-B+46,'text-anchor':'end',class:'axtitle'},g).textContent='Menge x (Liter)';
+  el('text',{x:L+10,y:T+4,'text-anchor':'start',class:'axtitle'},g).textContent='Preis p (€/Liter)';
+}
+let layers={};
+function drawCurves(){
+  layers.curves=el('g',{});
+  const path=col=>DATA.map((d,i)=>(i?'L':'M')+sx(d[col]).toFixed(1)+','+sy(d[0]).toFixed(1)).join(' ');
+  layers.D=el('g',{},layers.curves);
+  el('path',{d:path(1),fill:'none',stroke:'var(--demand)','stroke-width':3,'stroke-linejoin':'round'},layers.D);
+  el('text',{x:sx(9000)-6,y:sy(0.55)-10,'text-anchor':'end',fill:'var(--demand)','font-weight':700,'font-size':18},layers.D).textContent='N';
+  layers.S=el('g',{},layers.curves);
+  el('path',{d:path(2),fill:'none',stroke:'var(--supply)','stroke-width':3,'stroke-linejoin':'round'},layers.S);
+  el('text',{x:sx(15700)+8,y:sy(0.55)-6,fill:'var(--supply)','font-weight':700,'font-size':18},layers.S).textContent='A';
+  layers.pts=el('g',{},layers.curves);
+  DATA.forEach(d=>{
+    el('circle',{cx:sx(d[1]),cy:sy(d[0]),r:4,fill:'var(--panel)',stroke:'var(--demand)','stroke-width':2,class:'ptD'},layers.pts);
+    el('circle',{cx:sx(d[2]),cy:sy(d[0]),r:4,fill:'var(--panel)',stroke:'var(--supply)','stroke-width':2,class:'ptS'},layers.pts);
+  });
+  layers.dyn=el('g',{});
+  layers.eq=el('g',{});
+  layers.hover=el('g',{'pointer-events':'none'});
+}
+drawStatic();drawCurves();
+// hit area for clicks
+const hit=el('rect',{x:L,y:T,width:W-L-R,height:H-T-B,fill:'transparent',style:'cursor:crosshair'});
+
+let state={p:null,eq:false,anim:null};
+function nearestPrice(p){return DATA.reduce((a,d)=>Math.abs(d[0]-p)<Math.abs(a-p)?d[0]:a,DATA[0][0]);}
+
+function drawEq(){
+  layers.eq.innerHTML='';
+  if(!state.eq)return;
+  const x=sx(QEQ),y=sy(PEQ),g=layers.eq;
+  el('line',{x1:L,x2:x,y1:y,y2:y,stroke:'var(--eq)','stroke-width':1.6,'stroke-dasharray':'5 4'},g);
+  el('line',{x1:x,x2:x,y1:y,y2:H-B,stroke:'var(--eq)','stroke-width':1.6,'stroke-dasharray':'5 4'},g);
+  el('circle',{cx:x,cy:y,r:8,fill:'var(--eq)',stroke:'var(--panel)','stroke-width':2.5},g);
+  el('text',{x:x+12,y:y+5,fill:'var(--eq)','font-weight':700,'font-size':15},g).textContent='GG';
+  const tag=(tx,ty,txt,anchor)=>{const t=el('text',{x:tx,y:ty,'text-anchor':anchor,fill:'var(--eq)','font-weight':700,'font-size':13},g);t.textContent=txt;};
+  tag(L+4,y-6,'p* = 0,40','start');
+  tag(x+6,H-B-6,'x* = 11.000','start');
+}
+
+function drawPrice(p){
+  const g=layers.dyn;g.innerHTML='';
+  if(p==null)return;
+  const qd=interp(p,1),qs=interp(p,2),y=sy(p);
+  const diff=qs-qd;
+  const col=Math.abs(diff)<1?'var(--eq)':(diff>0?'var(--excessS)':'var(--excessD)');
+  // price line
+  el('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:'var(--fg)','stroke-width':1.3,'stroke-dasharray':'2 4',opacity:.7},g);
+  el('rect',{x:4,y:y-12,width:L-10,height:24,rx:5,fill:'var(--fg)'},g);
+  el('text',{x:4+(L-10)/2,y:y+5,'text-anchor':'middle',fill:'var(--bg)','font-weight':700,'font-size':14},g).textContent=p.toFixed(2).replace('.',',');
+  if(Math.abs(diff)>=1){
+    const a=Math.min(qd,qs),b=Math.max(qd,qs);
+    el('rect',{x:sx(a),y:y-9,width:sx(b)-sx(a),height:18,fill:col,opacity:.35,rx:3},g);
+    // bracket arrow
+    el('line',{x1:sx(a),x2:sx(b),y1:y,y2:y,stroke:col,'stroke-width':4,'stroke-linecap':'round'},g);
+    const lbl=diff>0?'Angebotsüberschuss':'Nachfrageüberschuss';
+    const mid=(sx(a)+sx(b))/2, ly=diff>0? y-18 : y+34;
+    el('text',{x:mid,y:ly,'text-anchor':'middle',fill:col,'font-weight':700,'font-size':15,stroke:'var(--panel)','stroke-width':4,'paint-order':'stroke'},g).textContent=lbl+': '+fmtQ(Math.abs(diff))+' l';
+  }
+  // drop lines to x-axis
+  [[qd,'var(--demand)','N'],[qs,'var(--supply)','A']].forEach(([q,c,n])=>{
+    el('line',{x1:sx(q),x2:sx(q),y1:y,y2:H-B,stroke:c,'stroke-width':1.3,'stroke-dasharray':'4 4'},g);
+    el('circle',{cx:sx(q),cy:y,r:6.5,fill:c,stroke:'var(--panel)','stroke-width':2},g);
+  });
+  // x-axis tags (avoid overlap)
+  const tags=[[qd,'var(--demand)'],[qs,'var(--supply)']].sort((m,n)=>m[0]-n[0]);
+  if(Math.abs(diff)>=1){
+    tags.forEach(([q,c],i)=>{const x=sx(q),dx=(sx(tags[1][0])-sx(tags[0][0])<70)?(i?26:-26):0;
+      el('rect',{x:x+dx-28,y:H-B+26,width:56,height:18,rx:4,fill:c},g);
+      el('text',{x:x+dx,y:H-B+39,'text-anchor':'middle',fill:'var(--panel)','font-weight':700,'font-size':12},g).textContent=fmtQ(q);});
+  }
+}
+
+function explanation(p){
+  const qd=interp(p,1),qs=interp(p,2),diff=qs-qd;
+  if(Math.abs(diff)<1){
+    return {state:'Marktgleichgewicht',col:'var(--eq)',text:`<p class="explain">Bei ${fmtP(p)} stimmen angebotene und nachgefragte Menge überein (${fmtQ(qd)} Liter). Der Markt wird <b>geräumt</b>: Alle Anbieter, die zu diesem Preis verkaufen wollen, finden Käufer, und alle Haushalte, die zu diesem Preis kaufen wollen, bekommen Milch. Es gibt keinen Grund, den Preis zu ändern.</p>`};
+  }
+  if(diff>0){
+    return {state:'Angebotsüberschuss',col:'var(--excessS)',text:`<div class="explain">Zu diesem Preis wollen die Anbieter <b>${fmtQ(qs)} l</b> verkaufen, die Haushalte aber nur <b>${fmtQ(qd)} l</b> kaufen. ${fmtQ(diff)} Liter bleiben unverkauft.
+      <ol><li>Molkereien und Händler bleiben auf Milch sitzen, die Lager füllen sich.</li>
+      <li>Um ihre Milch dennoch loszuwerden, unterbieten sich die Anbieter: Der <b>Preis sinkt</b>.</li>
+      <li>Mit sinkendem Preis <b>steigt die Nachfragemenge</b> (Bewegung auf der N-Kurve nach rechts unten).</li>
+      <li>Gleichzeitig <b>sinkt die Angebotsmenge</b>, weil sich die Produktion für manche Anbieter nicht mehr lohnt (Bewegung auf der A-Kurve nach links unten).</li>
+      <li>Der Prozess endet bei <b>0,40 € und 11.000 l</b>: Der Überschuss ist abgebaut.</li></ol></div>`};
+  }
+  return {state:'Nachfrageüberschuss',col:'var(--excessD)',text:`<div class="explain">Zu diesem Preis wollen die Haushalte <b>${fmtQ(qd)} l</b> kaufen, angeboten werden aber nur <b>${fmtQ(qs)} l</b>. ${fmtQ(-diff)} Liter fehlen.
+      <ol><li>Milch wird knapp, Regale sind leer, nicht alle Kaufwilligen kommen zum Zug.</li>
+      <li>Haushalte sind bereit, mehr zu zahlen; Anbieter erkennen das: Der <b>Preis steigt</b>.</li>
+      <li>Mit steigendem Preis <b>sinkt die Nachfragemenge</b> (Bewegung auf der N-Kurve nach links oben).</li>
+      <li>Gleichzeitig <b>steigt die Angebotsmenge</b>, weil sich Produktion jetzt mehr lohnt (Bewegung auf der A-Kurve nach rechts oben).</li>
+      <li>Der Prozess endet bei <b>0,40 € und 11.000 l</b>: Der Mangel ist beseitigt.</li></ol></div>`};
+}
+
+const out=document.getElementById('out');
+function render(fromAnim){
+  drawPrice(state.p);drawEq();
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(state.p!=null&&Math.abs(+c.dataset.p-state.p)<1e-9)));
+  document.querySelectorAll('#tbody tr').forEach(r=>r.classList.toggle('on',state.p!=null&&Math.abs(+r.dataset.p-state.p)<1e-9));
+  if(fromAnim)return;
+  if(state.p==null){
+    out.innerHTML=`<p class="cap">Ergebnis</p><p class="explain">Noch kein Preis gewählt. Klicken Sie z. B. auf <b>0,50</b> oder <b>0,30</b>, um einen Überschuss zu sehen, oder markieren Sie das Marktgleichgewicht.</p>`;
+    return;
+  }
+  const qd=interp(state.p,1),qs=interp(state.p,2),e=explanation(state.p);
+  const isEq=Math.abs(qs-qd)<1;
+  out.innerHTML=`<p class="cap">Ergebnis bei ${fmtP(state.p)}</p>
+   <div><span class="state" style="background:${e.col}">${e.state}</span></div>
+   <div class="nums" style="margin:10px 0">
+     <div class="num"><span>Nachfrage</span><b style="color:var(--demand)">${fmtQ(qd)}</b><span>Liter</span></div>
+     <div class="num"><span>Angebot</span><b style="color:var(--supply)">${fmtQ(qs)}</b><span>Liter</span></div>
+     <div class="num"><span>${qs>qd?'Überschuss':'Fehlmenge'}</span><b style="color:${e.col}">${isEq?'0':fmtQ(Math.abs(qs-qd))}</b><span>Liter</span></div>
+   </div>
+   ${e.text}
+   ${isEq?'':'<div class="actions" style="margin-top:10px"><button class="btn" id="btnAnim" type="button">Anpassung abspielen</button></div>'}`;
+  const b=document.getElementById('btnAnim'); if(b)b.onclick=animate;
+}
+function setPrice(p){cancelAnimationFrame(state.anim);state.p=p;render();}
+function animate(){
+  const start=state.p,end=PEQ,dur=matchMedia('(prefers-reduced-motion: reduce)').matches?1:2600;const t0=performance.now();
+  const b=document.getElementById('btnAnim'); if(b)b.disabled=true;
+  const step=now=>{let t=Math.min(1,(now-t0)/dur);const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    state.p=start+(end-start)*e;render(true);
+    if(t<1)state.anim=requestAnimationFrame(step);else{state.p=end;state.eq=true;render();}};
+  state.anim=requestAnimationFrame(step);
+}
+
+// chips + table
+const chips=document.getElementById('chips'),tb=document.getElementById('tbody');
+DATA.forEach(([p,d,s])=>{
+  const c=document.createElement('button');c.type='button';c.className='chip'+(p===PEQ?' eqc':'');c.dataset.p=p;c.textContent=p.toFixed(2).replace('.',',');c.onclick=()=>setPrice(p);chips.appendChild(c);
+  const tr=document.createElement('tr');tr.dataset.p=p;const df=s-d;
+  tr.innerHTML=`<td>${p.toFixed(2).replace('.',',')}</td><td>${fmtQ(d)}</td><td>${fmtQ(s)}</td><td style="color:${df===0?'var(--eq)':df>0?'var(--excessS)':'var(--excessD)'};font-weight:600">${df>0?'+':''}${fmtQ(df)}</td>`;
+  tr.onclick=()=>setPrice(p);tb.appendChild(tr);
+});
+document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{setPrice(+b.dataset.q);document.getElementById('chart').scrollIntoView({behavior:'smooth',block:'nearest'});});
+document.getElementById('btnEq').onclick=()=>{state.eq=!state.eq;document.getElementById('btnEq').textContent=state.eq?'Gleichgewicht ausblenden':'Marktgleichgewicht markieren';render();};
+document.getElementById('btnReset').onclick=()=>{cancelAnimationFrame(state.anim);state={p:null,eq:false,anim:null};document.getElementById('btnEq').textContent='Marktgleichgewicht markieren';render();};
+['tD','tS','tP'].forEach(id=>document.getElementById(id).onchange=e=>{const m={tD:layers.D,tS:layers.S,tP:layers.pts}[id];m.style.display=e.target.checked?'':'none';});
+
+// click/hover in chart
+function svgPoint(evt){const pt=svg.createSVGPoint();pt.x=evt.clientX;pt.y=evt.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
+hit.addEventListener('click',e=>{const p=svgPoint(e);setPrice(nearestPrice(py(p.y)));});
+hit.addEventListener('mousemove',e=>{const p=svgPoint(e),np=nearestPrice(py(p.y));layers.hover.innerHTML='';
+  el('line',{x1:L,x2:W-R,y1:sy(np),y2:sy(np),stroke:'var(--muted)','stroke-width':8,opacity:.12},layers.hover);});
+hit.addEventListener('mouseleave',()=>layers.hover.innerHTML='');
+
+// start in a working state: 0,50 € selected
+state.p=0.5;render();
+</script>
