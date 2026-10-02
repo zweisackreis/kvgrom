@@ -3182,6 +3182,31 @@ function manualRefresh() {
 // ════════════════════════════════════════════
 const KLASSEN = ['5a','5b','5c','6a','6b','6c','7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2','Lehrkraft'];
 
+// ── Beim Start alle Overlays zurücksetzen (verhindert Klick-Blocking nach SW-Update) ──
+(function resetOverlays() {
+  // mehr-sheet & mehr-overlay
+  const mehrSheet = document.getElementById('mehrSheet');
+  const mehrOverlay = document.getElementById('mehrOverlay');
+  if (mehrSheet)   mehrSheet.style.display = 'none';
+  if (mehrOverlay) mehrOverlay.classList.remove('open');
+
+  // detail-view
+  const detailView = document.getElementById('detail-view');
+  if (detailView) detailView.classList.remove('open');
+
+  // admin-overlay
+  const adminOverlay = document.getElementById('adminOverlay');
+  if (adminOverlay) adminOverlay.classList.remove('open');
+
+  // Klassen-Overlay (dynamisch erzeugt) entfernen, falls vorhanden
+  const klassenOv = document.getElementById('klassen-overlay');
+  if (klassenOv) klassenOv.remove();
+
+  // Lightbox entfernen
+  const lb = document.getElementById('lightbox-overlay');
+  if (lb) lb.remove();
+})();
+
 renderAll();
 checkAdminSession();
 

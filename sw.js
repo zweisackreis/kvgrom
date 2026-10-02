@@ -1,5 +1,5 @@
 // !! CACHE-VERSION — automatisch bei jedem Build aktualisiert !!
-const CACHE = 'kvgrom-v20261003-1115';
+const CACHE = 'kvgrom-v20261003-1130';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png', './hero-bg.jpg', './song.mp3'];
 const AUDIO_PREFIX = './audio/';
 
@@ -20,9 +20,8 @@ self.addEventListener('activate', e => {
         keys.filter(k => k !== CACHE).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
-      .then(() => self.clients.matchAll({ type: 'window' }).then(clients =>
-        clients.forEach(c => c.postMessage({ type: 'UPDATE_AVAILABLE', version: 'kvgrom-v20260831-1218' }))
-      ))
+      // Kein automatisches UPDATE_AVAILABLE senden — Seite lädt nach controllerchange selbst neu
+
   );
 });
 
