@@ -1171,283 +1171,128 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
       autor: 'Q2' },
     { id: 23, emoji: '🏛️', photo: 'https://zweisackreis.github.io/kvgrom/picture/Form.png', photoCredit: 'Klasse 7c, KvG Gymnasium Mettingen', category: 'Vatikan', title: 'Rund um den Petersplatz',
       desc: 'Der Petersplatz ist das Herz des Vatikans und einer der beeindruckendsten Plätze der Welt. Klasse 7c hat zwölf faszinierende Themen rund um den Platz erforscht — von Berninis Kolonnaden über den Obelisken bis zur Papstwahl.',
-      details: `<div style="margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.6">Die Schülerinnen und Schüler der Klasse 7c haben sich intensiv mit dem Petersplatz beschäftigt. Tippt auf eine Kachel, um den Beitrag zu lesen.</div>
-<style>
-.pp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
-.pp-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s}
-.pp-card:active{transform:scale(.97)}
-.pp-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
-.pp-card-label{padding:10px 10px 12px}
-.pp-card-tag{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-.pp-card-title{font-size:13px;font-weight:600;color:var(--text1);line-height:1.3}
-.pp-panel{display:none;grid-column:1/-1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:-4px}
-.pp-panel.open{display:block}
-.pp-panel img{width:100%;max-height:220px;object-fit:cover;display:block}
-.pp-panel-body{padding:14px 14px 16px}
-.pp-panel-title{font-size:16px;font-weight:700;color:var(--text1);margin-bottom:6px}
-.pp-panel-sub{font-size:13px;color:var(--accent);margin-bottom:10px;font-style:italic}
-.pp-panel-text{font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-line}
-.pp-panel-close{margin-top:12px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:7px 18px;font-size:13px;color:var(--text2);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-</style>
-<div class="pp-grid" id="pp-grid">
-
-  <div class="pp-card" onclick="ppToggle('bernini',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Bernini.png" alt="Bernini">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Der Künstler Bernini</div></div>
+      details: `<div style="margin-bottom:14px;font-size:13px;color:var(--text2);line-height:1.6">Die Schülerinnen und Schüler der Klasse 7c haben sich intensiv mit dem Petersplatz beschäftigt. Tippt auf einen Titel, um den Beitrag zu lesen.</div>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Der Kuenstler Bernini</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Bernini.png" alt="Der Kuenstler Bernini" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Gian Lorenzo Bernini (7. Dez. 1598 - 28. Nov. 1680) war ein italienischer Bildhauer und Architekt. Er wurde 81 Jahre alt.<br><br>Papst Alexander VII. beauftragte ihn, einen Platz vor dem Petersdom zu gestalten. Von 1655 bis 1667 arbeitete er daran. Er schuf die Kolonnaden, den Baldachin im Petersdom und zahlreiche Skulpturen auf dem Platz. Berühmt ist er auch für Werke wie „Apollo und Daphne“.</div>
   </div>
-  <div class="pp-card" onclick="ppToggle('brunnen',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Brunnen.png" alt="Brunnen">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Die Brunnen</div></div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Die Brunnen auf dem Petersplatz</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Brunnen.png" alt="Die Brunnen auf dem Petersplatz" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Zwei fast identische Zwillingsbrunnen zieren den Platz — sie unterscheiden sich nur in kleinen Details.<br><br>Der <strong>südliche</strong> Brunnen wurde von Bernini gestaltet und 1677 fertiggestellt. Der <strong>nördliche</strong> wurde von Carlo Maderno entworfen und 1612 fertiggestellt. Er funktioniert ohne Pumpen: natürliche Schwerkraft drückt das Wasser nach oben.<br><br>💧 Tipp: Kostenloses Trinkwasser!</div>
   </div>
-  <div class="pp-panel" id="pp-bernini">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Bernini.png" alt="Bernini">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Der Künstler Bernini</div>
-      <div class="pp-panel-sub">Gian Lorenzo Bernini war ein italienischer Bildhauer in Rom am Petersdom.</div>
-      <div class="pp-panel-text">Gian Lorenzo Bernini wurde am 7. Dezember 1598 in Neapel geboren und starb am 28. November 1680 in Rom. Er wurde 81 Jahre alt.
-
-Bernini wurde von Papst Alexander VII. beauftragt, einen Platz vor dem Petersdom zu bauen. Von 1655 bis 1667 arbeitete er daran. Er schuf unter anderem die Kolonnaden sowie zahlreiche Skulpturen auf dem Petersplatz. Berühmt ist er auch für Werke wie „Apollo und Daphne". Die meisten Skulpturen auf dem Petersplatz stammen von ihm.
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Grosse Feste und Veranstaltungen</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Feste.png" alt="Grosse Feste und Veranstaltungen" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7"><strong>Ostern:</strong> Am Karfreitagabend findet die Via Crucis im Kolosseum statt. Am Ostersonntag spricht der Papst den Segen Urbi et Orbi. Die Teilnahme ist kostenlos.<br><br><strong>Weihnachten:</strong> Ab dem 8. Dezember werden Weihnachtsbäume aufgestellt. Auf der Piazza Navona findet ein berühmter Weihnachtsmarkt statt.<br><br>Bei großen Feiern fassen rund 60.000 Menschen auf den Platz.</div>
   </div>
-  <div class="pp-panel" id="pp-brunnen">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Brunnen.png" alt="Brunnen">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Die Brunnen auf dem Petersplatz</div>
-      <div class="pp-panel-sub">Zwei berühmte Zwillingsbrunnen zieren den Platz.</div>
-      <div class="pp-panel-text">Es gibt zwei fast identische Zwillingsbrunnen auf dem Petersplatz. Sie unterscheiden sich durch Details der Becken und Verzierungen.
-
-Der südliche Brunnen wurde von Gian Lorenzo Bernini gestaltet und 1677 fertiggestellt. Der nördliche Brunnen wurde von Carlo Maderno entworfen und 1612 fertiggestellt. Er funktioniert ohne elektrische Pumpen — mit natürlicher Schwerkraft wird das Wasser nach oben gedrückt und sprudelt heraus.
-
-Die zwei großen Brunnen stellen die Symmetrie des ovalen Platzes her.
-
-💧 Tipp: Kostenloses Trinkwasser!
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Ein Platz mit besonderer Form</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Form.png" alt="Ein Platz mit besonderer Form" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Der Petersplatz ist oval — Bernini wollte damit eine symbolische „mütterliche Umarmung“ der Kirche ausdrücken. Papst Alexander VII. gab den Entwurf 1656–1667 in Auftrag.<br><br>Die offenen Arme der Ellipse sollen Katholiken im Glauben bestärken und Suchende willkommen heißen.<br><br>Masse: Gesamtfläche ca. 35.300 m², maximale Breite 240 m, Tiefe 340 m.</div>
   </div>
-
-  <div class="pp-card" onclick="ppToggle('feste',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Feste.png" alt="Feste">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Große Feste</div></div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Die Kolonnaden</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Kolonnaden.png" alt="Die Kolonnaden" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">284 monumentale Säulen und 88 Pfeiler, in vier Reihen tief angeordnet, bilden die beiden Kolonnaden links und rechts des Platzes.<br><br>Entworfen von Bernini. Wirkung: Die hinteren drei Säulenreihen verschwinden hinter der ersten (optische Täuschung). Sie bieten Pilgern Schatten und symbolisieren die Arme der Kirche.</div>
   </div>
-  <div class="pp-card" onclick="ppToggle('form',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Form.png" alt="Form">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Ein Platz mit besonderer Form</div></div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Der Obelisk</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Obelisk.png" alt="Der Obelisk" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Der Monolith aus rotem Granit stammt aus Heliopolis in Ägypten und ist schätzungsweise 3.000–4.000 Jahre alt. Im Jahr 37 n. Chr. ließ Kaiser Caligula ihn nach Rom bringen.<br><br>Er steht genau in der Mitte des Petersplatzes. Zwischen ihm und den Brunnen befinden sich Marmortafeln im Boden — von dort sehen die vier Säulenreihen wie eine einzige aus.</div>
   </div>
-  <div class="pp-panel" id="pp-feste">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Feste.png" alt="Feste">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Große Feste und Veranstaltungen</div>
-      <div class="pp-panel-sub">Rund 60.000 Menschen passen auf den Petersplatz.</div>
-      <div class="pp-panel-text">Ostern (Pasqua): Am Karfreitagabend findet die Via Crucis statt — der Kreuzweg mit 14 Stationen im Kolosseum, der den Leidensweg Jesu nachempfindet. Am Ostersonntag spricht der Papst den berühmten Segen Urbi et Orbi, was wörtlich „der Stadt und dem Erdkreis" bedeutet. Die Teilnahme am Kreuzweg ist kostenlos.
-
-Weihnachten (Natale): Die Weihnachtszeit beginnt offiziell am 8. Dezember mit der Aufstellung von Weihnachtsbäumen auf der Piazza Venezia und vor dem Petersdom. Auf der Piazza Navona findet einer der bekanntesten Weihnachtsmärkte Roms statt.
-
-Bei großen Feiern werden bis zu zehntausende Klappstühle aufgebaut, riesige Bildschirme für alle aufgestellt und nachts Lichtszenen abgespielt.
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Der Petersplatz und der Papst</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Petersplatz und Papst.png" alt="Der Petersplatz und der Papst" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Der Papstaltar steht unter der großen Kuppel und über dem Grab des Apostels Petrus. Erkennbar am 28,5 m hohen bronzenen Baldachin.<br><br>Veranstaltungen: Generalaudienz fast jeden <strong>Mittwoch</strong> (9–10 Uhr), Angelus-Gebet jeden <strong>Sonntag</strong> um 12 Uhr, Papstmessen zu Ostern und Weihnachten. Vereidigung der Schweizergarde am <strong>6. Mai</strong>.</div>
   </div>
-  <div class="pp-panel" id="pp-form">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Form.png" alt="Form">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Der Petersplatz — ein Platz mit besonderer Form</div>
-      <div class="pp-panel-sub">Oval, symmetrisch und auf den Petersdom ausgerichtet.</div>
-      <div class="pp-panel-text">Der Petersplatz ist oval, weil der Architekt Gian Lorenzo Bernini damit eine symbolische „mütterliche Umarmung" der Kirche für alle Gläubigen ausdrücken wollte. Papst Alexander VII. gab den Entwurf zwischen 1656 und 1667 in Auftrag.
-
-Die ovale Form erfüllt mehrere Zwecke:
-• Die Arme der Kirche: Bernini verglich die Form mit offenen Armen, die Katholiken im Glauben bestärken und Suchende willkommen heißen.
-• Schutz und Einheit: Der Platz sollte wie ein schützender Mantel wirken.
-
-Maße:
-• Gesamtfläche: ca. 35.300 m²
-• Maximale Breite: 240 Meter
-• Tiefe (inkl. trapezförmigem Vorhof): 340 Meter
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Die Papstwahl und der beruehmte Rauch</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Rauch.png" alt="Die Papstwahl und der beruehmte Rauch" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Beim Konklave wählen die Kardinäle in der Sixtinischen Kapelle den neuen Papst. Das Signal an die Welt kommt durch Rauch:<br><br>• <strong>Weißer Rauch</strong> → neuer Papst gewählt!<br>• <strong>Schwarzer Rauch</strong> → noch keine Zweidrittelmehrheit.<br><br>Während einer Papstwahl versammeln sich Zehntausende Gläubige und Medien aus aller Welt auf dem Platz.</div>
   </div>
-
-  <div class="pp-card" onclick="ppToggle('kolonaden',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Kolonnaden.png" alt="Kolonnaden">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Die Kolonnaden</div></div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Die Statuen auf den Kolonnaden</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Statuen.png" alt="Die Statuen auf den Kolonnaden" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">140 Statuen stehen auf den Kolonnaden — jede ca. 3,10 Meter hoch. Sie zeigen Heilige, Märtyrer, Kirchenwächter und Ordensgründer.<br><br>Sie symbolisieren die mütterliche und universelle Umarmung der römisch-katholischen Kirche für alle Menschen.</div>
   </div>
-  <div class="pp-card" onclick="ppToggle('obelisk',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Obelisk.png" alt="Obelisk">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Der Obelisk</div></div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Geheimnisse und optische Taeuschung</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Symbole.png" alt="Geheimnisse und optische Taeuschung" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Die Symbole der Säulen drücken die universelle, umarmende Idee der katholischen Kirche aus — entworfen von Bernini.<br><br><strong>Optischer Trick:</strong> Von zwei Punkten im Boden (den Brennpunkten der Ellipse) aus wirken die vier Säulenreihen wie eine einzige. Diese Punkte sind mit Marmortafeln markiert, zwischen den Brunnen und dem Obelisken.</div>
   </div>
-  <div class="pp-panel" id="pp-kolonaden">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Kolonnaden.png" alt="Kolonnaden">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Die Kolonnaden</div>
-      <div class="pp-panel-sub">284 Säulen und 88 Pfeiler — ein Wald aus Stein.</div>
-      <div class="pp-panel-text">Insgesamt bilden 284 monumentale Säulen und 88 Pfeiler, in vier Reihen tief angeordnet, die beiden halbrunden Kolonnaden links und rechts des Platzes.
-
-Gian Lorenzo Bernini hat die Kolonnaden nicht nur erbaut, sondern auch selbst entworfen und geplant.
-
-Was sie bewirken:
-• Optische Täuschung: Die hinteren drei Säulenreihen verschwinden komplett hinter der ersten Reihe — das Phänomen der Transparenz.
-• Monumentaler Schutz: Als Schutz für die Pilger und schattige Wandelgänge.
-• Die Arme der Kirche: Symbolische Bedeutung wie die Mauern einer Festung.
-• Das Prinzip des Theatrum Sacrum — des heiligen Theaters: Bernini wollte Besucher durch einen Überraschungseffekt überwältigen und die Pracht des Katholizismus zeigen.
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Treffpunkt der Welt</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Treffpunkt.png" alt="Treffpunkt der Welt" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Theoretisch kommen Menschen aus allen 193 UN-Mitgliedstaaten hierher. Besonders viele aus den Philippinen, Südkorea, Indien, Nigeria, Kenia und der DR Kongo.<br><br>Am häufigsten gesprochen: Italienisch, Englisch, Spanisch — dann Französisch, Deutsch und Portugiesisch.</div>
   </div>
-  <div class="pp-panel" id="pp-obelisk">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Obelisk.png" alt="Obelisk">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Der Obelisk in der Mitte des Platzes</div>
-      <div class="pp-panel-sub">3.000–4.000 Jahre alt — aus Ägypten mitten nach Rom.</div>
-      <div class="pp-panel-text">Der Obelisk stammt ursprünglich aus Heliopolis in Ägypten. Der Monolith aus rotem Granit wurde vermutlich im 2. Jahrtausend v. Chr. errichtet.
-
-Im Jahr 37 n. Chr. ließ Kaiser Caligula den Obelisken per Schiff aus Ägypten nach Rom bringen. Er ist schätzungsweise 3.000–4.000 Jahre alt.
-
-Der Obelisk steht heute genau in der Mitte des Petersplatzes und dient als zentraler Orientierungspunkt. Zwischen ihm und den beiden Brunnen befinden sich auf dem Boden Marmortafeln — von dort aus sehen die vier Reihen der Kolonnaden wie eine einzige Reihe aus (optische Täuschung).
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
+</details>
+<details style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--surface)">
+  <summary style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;list-style:none;-webkit-appearance:none;font-size:14px;font-weight:600;color:var(--text1)">
+    <span>Der Weg zum Petersplatz</span>
+    <span style="font-size:14px;color:var(--text3);flex-shrink:0;margin-left:8px">▼</span>
+  </summary>
+  <div style="border-top:1px solid var(--border)">
+    <img src="https://zweisackreis.github.io/kvgrom/picture/Weg zum Petersplatz.png" alt="Der Weg zum Petersplatz" style="width:100%;max-height:220px;object-fit:cover;display:block">
+    <div style="padding:14px;font-size:14px;color:var(--text2);line-height:1.7">Wenn man den Platz betritt, sieht man sofort den Obelisken in der Mitte, links und rechts flankiert von den beiden Brunnen.<br><br>Es lohnt sich, die Marmortafeln zwischen Obelisk und Brunnen zu suchen — von dort aus ist die optische Täuschung der Kolonnaden zu erleben.<br><br>💡 Tipp: Von der Kuppel des Petersdoms hat man einen fantastischen Blick auf die ovale Form des Platzes.</div>
   </div>
-
-  <div class="pp-card" onclick="ppToggle('papst',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Petersplatz und Papst.png" alt="Papst">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Der Platz und der Papst</div></div>
-  </div>
-  <div class="pp-card" onclick="ppToggle('papstwahl',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Rauch.png" alt="Papstwahl">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Die Papstwahl</div></div>
-  </div>
-  <div class="pp-panel" id="pp-papst">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Petersplatz und Papst.png" alt="Papst">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Der Petersplatz und der Papst</div>
-      <div class="pp-panel-sub">Zentrum der römisch-katholischen Kirche und Ort der Papstauftritte.</div>
-      <div class="pp-panel-text">Der Papst zeigt sich im Petersdom am Papstaltar — er befindet sich unter der großen Kuppel und über dem Grab des Apostels Petrus. Leicht zu erkennen ist er am riesigen 28,5 m hohen bronzenen Baldachin mit gedrehten Säulen.
-
-Vier regelmäßige Veranstaltungen:
-• Generalaudienzen: fast jeden Mittwoch, meist 9 oder 10 Uhr — der Papst fährt im Papamobil durch die Menge.
-• Angelus-Gebet: sonntags um 12 Uhr spricht der Papst ein Gebet.
-• Papstmessen & Feiertage: zu Ostern, Weihnachten und bei Heiligsprechungen leitet der Papst direkt auf dem Platz.
-• Vereidigung der Schweizergarde: jährlich am 6. Mai.
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
-  </div>
-  <div class="pp-panel" id="pp-papstwahl">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Rauch.png" alt="Papstwahl">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Die Papstwahl und der berühmte Rauch</div>
-      <div class="pp-panel-sub">Weißer Rauch = neuer Papst. Schwarzer Rauch = noch keine Einigung.</div>
-      <div class="pp-panel-text">Bei einer Papstwahl (dem sogenannten Konklave) wählen die wahlberechtigten Kardinäle in der Sixtinischen Kapelle den neuen Bischof von Rom — das Oberhaupt der römisch-katholischen Kirche.
-
-Das Signal an die Welt kommt durch Rauch über der Sixtinischen Kapelle:
-• Weißer Rauch: Ein neuer Papst wurde erfolgreich gewählt.
-• Schwarzer Rauch: Im jeweiligen Wahlgang gab es noch keine nötige Zweidrittelmehrheit — die Wahl geht weiter.
-
-Während einer Papstwahl ist der Petersplatz das weltweite Zentrum der Aufmerksamkeit. Zehntausende Gläubige und Medien aus aller Welt versammeln sich hier.
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
-  </div>
-
-  <div class="pp-card" onclick="ppToggle('statuen',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Statuen.png" alt="Statuen">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Statuen auf den Kolonnaden</div></div>
-  </div>
-  <div class="pp-card" onclick="ppToggle('geheimnisse',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Symbole.png" alt="Geheimnisse">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Geheimnisse & optische Täuschung</div></div>
-  </div>
-  <div class="pp-panel" id="pp-statuen">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Statuen.png" alt="Statuen">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Die Statuen auf den Kolonnaden</div>
-      <div class="pp-panel-sub">140 Heilige und Märtyrer — jede etwa 3,10 Meter hoch.</div>
-      <div class="pp-panel-text">Es gibt 140 Statuen auf den Kolonnaden, jede ca. 3,10 Meter groß.
-
-Wer sind die Figuren?
-Die Statuen zeigen Heilige, Märtyrer (Menschen, die für ihren Glauben litten oder starben), Kirchenwächter und Ordensgründer.
-
-Warum stehen sie dort?
-Die Statuen symbolisieren die mütterliche und universelle Umarmung der römisch-katholischen Kirche für alle Menschen.
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
-  </div>
-  <div class="pp-panel" id="pp-geheimnisse">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Symbole.png" alt="Geheimnisse">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Geheimnisse, Symbole und optische Täuschung</div>
-      <div class="pp-panel-sub">Von zwei Punkten aus sieht man nur eine einzige Säulenreihe.</div>
-      <div class="pp-panel-text">Die Symbole der Säulen drücken die universelle, umarmende und siegreiche Idee der katholischen Kirche aus. Entworfen wurden sie von Gian Lorenzo Bernini im Auftrag von Papst Alexander VII. im 17. Jahrhundert.
-
-Optische Täuschung — der Verschwindeeffekt:
-Der Platz ist so vollkommen gestaltet, dass von zwei bestimmten Punkten im Boden (den Brennpunkten der Ellipse) aus die Säulen der Kolonnaden wie eine einzige Reihe wirken — obwohl eigentlich immer 4 Säulen hintereinander stehen.
-
-Diese beiden magischen Punkte sind mit Marmortafeln im Boden markiert — zwischen den Brunnen und dem Obelisken. Wer dort steht, erlebt einen der schönsten geometrischen Tricks der Architekturgeschichte.
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
-  </div>
-
-  <div class="pp-card" onclick="ppToggle('welt',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Treffpunkt.png" alt="Treffpunkt">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Treffpunkt der Welt</div></div>
-  </div>
-  <div class="pp-card" onclick="ppToggle('weg',this)">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Weg zum Petersplatz.png" alt="Weg">
-    <div class="pp-card-label"><div class="pp-card-tag">✦ Klasse 7c</div><div class="pp-card-title">Der Weg zum Petersplatz</div></div>
-  </div>
-  <div class="pp-panel" id="pp-welt">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Treffpunkt.png" alt="Treffpunkt">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Treffpunkt der Welt</div>
-      <div class="pp-panel-sub">Theoretisch Menschen aus allen 193 UN-Mitgliedstaaten.</div>
-      <div class="pp-panel-text">Welche Sprachen hört man?
-Theoretisch fast jede Sprache der Welt. Am häufigsten: Italienisch, Englisch, Spanisch. Danach Französisch, Deutsch und Portugiesisch — wegen der vielen katholischen Gläubigen aus Nord- und Südamerika sowie Westeuropa.
-
-Woher kommen die Besucher?
-Praktisch aus allen Ländern der Welt. Besonders viele kommen aus den Philippinen, Südkorea, Indien, Nigeria, Kenia und der DR Kongo.
-
-Warum ist dieser Ort so wichtig?
-• Tiefer Glaube, Weltgeschichte und internationale Gemeinschaft
-• Die Nähe zum Papst und das Grab des Apostels Petrus
-• Große Feierlichkeiten und historische Monumente
-• Der antike Obelisk und die beiden monumentalen Springbrunnen
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
-  </div>
-  <div class="pp-panel" id="pp-weg">
-    <img src="https://zweisackreis.github.io/kvgrom/picture/Weg zum Petersplatz.png" alt="Weg">
-    <div class="pp-panel-body">
-      <div class="pp-panel-title">Der Weg zum Petersplatz</div>
-      <div class="pp-panel-sub">Was erwartet euch, wenn ihr den Platz betretet?</div>
-      <div class="pp-panel-text">Wenn man den Petersplatz betritt, sieht man sofort den großen Obelisk in der Mitte. Links und rechts daneben stehen die beiden Brunnen.
-
-Sehenswert sind die architektonischen Meisterwerke: der Obelisk und die Springbrunnen, die sehr prunkvoll und beeindruckend wirken.
-
-💡 Tipp: Von der Kuppel des Petersdoms hat man einen fantastischen Blick auf den gesamten Platz — man sieht alles aus der Vogelperspektive und erkennt sofort die ovale Form des Platzes.
-
-📍 Piazza San Pietro, 00120 Città del Vaticano</div>
-      <button class="pp-panel-close" onclick="ppClose(event)">✕ Schließen</button>
-    </div>
-  </div>
-
-</div>`,
-      tipp: 'Tippt auf eine Kachel, um den Text direkt in der App zu lesen — kein Download nötig! 💡 Von der Kuppel des Petersdoms habt ihr einen fantastischen Blick auf die ovale Form des Platzes.',
+</details>`,
+      tipp: 'Tippt auf einen Titel, um den Text aufzuklappen — kein Download nötig! 💡 Von der Kuppel des Petersdoms habt ihr einen fantastischen Blick auf die ovale Form des Platzes.',
       adresse: 'Piazza San Pietro, 00120 Città del Vaticano',
       mapsEmbed: '',
       audioEmbed: '',
@@ -1491,26 +1336,6 @@ function safeRender(fn, name) {
   try { fn(); } catch(e) { console.warn('Fehler in ' + name + ':', e.message); }
 }
 
-function ppToggle(id,card){
-  var grid=document.getElementById('pp-grid');
-  if(!grid) return;
-  var panel=document.getElementById('pp-'+id);
-  var isOpen=panel.classList.contains('open');
-  grid.querySelectorAll('.pp-panel').forEach(function(p){p.classList.remove('open');});
-  if(!isOpen){
-    var cards=Array.from(grid.querySelectorAll('.pp-card'));
-    var idx=cards.indexOf(card);
-    var rowEnd=cards[idx%2===0?idx+1:idx];
-    if(rowEnd) rowEnd.after(panel); else card.after(panel);
-    panel.classList.add('open');
-    setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},80);
-  }
-}
-function ppClose(e){
-  e.stopPropagation();
-  var panel=e.target.closest('.pp-panel');
-  if(panel) panel.classList.remove('open');
-}
 
 function renderAll() {
   safeRender(renderHome,            'renderHome');
@@ -3289,7 +3114,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20260831-1218';
+const APP_VERSION = 'kvgrom-v20261003-0200';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
