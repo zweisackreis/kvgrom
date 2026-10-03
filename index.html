@@ -129,6 +129,26 @@
     .rule-num { font-family: 'DM Serif Display', serif; font-size: 24px; line-height: 1; color: var(--accent); opacity: .3; flex-shrink: 0; width: 28px; }
     .rule-text { font-size: 14px; line-height: 1.55; color: var(--text2); padding-top: 2px; }
 
+    /* FAQ */
+    .faq-hero { position:relative; overflow:hidden; background:linear-gradient(135deg, var(--accent) 0%, #24508f 100%); border-radius:var(--radius); padding:20px 20px 18px; margin-bottom:14px; color:white; }
+    .faq-hero-bg { position:absolute; right:-6px; top:50%; transform:translateY(-50%); font-family:'DM Serif Display',serif; font-size:120px; line-height:1; opacity:.08; pointer-events:none; }
+    .faq-hero h2 { font-family:'DM Serif Display',serif; font-size:24px; font-weight:400; margin-bottom:6px; }
+    .faq-hero p { font-size:13px; line-height:1.6; opacity:.85; max-width:92%; }
+    .faq-count { display:inline-block; margin-top:12px; font-size:11px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; background:rgba(255,255,255,.18); padding:4px 10px; border-radius:20px; }
+    .faq-item { border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; overflow:hidden; background:var(--surface); transition:box-shadow .2s; }
+    .faq-item.open { box-shadow:0 4px 16px rgba(0,0,0,.06); border-color:var(--accent); }
+    .faq-q { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .faq-item.open .faq-q { background:var(--accent-light); }
+    .faq-badge { flex-shrink:0; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'DM Serif Display',serif; font-size:15px; }
+    .faq-badge.q { background:var(--accent); color:white; }
+    .faq-badge.a { background:var(--accent2); color:white; }
+    .faq-q-text { flex:1; font-size:14px; font-weight:500; line-height:1.5; color:var(--text); padding-top:3px; }
+    .faq-arrow { flex-shrink:0; font-size:12px; color:var(--text3); padding-top:7px; transition:transform .2s; }
+    .faq-item.open .faq-arrow { transform:rotate(180deg); color:var(--accent); }
+    .faq-a { display:flex; gap:12px; padding:14px 16px 16px; border-top:1px solid var(--border); }
+    .faq-a-text { flex:1; font-size:14px; line-height:1.7; color:var(--text2); padding-top:3px; }
+    .faq-footer { display:flex; align-items:center; gap:12px; background:var(--surface2); border-radius:var(--radius); padding:14px 16px; margin-top:6px; font-size:13px; line-height:1.5; color:var(--text2); }
+
     /* KARTE */
     .map-link { display: block; width: 100%; background: var(--text); color: white; border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; text-decoration: none; margin-bottom: 10px; }
     .sight-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; margin: 0 6px 8px 0; text-decoration: none; color: var(--text); }
@@ -279,16 +299,26 @@
         <div style="font-size:11px;color:#854F0B;margin-top:2px" id="guide-count-home">Einträge ansehen</div>
       </div>
 
-      <!-- Instagram-Kachel im Grid -->
-      <a href="https://www.instagram.com/kvggym_mettingen/" target="_blank"
-         style="display:block;background:linear-gradient(135deg,#f9ce34 0%,#ee2a7b 55%,#6228d7 100%);border-radius:var(--radius);padding:16px;text-decoration:none;cursor:pointer;position:relative;overflow:hidden">
-        <div style="position:absolute;right:-4px;bottom:-6px;font-size:48px;opacity:.15;line-height:1">📸</div>
-        <div style="font-size:30px;margin-bottom:8px">📸</div>
-        <div style="font-size:14px;font-weight:500;color:white">Instagram</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">@kvggym_mettingen</div>
-      </a>
+      <div onclick="switchPage('faq')" style="background:#EEEDFE;border-radius:var(--radius);padding:16px;cursor:pointer;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-4px;bottom:-6px;font-size:48px;opacity:.15">❓</div>
+        <div style="font-size:30px;margin-bottom:8px">❓</div>
+        <div style="font-size:14px;font-weight:500;color:#3C3489">FAQ</div>
+        <div style="font-size:11px;color:#534AB7;margin-top:2px">Häufige Fragen</div>
+      </div>
 
     </div>
+
+    <!-- Instagram-Banner unter dem Grid -->
+    <a href="https://www.instagram.com/kvggym_mettingen/" target="_blank"
+       style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#f9ce34 0%,#ee2a7b 55%,#6228d7 100%);border-radius:var(--radius);padding:14px 18px;text-decoration:none;margin-top:10px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-6px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.15;line-height:1;pointer-events:none">📸</div>
+      <span style="font-size:26px">📸</span>
+      <div>
+        <div style="font-size:14px;font-weight:500;color:white">Instagram</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.85);margin-top:2px">@kvggym_mettingen</div>
+      </div>
+      <span style="margin-left:auto;font-size:20px;color:rgba(255,255,255,.8)">→</span>
+    </a>
 
     <!-- Musik-Player (Audioguide-Style) -->
     <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);border-radius:var(--radius);padding:18px 16px 14px;margin-top:10px;box-shadow:0 4px 20px rgba(0,0,0,.25);position:relative;overflow:hidden">
@@ -366,7 +396,7 @@
     <div class="card" id="hotel-info">
       <div class="contact-item">
         <div class="contact-avatar">🏨</div>
-        <div id="hotel-detail"><div class="contact-name">Fabulous Village / Höffmann Bungalowpark</div><div class="contact-role">Via di Malafede 225, 00125 Rom (Latium), Italien</div><div style="margin-top:8px"><a href="https://maps.google.com/?q=Via+di+Malafede+225,+00125+Rom" target="_blank" class="tel-btn">📍 In Maps öffnen</a></div></div>
+        <div id="hotel-detail"><div class="contact-name">Fabulous Village / Höffmann Bungalowpark</div><div class="contact-role">Via di Malafede 205, 00125 Rom (Latium), Italien</div><div style="margin-top:8px"><a href="https://maps.google.com/?q=Via+di+Malafede+205,+00125+Rom" target="_blank" class="tel-btn">📍 In Maps öffnen</a></div></div>
       </div>
     </div>
   </div>
@@ -379,6 +409,21 @@
     <div class="card" id="pack-list"></div>
   </div>
 
+  <!-- FAQ -->
+  <div class="page" id="page-faq">
+    <div class="faq-hero">
+      <div class="faq-hero-bg">?</div>
+      <h2>Fragen &amp; <em style="color:#d4a853">Antworten</em></h2>
+      <p>Vor so einer großen Fahrt tauchen viele Fragen auf – bei Eltern genauso wie bei Schülerinnen und Schülern. Die häufigsten beantworten wir hier gesammelt. Tippt einfach auf eine Frage, um die Antwort aufzuklappen. Kommen neue Fragen dazu, ergänzen wir die Liste.</p>
+      <span class="faq-count" id="faq-count"></span>
+    </div>
+    <div id="faq-list"></div>
+    <div class="faq-footer">
+      <span style="font-size:22px">💬</span>
+      <span>Eure Frage ist nicht dabei? Wendet euch an eure Klassenleitung oder an eine der Lehrkräfte unter <a href="#" onclick="event.preventDefault();switchPage('kontakte')" style="color:var(--accent);font-weight:500;text-decoration:none">Kontakte</a>.</span>
+    </div>
+  </div>
+
   <!-- REGELN -->
   <div class="page" id="page-regeln">
     <div class="section-label">Verhaltensregeln</div>
@@ -389,7 +434,7 @@
   <div class="page" id="page-karte">
     <div class="section-label">Navigation</div>
     <a href="https://maps.google.com/?q=Rom,+Italien" target="_blank" class="map-link">📍 Rom in Google Maps öffnen</a>
-    <a href="https://maps.google.com/?q=Via+di+Malafede+225,+00125+Rom,+Italien" target="_blank" class="map-link" style="background:var(--accent)">🏕️ Unser Camp in Maps öffnen</a>
+    <a href="https://maps.google.com/?q=Via+di+Malafede+205,+00125+Rom,+Italien" target="_blank" class="map-link" style="background:var(--accent)">🏕️ Unser Camp in Maps öffnen</a>
 
     <div class="section-label">Sehenswürdigkeiten</div>
     <div id="sights-list" style="margin-bottom:8px"></div>
@@ -579,6 +624,7 @@
   <div class="mehr-grid" id="mehr-grid">
     <div class="mehr-item" onclick="switchPageFromMehr('packliste')"><span class="mehr-icon">🎒</span>Packliste</div>
     <div class="mehr-item" onclick="switchPageFromMehr('regeln')"><span class="mehr-icon">📋</span>Regeln</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('faq')"><span class="mehr-icon">❓</span>FAQ</div>
     <div class="mehr-item" onclick="switchPageFromMehr('karte')"><span class="mehr-icon">🗺️</span>Karte</div>
     <div class="mehr-item" onclick="switchPageFromMehr('sprache')"><span class="mehr-icon">🇮🇹</span>Italiano</div>
     <div class="mehr-item" onclick="switchPageFromMehr('unterhaltung')"><span class="mehr-icon">🎧</span>Unterhaltung</div>
@@ -684,7 +730,7 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
       tipp: 'Am besten vor 8 Uhr morgens besuchen', adresse: 'Piazza di Trevi, 00187 Rom', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.2!2d12.4833!3d41.9009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f6054f697cc81%3A0x47e06d174de03b0f!2sTrevi-Brunnen!5e0!3m2!1sde!2sde!4v1700000000002!5m2!1sde!2sde', autor: 'Frau Müller' }
   ],
   zeitplan: [{"tag": "Tag 1 — Fr. 09.10. (Anreise)", "eintraege": [{"time": "14:30", "label": "Beladen der Busse", "sub": "Bitte an den Sportstätten parken!", "highlight": false}, {"time": "15:00", "label": "Reisesegen & Abfahrt", "sub": "", "highlight": true}]}, {"tag": "Tag 2 — Sa. 10.10. (Ankunft)", "eintraege": [{"time": "", "label": "Ankunft in Rom", "sub": "", "highlight": true}, {"time": "", "label": "Imbiss & Einquartierung", "sub": "", "highlight": false}, {"time": "", "label": "Erkundung des Platzes", "sub": "", "highlight": false}, {"time": "ab 17:00", "label": "Abendessen", "sub": "", "highlight": false}, {"time": "", "label": "Infoveranstaltung", "sub": "", "highlight": false}, {"time": "", "label": "Gottesdienst", "sub": "", "highlight": true}]}, {"tag": "Tag 3 — So. 11.10.", "eintraege": [{"time": "ab 7:30", "label": "Frühstück", "sub": "Abfahrt: 9:30 Uhr", "highlight": false}, {"time": "", "label": "Jgg. 5–7: Stadtrundgang", "sub": "Trevi-Brunnen · Pantheon · Piazza Navona · Engelsbrücke · Engelsburg · Petersplatz (Außenbesichtigungen)", "highlight": true}, {"time": "", "label": "Jgg. 8–Q2: Kolosseum & Forum Romanum", "sub": "anschl. St. Paul vor den Mauern", "highlight": true}, {"time": "15:00–17:00", "label": "Individuelle Rückfahrten", "sub": "", "highlight": false}, {"time": "ab 17:30", "label": "Abendessen", "sub": "", "highlight": false}, {"time": "Abends", "label": "Lichterfahrt / Trastevere", "sub": "Nur Oberstufe", "highlight": false}]}, {"tag": "Tag 4 — Mo. 12.10.", "eintraege": [{"time": "ab 7:00", "label": "Frühstück", "sub": "Abfahrt: 9:00 Uhr", "highlight": false}, {"time": "", "label": "Besichtigung Petersdom", "sub": "ggf. Kuppelbesteigung", "highlight": true}, {"time": "", "label": "Jgg. 5–7: Kolosseum & Forum Romanum", "sub": "", "highlight": true}, {"time": "", "label": "Jgg. 8–Q2: Stadtrundgang", "sub": "Trevi-Brunnen · Pantheon · Piazza Navona · Engelsbrücke · Engelsburg · Petersplatz (Außenbesichtigungen)", "highlight": true}, {"time": "15:00–17:00", "label": "Individuelle Rückfahrten", "sub": "", "highlight": false}, {"time": "ab 17:30", "label": "Abendessen", "sub": "", "highlight": false}]}, {"tag": "Tag 5 — Di. 13.10. (Tagesausflüge)", "eintraege": [{"time": "ab 7:00", "label": "Frühstück", "sub": "Individuelle Abfahrten", "highlight": false}, {"time": "", "label": "Jgg. 5–7: Ostia Antica", "sub": "", "highlight": true}, {"time": "", "label": "Jgg. 8–Q2: Montecassino & Pompeji", "sub": "", "highlight": true}, {"time": "", "label": "Individuelle Rückfahrten", "sub": "", "highlight": false}, {"time": "ab 17:30", "label": "Abendessen", "sub": "", "highlight": false}]}, {"tag": "Tag 6 — Mi. 14.10.", "eintraege": [{"time": "ab 4:30", "label": "Frühstück", "sub": "Abfahrt: 6:00 Uhr", "highlight": false}, {"time": "", "label": "Heilige Messe auf dem Petersplatz", "sub": "", "highlight": true}, {"time": "", "label": "Domitilla-Katakomben", "sub": "Anschließendes Programm (1)", "highlight": false}, {"time": "", "label": "Vatikanische Museen", "sub": "Anschließendes Programm (2)", "highlight": false}, {"time": "", "label": "Park der Villa Borghese", "sub": "Anschließendes Programm (3)", "highlight": false}, {"time": "", "label": "Individuelle Rückfahrten", "sub": "", "highlight": false}, {"time": "ab 17:30", "label": "Abendessen", "sub": "", "highlight": false}, {"time": "Abends", "label": "Abschlussabend", "sub": "", "highlight": true}]}, {"tag": "Tag 7 — Do. 15.10. (Abreise)", "eintraege": [{"time": "7:30–9:30", "label": "Frühstück", "sub": "", "highlight": false}, {"time": "10:00", "label": "Busse beladen", "sub": "", "highlight": false}, {"time": "10:30", "label": "Rückfahrt", "sub": "", "highlight": true}]}, {"tag": "Tag 8 — Fr. 16.10. (Ankunft)", "eintraege": [{"time": "", "label": "Rückkehr in die Heimat", "sub": "", "highlight": true}]}],
-  teachers: [{"name": "Johannes Beerlink", "role": "Lehrkraft", "tel": "+4915679829406"}, {"name": "Kerstin Holtkamp", "role": "Lehrkraft", "tel": "+4915679829405"}, {"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Florian Mulder", "role": "Lehrkraft", "tel": "+4915679232250"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Eva Oltmann", "role": "Lehrkraft", "tel": "+4915679606657"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}],
+  teachers: [{"name": "Johannes Beerlink", "role": "Lehrkraft", "tel": "+4915679829406"}, {"name": "Kerstin Holtkamp", "role": "Lehrkraft", "tel": "+4915679829405"}, {"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Florian Mulder", "role": "Lehrkraft", "tel": "+4915679232250"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Eva Oltmann", "role": "Lehrkraft", "tel": "+4915679606657"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Frau Rolfes-Mittelberg", "role": "Krankenschwester", "tel": "+4915679265444"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}],
   pack: [
     'Personalausweis & Kopie (oder Kinderreisepass)',
     'Europäische Krankenversicherungskarte (EHIC)',
@@ -706,7 +752,7 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
     'Notizblock & Stift',
   ],
   checkedPack: [],
-  sights: ['Kolosseum','Forum Romanum','Vatikan','Trevi-Brunnen','Pantheon','Piazza Navona','Spanische Treppe','Engelsburg','Gelateria della Palma (150 Sorten Eis)','Trastevere','Fabulous Village Bungalowpark, Via di Malafede 225, Rom'],
+  sights: ['Kolosseum','Forum Romanum','Vatikan','Trevi-Brunnen','Pantheon','Piazza Navona','Spanische Treppe','Engelsburg','Gelateria della Palma (150 Sorten Eis)','Trastevere','Fabulous Village Bungalowpark, Via di Malafede 205, Rom'],
   polls: [
     { id: 1, question: 'Welche Sehenswürdigkeit hat euch am besten gefallen?', options: ['Kolosseum','Vatikan','Trevi-Brunnen','Pantheon'], votes: [0,0,0,0] }
   ],
@@ -737,6 +783,9 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
   }
   if (!data.treffpunkte) data.treffpunkte = [];
 
+  // Adresskorrektur Unterkunft (225 → 205) für bereits gespeicherte Daten
+  if (Array.isArray(data.sights)) data.sights = data.sights.map(x => String(x).replace('Malafede 225','Malafede 205'));
+
   // Abgelaufene Treffpunkte bereinigen
   const nowClean = Date.now();
   data.treffpunkte = (data.treffpunkte || []).filter(t => !t.expiry || nowClean <= t.expiry);
@@ -747,7 +796,7 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
   // ══════════════════════════════════════════════════════════
 
   // Lehrkräfte
-  data.teachers = [{"name": "Johannes Beerlink", "role": "Lehrkraft", "tel": "+4915679829406"}, {"name": "Kerstin Holtkamp", "role": "Lehrkraft", "tel": "+4915679829405"}, {"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Florian Mulder", "role": "Lehrkraft", "tel": "+4915679232250"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Eva Oltmann", "role": "Lehrkraft", "tel": "+4915679606657"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}];
+  data.teachers = [{"name": "Johannes Beerlink", "role": "Lehrkraft", "tel": "+4915679829406"}, {"name": "Kerstin Holtkamp", "role": "Lehrkraft", "tel": "+4915679829405"}, {"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Florian Mulder", "role": "Lehrkraft", "tel": "+4915679232250"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Eva Oltmann", "role": "Lehrkraft", "tel": "+4915679606657"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Frau Rolfes-Mittelberg", "role": "Krankenschwester", "tel": "+4915679265444"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}];
 
   // Regeln
   data.rules = [
@@ -1354,6 +1403,7 @@ function renderAll() {
   safeRender(renderNotifBanner,     'renderNotifBanner');
   safeRender(renderHeute,           'renderHeute');
   safeRender(renderSprache,         'renderSprache');
+  safeRender(renderFaq,             'renderFaq');
   safeRender(renderEinstellungen,   'renderEinstellungen');
   safeRender(initAudioPlayer,       'initAudioPlayer');
 }
@@ -1871,6 +1921,47 @@ function renderHeute() {
 // ════════════════════════════════════════════
 // SPRACHFÜHRER ITALIENISCH
 // ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// FAQ — Fragen & Antworten (Akkordeon)
+// Neue Fragen einfach unten ans Array anhängen.
+// ════════════════════════════════════════════
+const FAQ = [
+  { q: 'Müssen die Kinder Brotdosen mitnehmen, um sich vor Ort die Lunchpakete zu packen? Stellt Höffmann alternativ Tüten bereit?',
+    a: 'Bei der letzten Fahrt wurden Papiertüten bereitgestellt. Wir gehen davon aus, dass es dieses Mal auch so ist. Natürlich ist es allein aus Umweltgründen sinnvoll, eine Brotdose dabeizuhaben.' },
+  { q: 'Die Kopie des Ausweises bzw. Reisepasses geben die Kinder zusammen mit dem Anmeldebogen im Umschlag bei Höffmann ab. Müssen sie das Original in Rom den ganzen Tag über dabeihaben?',
+    a: 'In der Regel reicht es, die Kopie des Ausweises dabeizuhaben. Die Betreuer*innen im Bus werden Ihre Kinder aber noch einmal dazu informieren.' },
+  { q: 'Die Kinder kennen ihre Busnummer von den Klassenlehrer*innen. Woher weiß ich, wo der Bus steht?',
+    a: 'Alle 11 Busse halten auf den Busparkplätzen vor der Schule, gegebenenfalls auch an der KvG-Halle. Der richtige Bus ist also leicht zu finden.' },
+];
+
+function renderFaq() {
+  const list = document.getElementById('faq-list');
+  if (!list) return;
+  if (!window._faqOpen) window._faqOpen = new Set();
+  const cnt = document.getElementById('faq-count');
+  if (cnt) cnt.textContent = FAQ.length + (FAQ.length === 1 ? ' Frage' : ' Fragen');
+  list.innerHTML = FAQ.map((f, i) => {
+    const open = window._faqOpen.has(i);
+    return `<div class="faq-item${open ? ' open' : ''}">
+      <div class="faq-q" onclick="toggleFaq(${i})">
+        <span class="faq-badge q">F</span>
+        <span class="faq-q-text">${f.q}</span>
+        <span class="faq-arrow">▼</span>
+      </div>
+      ${open ? `<div class="faq-a">
+        <span class="faq-badge a">A</span>
+        <div class="faq-a-text">${f.a}</div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleFaq(i) {
+  if (!window._faqOpen) window._faqOpen = new Set();
+  if (window._faqOpen.has(i)) window._faqOpen.delete(i); else window._faqOpen.add(i);
+  renderFaq();
+}
+
 const PHRASEN = [
   { kategorie: '👋 Begrüßung', eintraege: [
     { it: 'Ciao!',               aussprache: 'Tschau',              de: 'Hallo! / Tschüss!' },
@@ -3116,7 +3207,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261003-1146';
+const APP_VERSION = 'kvgrom-v20261003-1300';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
