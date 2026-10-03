@@ -452,7 +452,22 @@
       Lange Busfahrten, Mittagspause im Schatten, Abend im Bungalow — hier findet ihr Musik und Hörbücher zur Einstimmung auf Rom und für unterwegs. Kopfhörer rein und losfahren! 🎧🚌
     </p>
 
-    <div class="section-label">🧒👦 Für die Jüngeren</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:6px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Inhalt</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <button onclick="document.getElementById('unt-jung').scrollIntoView({behavior:'smooth',block:'start'})" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border-radius:12px;border:1.5px solid var(--border);background:#E1F5EE;cursor:pointer;font-family:'DM Sans',sans-serif">
+          <span style="font-size:22px">🧒👦</span><span style="font-size:12px;font-weight:600;color:#085041">Jüngere</span><span style="font-size:10px;color:#0F6E56">Jg. 5–7</span>
+        </button>
+        <button onclick="document.getElementById('unt-alt').scrollIntoView({behavior:'smooth',block:'start'})" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border-radius:12px;border:1.5px solid var(--border);background:#E6F1FB;cursor:pointer;font-family:'DM Sans',sans-serif">
+          <span style="font-size:22px">👴👩</span><span style="font-size:12px;font-weight:600;color:#0C447C">Ältere</span><span style="font-size:10px;color:#185FA5">Jg. 8–Q2</span>
+        </button>
+        <button onclick="document.getElementById('unt-alle').scrollIntoView({behavior:'smooth',block:'start'})" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border-radius:12px;border:1.5px solid var(--border);background:#FAEEDA;cursor:pointer;font-family:'DM Sans',sans-serif">
+          <span style="font-size:22px">🎵</span><span style="font-size:12px;font-weight:600;color:#633806">Für alle</span><span style="font-size:10px;color:#854F0B">Alle Jahrgänge</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="section-label" id="unt-jung" style="scroll-margin-top:72px">🧒👦 Für die Jüngeren</div>
 
     <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
       <div style="padding:14px 16px 10px">
@@ -475,7 +490,7 @@
       <span style="margin-left:auto;font-size:20px;color:rgba(255,255,255,.7)">→</span>
     </a>
 
-    <div class="section-label">👴👩 Für die Älteren</div>
+    <div class="section-label" id="unt-alt" style="scroll-margin-top:72px">👴👩 Für die Älteren</div>
 
     <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
       <div style="padding:14px 16px 10px">
@@ -487,7 +502,21 @@
         style="display:block;border-radius:0 0 var(--radius) var(--radius)"></iframe>
     </div>
 
-    <div class="section-label">🎵 Für Alle</div>
+    <a href="https://anthropeum.com" target="_blank" rel="noopener"
+       style="display:block;background:linear-gradient(135deg,#0f4c5c 0%,#1d6f6a 100%);border-radius:var(--radius);padding:14px 18px 16px;text-decoration:none;margin-bottom:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.12;line-height:1;pointer-events:none">🏺</div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative">
+        <span style="font-size:26px">🏺</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:white">Anthropeum — Tagesrätsel</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:2px">Quiz-Spiel · Englisch</div>
+        </div>
+        <span style="font-size:20px;color:rgba(255,255,255,.75)">→</span>
+      </div>
+      <div style="font-size:12px;line-height:1.55;color:rgba(255,255,255,.85);margin-top:10px;position:relative">Jeden Tag zehn Fundstücke aus 5.000 Jahren Menschheitsgeschichte: Aus welcher Kultur und welcher Zeit stammen sie? Ratet, vergleicht eure Ergebnisse und schaut, wer in der Gruppe am besten liegt. Perfekt für die Busfahrt.</div>
+    </a>
+
+    <div class="section-label" id="unt-alle" style="scroll-margin-top:72px">🎵 Für Alle</div>
 
     <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
       <div style="padding:14px 16px 10px">
@@ -498,6 +527,50 @@
         width="100%" height="360" frameborder="0" allowfullscreen
         style="display:block;border-radius:0 0 var(--radius) var(--radius)"></iframe>
     </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+      <div style="padding:14px 16px 10px">
+        <div style="font-size:13px;font-weight:500;margin-bottom:2px">Sommer in Rom — Komödie</div>
+        <div style="font-size:11px;color:var(--text3)">Fernsehfilm · WDR · ARD Mediathek</div>
+      </div>
+      <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000">
+        <iframe src="https://www.ardmediathek.de/embed/Y3JpZDovL3dkci5kZS9CZWl0cmFnLTZkYzhjMjc4LWEyODYtNGFhMy1hZTc2LWEyNDE1Y2Q2OGIyNQ"
+          style="position:absolute;inset:0;width:100%;height:100%;border:0;display:block"
+          allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"
+          title="Sommer in Rom — ARD Mediathek"></iframe>
+      </div>
+      <a href="https://www.ardmediathek.de/video/fernsehfilm/sommer-in-rom-oder-komoedie/wdr/Y3JpZDovL3dkci5kZS9CZWl0cmFnLTZkYzhjMjc4LWEyODYtNGFhMy1hZTc2LWEyNDE1Y2Q2OGIyNQ" target="_blank"
+         style="display:block;padding:10px 16px;font-size:12px;color:var(--accent);text-decoration:none;border-top:1px solid var(--border)">In der ARD Mediathek öffnen →</a>
+    </div>
+
+
+    <a href="https://www.planet-schule.de/schwerpunkt/das-roemer-experiment/index.html" target="_blank" rel="noopener"
+       style="display:block;background:linear-gradient(135deg,#8c2f1b 0%,#c0592b 100%);border-radius:var(--radius);padding:14px 18px 16px;text-decoration:none;margin-bottom:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.12;line-height:1;pointer-events:none">🏛️</div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative">
+        <span style="font-size:26px">⚔️</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:white">Das Römer-Experiment</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:2px">8 Filme · planet-schule.de (SWR/WDR) · Klasse 6–10</div>
+        </div>
+        <span style="font-size:20px;color:rgba(255,255,255,.75)">→</span>
+      </div>
+      <div style="font-size:12px;line-height:1.55;color:rgba(255,255,255,.85);margin-top:10px;position:relative">Wie wurde man Gladiator? Was kam bei den Römern auf den Tisch? Wie bauten sie so stabil? In acht Filmen wird das römische Leben mit 3D-Rekonstruktionen und echten Experimenten nachgestellt.</div>
+    </a>
+
+    <a href="https://www.museivaticani.va/content/museivaticani/de/collezioni/musei/cappella-sistina/tour-virtuale.html" target="_blank" rel="noopener"
+       style="display:block;background:linear-gradient(135deg,#14213d 0%,#3a3f7a 60%,#9a7b2f 100%);border-radius:var(--radius);padding:14px 18px 16px;text-decoration:none;margin-bottom:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.12;line-height:1;pointer-events:none">✨</div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative">
+        <span style="font-size:26px">🎨</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:white">Sixtinische Kapelle in 360°</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:2px">Offizieller Rundgang · Vatikanische Museen</div>
+        </div>
+        <span style="font-size:20px;color:rgba(255,255,255,.75)">→</span>
+      </div>
+      <div style="font-size:12px;line-height:1.55;color:rgba(255,255,255,.85);margin-top:10px;position:relative">Michelangelos Deckenfresken in Ruhe von allen Seiten anschauen: In der Kapelle selbst ist es voll, eng und man darf nicht fotografieren. Ideal zur Vorbereitung auf den Museumsbesuch am Mittwoch.</div>
+    </a>
 
   </div><!-- /page-unterhaltung -->
 
@@ -3204,7 +3277,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261003-1315';
+const APP_VERSION = 'kvgrom-v20261003-1450';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
