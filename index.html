@@ -147,7 +147,6 @@
     .faq-item.open .faq-arrow { transform:rotate(180deg); color:var(--accent); }
     .faq-a { display:flex; gap:12px; padding:14px 16px 16px; border-top:1px solid var(--border); }
     .faq-a-text { flex:1; font-size:14px; line-height:1.7; color:var(--text2); padding-top:3px; }
-    .faq-footer { display:flex; align-items:center; gap:12px; background:var(--surface2); border-radius:var(--radius); padding:14px 16px; margin-top:6px; font-size:13px; line-height:1.5; color:var(--text2); }
 
     /* KARTE */
     .map-link { display: block; width: 100%; background: var(--text); color: white; border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; text-decoration: none; margin-bottom: 10px; }
@@ -418,10 +417,6 @@
       <span class="faq-count" id="faq-count"></span>
     </div>
     <div id="faq-list"></div>
-    <div class="faq-footer">
-      <span style="font-size:22px">💬</span>
-      <span>Eure Frage ist nicht dabei? Wendet euch an eure Klassenleitung oder an eine der Lehrkräfte unter <a href="#" onclick="event.preventDefault();switchPage('kontakte')" style="color:var(--accent);font-weight:500;text-decoration:none">Kontakte</a>.</span>
-    </div>
   </div>
 
   <!-- REGELN -->
@@ -1932,6 +1927,8 @@ const FAQ = [
     a: 'In der Regel reicht es, die Kopie des Ausweises dabeizuhaben. Die Betreuer*innen im Bus werden Ihre Kinder aber noch einmal dazu informieren.' },
   { q: 'Die Kinder kennen ihre Busnummer von den Klassenlehrer*innen. Woher weiß ich, wo der Bus steht?',
     a: 'Alle 11 Busse halten auf den Busparkplätzen vor der Schule, gegebenenfalls auch an der KvG-Halle. Der richtige Bus ist also leicht zu finden.' },
+  { q: 'Darf ich jederzeit den Pool benutzen?',
+    a: 'Leider nein. Der Pool hat bestimmte Öffnungszeiten, in denen er bewacht ist. Die müssen wir vor Ort herausfinden. Zusätzlich <strong>muss</strong> ein Sportlehrer mit vor Ort sein.' },
 ];
 
 function renderFaq() {
@@ -3207,7 +3204,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261003-1300';
+const APP_VERSION = 'kvgrom-v20261003-1315';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
