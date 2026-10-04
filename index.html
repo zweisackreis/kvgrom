@@ -1296,6 +1296,16 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
       mapsEmbed: '',
       audioEmbed: '',
       autor: 'Q2' },
+    { id: 28, emoji: '⚽', photo: 'https://zweisackreis.github.io/kvgrom/picture/olympiastadion.jpg',
+      photoCredit: 'Messapi, CC BY 4.0, Wikimedia Commons',
+      category: 'Sehenswürdigkeiten', title: 'Olympiastadion (Stadio Olimpico)',
+      desc: 'Heimat von AS Rom und Lazio, Schauplatz des WM-Finales 1990 und der Olympischen Spiele 1960: Das Stadio Olimpico ist mit rund 70.000 Plätzen eines der berühmtesten Stadien Europas.',
+      details: `<strong>Vom „Stadion der Zypressen“ zum Olympiastadion</strong>\nDer Bau begann 1928 als Teil eines großen Sportparks am Fuß des Monte Mario. 1932 wurde das erste, noch kleine Stadion eröffnet: das „Stadio dei Cipressi“, benannt nach den Zypressen ringsum. Nach dem Zweiten Weltkrieg wurde es stark vergrößert und 1953 als „Stadio dei Centomila“ eröffnet, als Stadion der Hunderttausend. Seinen heutigen Namen bekam es, als Rom die Olympischen Sommerspiele 1960 erhielt. Damals fanden hier die Eröffnungs- und die Schlussfeier sowie die Leichtathletik-Wettbewerbe statt.\n\n<strong>Zwei Vereine, ein Stadion</strong>\nHeute bietet das Stadio Olimpico rund 70.000 Plätze und ist damit das zweitgrößte Stadion Italiens. Es ist die Heimat gleich zweier Serie-A-Vereine: AS Rom (gelb-rot) und Lazio Rom (himmelblau-weiß). Die Fans der Roma stehen in der Curva Sud, die von Lazio in der Curva Nord. Wenn beide gegeneinander spielen, ist das „Derby della Capitale“, das Hauptstadt-Derby, eines der emotionalsten Spiele Europas: Die ganze Stadt ist dann in Aufruhr.\n\n<strong>Große Momente</strong>\nFür die Fußball-Weltmeisterschaft 1990 wurde das Stadion umgebaut und bekam sein markantes Dach, das alle Zuschauerplätze überspannt. Im Finale gewann hier Deutschland gegen Argentinien mit 1:0 und wurde Weltmeister. Außerdem fanden im Olimpico vier Finals des Europapokals der Landesmeister bzw. der Champions League statt, zuletzt 2009. Im Juni 2021 wurde hier die Fußball-Europameisterschaft eröffnet, die Italien am Ende gewann.\n\n<strong>Nicht nur Fußball</strong>\nJedes Jahr findet hier das „Golden Gala“ statt, eines der wichtigsten Leichtathletik-Meetings der Welt. 2024 war das Stadion Austragungsort der Leichtathletik-Europameisterschaften. Die italienische Rugby-Nationalmannschaft trägt hier ihre Heimspiele im Six-Nations-Turnier aus, und auch Superstars wie U2 oder Ed Sheeran haben im Olimpico Konzerte gegeben.\n\n<strong>Rund um das Stadion: der Foro Italico</strong>\nDas Stadion gehört zum Foro Italico, einem großen Sportgelände, das in den 1920er- und 1930er-Jahren unter dem faschistischen Diktator Benito Mussolini entstand und damals „Foro Mussolini“ hieß. Am Eingang steht bis heute ein Obelisk mit der Inschrift „MUSSOLINI DUX“. Gleich neben dem Olimpico liegt das Stadio dei Marmi, ein kleines Stadion, das von Dutzenden riesigen Marmorstatuen von Sportlern umringt ist. Die Anlage zeigt, wie die Diktatur Sport und Körperkult für ihre Propaganda nutzte. Darüber wird in Italien bis heute diskutiert.`,
+      tipp: 'Das Stadion liegt im Norden der Stadt am Tiber, gut erreichbar mit der Straßenbahn Linie 2 ab Piazzale Flaminio. Wer ein Spiel besuchen will: In Italien sind Fußballtickets personalisiert, beim Einlass wird der Ausweis kontrolliert. Ein Spaziergang zum Stadio dei Marmi direkt nebenan lohnt sich auch ohne Spiel.',
+      adresse: 'Viale dei Gladiatori, 00135 Rom (Foro Italico)',
+      mapsEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/olympiastadion.mp3',
+      autor: 'Klasse 9a' },
     { id: 23, emoji: '🏛️', photo: 'https://zweisackreis.github.io/kvgrom/picture/Form.png', photoCredit: 'Klasse 7c, KvG Gymnasium Mettingen', category: 'Vatikan', title: 'Rund um den Petersplatz',
       desc: 'Der Petersplatz ist das Herz des Vatikans und einer der beeindruckendsten Plätze der Welt. Klasse 7c hat zwölf faszinierende Themen rund um den Platz erforscht — von Berninis Kolonnaden über den Obelisken bis zur Papstwahl.',
       details: `<div style="margin-bottom:14px;font-size:13px;color:var(--text2);line-height:1.6">Die Schülerinnen und Schüler der Klasse 7c haben sich intensiv mit dem Petersplatz beschäftigt. Tippt auf einen Titel, um den Beitrag zu lesen.</div>
@@ -3289,7 +3299,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261004-1841';
+const APP_VERSION = 'kvgrom-v20261004-2010';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
