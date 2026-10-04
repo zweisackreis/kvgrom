@@ -1,5 +1,5 @@
 // !! CACHE-VERSION — automatisch bei jedem Build aktualisiert !!
-const CACHE = 'kvgrom-v20261004-2010';
+const CACHE = 'kvgrom-v20261004-2055';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png', './hero-bg.jpg', './song.mp3'];
 const AUDIO_PREFIX = './audio/';
 
@@ -66,23 +66,33 @@ self.addEventListener('message', e => {
   if (e.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
-// Push-Benachrichtigungen
+// Push-Benachrichtigungen (von der Cloud Function über Firebase Cloud Messaging)
 self.addEventListener('push', e => {
   if (!e.data) return;
-  const payload = e.data.json();
-  const { title, body, icon } = payload.notification || payload;
+  let payload = {};
+  try { payload = e.data.json(); } catch (err) { payload = { notification: { title: 'KvG Rom 2026', body: e.data.text() } }; }
+  const n = payload.notification || payload.data || payload;
+  const appUrl = self.location.origin + self.location.pathname.replace('sw.js', '');
   e.waitUntil(
-    self.registration.showNotification(title || 'KvG Rom 2026', {
-      body: body || '',
-      icon: icon || './logo-schule.png',
+    self.registration.showNotification(n.title || 'KvG Rom 2026', {
+      body: n.body || '',
+      icon: './logo-schule.png',
       badge: './logo-schule.png',
       vibrate: [200, 100, 200],
-      data: { url: self.location.origin + self.location.pathname.replace('sw.js','') }
+      tag: payload.fcmMessageId || undefined,
+      data: { url: appUrl }
     })
   );
 });
 
+// Tipp auf die Benachrichtigung: offene App nach vorne holen, sonst öffnen
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  e.waitUntil(clients.openWindow(e.notification.data?.url || '/'));
+  const url = e.notification.data?.url || './';
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) { if (c.url.startsWith(url) && 'focus' in c) return c.focus(); }
+      return clients.openWindow(url);
+    })
+  );
 });

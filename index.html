@@ -1823,6 +1823,23 @@ function dismissTreffpunkt(id) {
   renderTreffpunkt();
 }
 
+// Ablaufzeit eines Treffpunkts: explizit gesetzt → diese; sonst 45 Min. nach der
+// angegebenen Uhrzeit; ohne erkennbare Uhrzeit 3 Std. nach dem Anlegen.
+function tpAblauf(t, basis) {
+  if (t.expiry) return t.expiry;
+  const erstellt = basis || (t.timestamp && t.timestamp.toMillis ? t.timestamp.toMillis() : (typeof t.id === 'number' ? t.id : null));
+  if (!erstellt) return null;
+  const m = String(t.uhrzeit || '').match(/(\d{1,2})\s*[:.]\s*(\d{2})/) || String(t.uhrzeit || '').match(/^\s*(\d{1,2})\s*(?:Uhr)?\s*$/i);
+  if (m) {
+    const d = new Date(erstellt);
+    d.setHours(parseInt(m[1], 10), m[2] ? parseInt(m[2], 10) : 0, 0, 0);
+    // Uhrzeit liegt mehr als 1 Std. vor dem Anlegen → gemeint ist der nächste Tag
+    if (d.getTime() < erstellt - 3600000) d.setDate(d.getDate() + 1);
+    return d.getTime() + 45 * 60000;
+  }
+  return erstellt + 3 * 3600000;
+}
+
 function renderTreffpunkt() {
   const box = document.getElementById('treffpunkt-box');
   if (!box) return;
@@ -1834,7 +1851,7 @@ function renderTreffpunkt() {
   const dismissedTp = JSON.parse(localStorage.getItem('rom-dismissed-tp') || '[]');
   const sichtbar = (data.treffpunkte || []).filter(t => {
     if (!t.ort) return false;
-    if (t.expiry && now > t.expiry) return false; // abgelaufen
+    const ablauf = tpAblauf(t); if (ablauf && now > ablauf) return false; // abgelaufen
     if (dismissedTp.includes(String(t.id))) return false;  // weggeklickt
     if (t.klasse === 'alle') return true;
     if (isLehrer) return true;
@@ -1877,7 +1894,7 @@ function saveTreffpunkt(aktiv) {
     const info    = document.getElementById('f-tinfo')?.value.trim();
     const klasse  = document.getElementById('f-tklasse')?.value || 'alle';
     const expiryVal = document.getElementById('f-texpiry')?.value;
-    const expiry = expiryVal ? new Date(expiryVal).getTime() : null;
+    const expiry = expiryVal ? new Date(expiryVal).getTime() : tpAblauf({ uhrzeit }, Date.now());
     if (!ort) { alert('Bitte einen Ort eingeben.'); return; }
 
     if (fbDb) {
@@ -2024,6 +2041,8 @@ const FAQ = [
     a: 'Leider nein. Der Pool hat bestimmte Öffnungszeiten, in denen er bewacht ist. Die müssen wir vor Ort herausfinden. Zusätzlich <strong>muss</strong> ein Sportlehrer mit vor Ort sein.' },
   { q: 'Wo können wir bei der Abfahrt parken?',
     a: 'Die Busse fahren weitgehend vom Busparkplatz vor dem vorderen Schulhof ab. Damit die Abreise problemlos vonstattengeht, parken Sie bitte <strong>nicht</strong> auf den Schulparkplätzen, sondern nutzen Sie die Parkmöglichkeiten an den Sportanlagen. Sinnvoll ist es auch, Fahrgemeinschaften zu bilden, um das Verkehrsaufkommen so gering wie möglich zu halten.' },
+  { q: 'Wie funktionieren die Mitteilungen?',
+    a: 'Die App verschickt keine klassischen Push-Mitteilungen. Wenn die App aber geöffnet ist oder im Hintergrund läuft, bekommst du bei neuen Treffpunkten und Nachrichten eine Benachrichtigung aufs Handy. Dafür musst du Benachrichtigungen einmal in den <strong>Einstellungen</strong> der App aktivieren (iPhone: App vorher über „Teilen → Zum Home-Bildschirm“ installieren). Alle Mitteilungen findest du außerdem jederzeit unter der Glocke 🔔 oben rechts.' },
 ];
 
 function renderFaq() {
@@ -2255,7 +2274,38 @@ let fbMessaging = null;
 let fbDb = null;
 
 let fbInitDone = false;
+let fbErsterMitteilungsSnap = true, fbErsterTreffpunktSnap = true;
 let fbUnsubs = [];   // Abmelde-Funktionen der Firestore-Listener
+
+// ════════════════════════════════════════════
+// LOKALE BENACHRICHTIGUNGEN (ohne Server)
+// Kommt über Firestore eine NEUE Mitteilung / ein NEUER Treffpunkt für die
+// eigene Klasse herein, zeigt das Handy eine Systembenachrichtigung —
+// solange die App geöffnet ist oder im Hintergrund läuft.
+// ════════════════════════════════════════════
+const UNTERSTUFE_KL = ['5a','5b','5c','6a','6b','6c','7a','7b','7c'];
+const MITTEL_OBER_KL = ['8a','8b','8c','9a','9b','9c','10a','10b','10c','EF','Q1','Q2'];
+function zielPasst(ziel) {
+  const my = localStorage.getItem('rom-klasse') || '';
+  if (!ziel || ziel === 'alle' || my === 'Lehrkraft') return true;
+  if (ziel === 'Klassen 5-7') return UNTERSTUFE_KL.includes(my);
+  if (ziel === 'Klassen 8-Q2') return MITTEL_OBER_KL.includes(my);
+  return ziel === my;
+}
+async function lokalBenachrichtigen(title, body, tag) {
+  try {
+    if (localStorage.getItem('rom-push-muted') === '1') return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    const opts = { body: body || '', icon: './logo-schule.png', badge: './logo-schule.png', tag, vibrate: [200, 100, 200], data: { url: location.href.split('#')[0] } };
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.ready;
+      await reg.showNotification(title, opts);
+    } else {
+      new Notification(title, opts);
+    }
+  } catch (e) { console.warn('Benachrichtigung fehlgeschlagen', e); }
+}
 
 function initFirebase() {
   // Nur EINMAL initialisieren — mehrfache Aufrufe würden Listener stapeln
@@ -2283,6 +2333,15 @@ function initFirebase() {
           const n = doc.data();
           fbNotifs.push({ id: doc.id, title: n.title, body: n.body, time: n.timeStr || '', read: false, klasse: n.klasse || 'alle', fromFirestore: true });
         });
+        // Neue Mitteilungen melden (nicht beim ersten Laden, nicht die eigenen)
+        if (!fbErsterMitteilungsSnap) {
+          snapshot.docChanges().forEach(ch => {
+            if (ch.type !== 'added' || ch.doc.metadata.hasPendingWrites) return;
+            const n = ch.doc.data();
+            if (zielPasst(n.klasse)) lokalBenachrichtigen('📢 ' + (n.title || 'Neue Mitteilung'), n.body, 'm-' + ch.doc.id);
+          });
+        }
+        fbErsterMitteilungsSnap = false;
         // Anzeige erwartet älteste zuerst (Banner zeigt das letzte Element)
         data.notifications = fbNotifs.reverse();
         renderNotifications();
@@ -2299,6 +2358,19 @@ function initFirebase() {
           const t = doc.data();
           if (t.aktiv !== false) tps.push({ ...t, id: doc.id });
         });
+        // Neue Treffpunkte melden (nicht beim ersten Laden, nicht die eigenen)
+        if (!fbErsterTreffpunktSnap) {
+          snapshot.docChanges().forEach(ch => {
+            if (ch.type !== 'added' || ch.doc.metadata.hasPendingWrites) return;
+            const t = ch.doc.data();
+            if (!t.ort || t.aktiv === false) return;
+            { const ab = tpAblauf(t, Date.now()); if (ab && Date.now() > ab) return; }
+            if (!zielPasst(t.klasse)) return;
+            const txt = [t.uhrzeit ? '🕐 ' + t.uhrzeit : '', t.info || ''].filter(Boolean).join(' · ');
+            lokalBenachrichtigen('📍 Treffpunkt: ' + t.ort, txt || 'Bitte in der App nachsehen.', 't-' + ch.doc.id);
+          });
+        }
+        fbErsterTreffpunktSnap = false;
         data.treffpunkte = tps;
         renderTreffpunkt();
       }, err => {}));
@@ -2317,22 +2389,13 @@ function initFirebase() {
 }
 
 async function requestPush() {
-  if (!fbMessaging) {
-    // Firebase nicht konfiguriert — trotzdem Browser-Permission anfragen
-    try {
-      const perm = await Notification.requestPermission();
-      localStorage.setItem('rom-push-asked', '1');
-      renderEinstellungen();
-      return perm;
-    } catch(e) {}
-    return;
-  }
   try {
-    const token = await fbMessaging.getToken({ vapidKey: FIREBASE_VAPID_KEY });
+    if (!('Notification' in window)) { alert('Dieses Gerät unterstützt keine Benachrichtigungen. Auf dem iPhone: App zuerst über „Teilen → Zum Home-Bildschirm“ installieren und von dort öffnen.'); return; }
+    const perm = await Notification.requestPermission();
     localStorage.setItem('rom-push-asked', '1');
     renderEinstellungen();
-  } catch(e) {
-    // Auch ohne Token die Permission speichern
+    return perm;
+  } catch (e) {
     localStorage.setItem('rom-push-asked', '1');
     renderEinstellungen();
   }
@@ -2668,7 +2731,7 @@ function showForm(type) {
       <div class="input-group">
         <label>Automatisch ablaufen am (optional)</label>
         <input type="datetime-local" id="f-texpiry" style="font-size:13px">
-        <div style="font-size:11px;color:var(--text3);margin-top:5px">Der Treffpunkt verschwindet automatisch nach diesem Zeitpunkt.</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:5px">Leer lassen: Der Treffpunkt verschwindet automatisch <b>45 Minuten nach der Uhrzeit</b> (ohne Uhrzeit nach 3 Stunden).</div>
       </div>
       <button class="btn-primary" onclick="saveTreffpunkt(true)">📍 Treffpunkt hinzufügen</button>`,
 
@@ -3241,7 +3304,7 @@ function togglePushFromSettings() {
     } else {
       localStorage.setItem('rom-push-muted', '1');
     }
-    renderEinstellungen();
+      renderEinstellungen();
     return;
   }
   // Noch nicht erteilt — anfragen
@@ -3297,9 +3360,12 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
   }
 });
 
+// Abgelaufene Treffpunkte ohne Neuladen ausblenden
+setInterval(() => { try { renderTreffpunkt(); } catch(e) {} }, 60000);
+
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261004-2010';
+const APP_VERSION = 'kvgrom-v20261004-2055';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
