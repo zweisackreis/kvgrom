@@ -148,6 +148,23 @@
     .faq-a { display:flex; gap:12px; padding:14px 16px 16px; border-top:1px solid var(--border); }
     .faq-a-text { flex:1; font-size:14px; line-height:1.7; color:var(--text2); padding-top:3px; }
 
+    /* FAHRTENSONG */
+    .song-hero { background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%); border-radius:var(--radius); padding:22px 18px 16px; color:#fff; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.25); margin-bottom:18px; }
+    .song-hero-bg { position:absolute; right:-14px; top:-10px; font-size:130px; opacity:.06; line-height:1; pointer-events:none; }
+    .song-hero h2 { font-family:'DM Serif Display',serif; font-size:26px; font-weight:400; margin-bottom:2px; }
+    .song-hero .song-sub { font-size:12px; color:rgba(255,255,255,.55); margin-bottom:16px; }
+    .song-parts { display:flex; flex-direction:column; gap:12px; }
+    .song-part { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
+    .song-part.refrain { background:linear-gradient(135deg,#fdf0f2 0%,#fbe3e8 100%); border-color:#f3c3cd; border-left:4px solid #e94560; }
+    .song-part.outro { background:var(--surface2); border-style:dashed; }
+    .song-label { display:inline-block; font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); margin-bottom:8px; }
+    .song-part.refrain .song-label { color:#c0392b; }
+    .song-lines { font-family:'DM Serif Display',serif; font-size:17px; line-height:1.65; color:var(--text); }
+    .song-part.refrain .song-lines { color:#5a1a26; }
+    body.dark .song-part.refrain { background:linear-gradient(135deg,#3a1c25 0%,#2e1620 100%); border-color:#6b2a3a; }
+    body.dark .song-part.refrain .song-lines { color:#f6d5dc; }
+    body.dark .song-part.refrain .song-label { color:#ff8fa3; }
+
     /* KARTE */
     .map-link { display: block; width: 100%; background: var(--text); color: white; border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; text-decoration: none; margin-bottom: 10px; }
     .sight-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; margin: 0 6px 8px 0; text-decoration: none; color: var(--text); }
@@ -277,6 +294,9 @@
     <!-- HEUTE IM PROGRAMM -->
     <div id="heute-box" style="margin-bottom:4px"></div>
 
+    <!-- WETTER ROM -->
+    <div id="wetter-box" style="margin-bottom:4px"></div>
+
     <div class="section-label">Schnellzugriff</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
       <div onclick="switchPage('kontakte')" style="background:#FCEBEB;border-radius:var(--radius);padding:16px;cursor:pointer;position:relative;overflow:hidden">
@@ -328,8 +348,10 @@
           <div style="font-size:13px;font-weight:700;color:#fff;letter-spacing:.03em" id="audio-title">Unser Fahrt-Song</div>
           <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:1px" id="audio-artist">KvG Rom 2026</div>
         </div>
+        <a href="#" onclick="event.preventDefault();switchPage('song')"
+          style="margin-left:auto;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;text-decoration:none;white-space:nowrap;letter-spacing:.02em">📝 Text</a>
         <a href="song.mp3" download
-          style="margin-left:auto;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;text-decoration:none;white-space:nowrap;letter-spacing:.02em">⬇︎ Download</a>
+          style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;text-decoration:none;white-space:nowrap;letter-spacing:.02em">⬇︎ Download</a>
       </div>
       <audio id="start-audio" src="song.mp3" preload="none" style="display:none"></audio>
       <div style="display:flex;align-items:center;gap:10px">
@@ -406,6 +428,69 @@
     <div class="pack-progress"><div class="pack-progress-bar" id="pack-bar" style="width:0%"></div></div>
     <div id="pack-status" style="font-size:12px;color:var(--text2);margin-bottom:14px">0 von 0 Dingen gepackt</div>
     <div class="card" id="pack-list"></div>
+  </div>
+
+  <!-- FAHRTENSONG -->
+  <div class="page" id="page-song">
+    <div class="song-hero">
+      <div class="song-hero-bg">🎵</div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px">KvG Rom 2026</div>
+      <h2>Der Fahrtensong</h2>
+      <div class="song-sub">Zum Mitsingen im Bus, im Bungalow und überall in Rom</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button id="song-play-btn" onclick="toggleAudio()"
+          style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#e94560,#c0392b);border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 12px rgba(233,69,96,.45)">▶️</button>
+        <div style="flex:1">
+          <div id="song-progress-bar" onclick="seekSong(event)" style="height:5px;background:rgba(255,255,255,.15);border-radius:3px;cursor:pointer">
+            <div id="song-progress-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#e94560,#ff6b8a);border-radius:3px;transition:width .2s linear"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px">
+            <span id="song-time-cur" style="font-size:11px;color:rgba(255,255,255,.45)">0:00</span>
+            <span id="song-time-dur" style="font-size:11px;color:rgba(255,255,255,.45)">–:––</span>
+          </div>
+        </div>
+      </div>
+      <a href="song.mp3" download style="display:inline-block;margin-top:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;text-decoration:none">⬇︎ Song herunterladen</a>
+    </div>
+
+    <div class="song-parts">
+      <div class="song-part">
+        <div class="song-label">Strophe 1</div>
+        <div class="song-lines">Morgens viel zu früh raus<br>Augen noch halb zu<br>Busfahrt durch die Nacht<br>wer hat sich das nur ausgedacht<br>Herr Heger verschläft am zweiten Tag<br>Herr Musli zahlt Meckes am Rastplatz<br>Und Herr Mulder hilft sein Spanisch<br>nicht mal hier, nicht mal jetzt</div>
+      </div>
+      <div class="song-part">
+        <div class="song-label">Pre-Chorus 1</div>
+        <div class="song-lines">Dann taucht Rom vor uns auf<br>Steine, Sonne, jede Gasse<br>Pizzaduft zu uns dringt<br>nur noch wenige Meter, wir sind da.</div>
+      </div>
+      <div class="song-part refrain">
+        <div class="song-label">Refrain 1</div>
+        <div class="song-lines">KvG Romfahrt, wir sind hier<br>KvG Romfahrt, mit dir<br>Kolosseum, Vatikan<br>jeden Tag ein anderer Plan<br>KvG Romfahrt, wir geh'n<br>und wolln so viel wie möglich sehn<br>KvG Romfahrt, unser Chor<br>und wir woll'n immer noch mehr<br>und wir woll'n immer noch mehr</div>
+      </div>
+      <div class="song-part">
+        <div class="song-label">Strophe 2</div>
+        <div class="song-lines">Im Forum Romanum<br>suchen wir den Schatten<br>Misera redet, Schüler träumen<br>und die Schritte werden hart<br>Zehn Kirchen später, wieder raus<br>Petersdom, Vatikan<br>Frau Fischer läuft zur Höchstform auf<br>weiter geht es mit Elan</div>
+      </div>
+      <div class="song-part">
+        <div class="song-label">Pre-Chorus 2</div>
+        <div class="song-lines">Piazza Navona glüht<br>Spanische Treppe, Tiber rauscht<br>Und die kleinen Gassen rufen<br>komm, wir gehn noch nicht nach Haus</div>
+      </div>
+      <div class="song-part refrain">
+        <div class="song-label">Refrain 2</div>
+        <div class="song-lines">KvG Romfahrt, wir sind hier<br>KvG Romfahrt, mit dir<br>Kolosseum, Vatikan<br>jeden Tag ein anderer Plan<br>KvG Romfahrt, wir geh'n<br>auch mit müden Füßen stehn<br>KvG Romfahrt, unser Chor<br>und wir woll'n immer noch mehr</div>
+      </div>
+      <div class="song-part">
+        <div class="song-label">Bridge</div>
+        <div class="song-lines">Pizza, Pasta, Carbonara<br>der Magen ist am schmerzen<br>die 8er brauchen Pause<br>doch nicht bei Meyer zu Bergsten<br>Vespas jagen durch die Kurven<br>chaotisch, wild und laut<br>Zumwaldes Portmonee ist auf<br>doch kein Dieb der sich das traut</div>
+      </div>
+      <div class="song-part refrain">
+        <div class="song-label">Finaler Refrain</div>
+        <div class="song-lines">KvG Romfahrt, wir sind hier<br>KvG Romfahrt, mit dir<br>Sonnenuntergang überm Dach<br>und die Stadt wird hell und wach<br>KvG Romfahrt, wir geh'n<br>20.000 Schritte, kein Problem<br>KvG Romfahrt, unser Chor<br>und wir woll'n immer noch mehr</div>
+      </div>
+      <div class="song-part outro">
+        <div class="song-label">Outro</div>
+        <div class="song-lines">Abends in den Bungalows<br>wird die Nacht zum Tag gemacht<br>wir haben unsere beste Zeit<br>und Lehrer um den Schlaf gebracht</div>
+      </div>
+    </div>
   </div>
 
   <!-- FAQ -->
@@ -696,6 +781,7 @@
     <div class="mehr-item" onclick="switchPageFromMehr('karte')"><span class="mehr-icon">🗺️</span>Karte</div>
     <div class="mehr-item" onclick="switchPageFromMehr('sprache')"><span class="mehr-icon">🇮🇹</span>Italiano</div>
     <div class="mehr-item" onclick="switchPageFromMehr('unterhaltung')"><span class="mehr-icon">🎧</span>Unterhaltung</div>
+    <div class="mehr-item" onclick="switchPageFromMehr('song')"><span class="mehr-icon">🎵</span>Fahrtensong</div>
     <div class="mehr-item" onclick="switchPageFromMehr('benachrichtigungen')"><span class="mehr-icon">🔔</span>Mitteilungen</div>
     <div class="mehr-item" onclick="openArcade()"><span class="mehr-icon">🕹️</span>Arcade</div>
     <div class="mehr-item" onclick="switchPageFromMehr('einstellungen')"><span class="mehr-icon">⚙️</span>Einstellungen</div>
@@ -1306,6 +1392,36 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
       mapsEmbed: '',
       audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/olympiastadion.mp3',
       autor: 'Klasse 9a' },
+    { id: 29, emoji: '🇻🇦', photo: 'https://zweisackreis.github.io/kvgrom/picture/vatikanstadt.png',
+      photoCredit: 'Thomas Römer/OpenStreetMap data, CC BY-SA 3.0, Wikimedia Commons',
+      category: 'Vatikan', title: 'Vatikanstadt',
+      desc: 'Der kleinste Staat der Welt mitten in Rom: mit eigenem Staatsoberhaupt, eigener Garde, eigenen Briefmarken und einer Grenze, die man einfach überschreiten kann.',
+      details: `<strong>Der kleinste Staat der Welt</strong>\nDie Vatikanstadt ist mit nur 0,44 Quadratkilometern der kleinste Staat der Erde. Das ist etwa so groß wie 60 Fußballfelder. Ihr könntet die gesamte Grenze in rund einer Stunde zu Fuß ablaufen. Dauerhaft wohnen hier nur einige hundert Menschen, vor allem Geistliche und die Schweizergardisten. Tagsüber arbeiten aber Tausende Menschen im Vatikan, und täglich kommen Zehntausende Besucherinnen und Besucher.\n\n<strong>Wie der Staat entstand</strong>\nÜber tausend Jahre lang regierten die Päpste den Kirchenstaat, ein großes Gebiet in Mittelitalien. 1870 wurde Rom von italienischen Truppen eingenommen und Hauptstadt des neuen Königreichs Italien. Der Papst zog sich daraufhin in den Vatikan zurück und betrachtete sich fast 60 Jahre lang als „Gefangener“. Erst 1929 einigten sich Kirche und italienischer Staat in den Lateranverträgen: Seitdem ist die Vatikanstadt ein eigener, unabhängiger Staat.\n\n<strong>Wer regiert?</strong>\nStaatsoberhaupt ist der Papst, derzeit Leo XIV. Er ist gleichzeitig Oberhaupt der katholischen Kirche mit weltweit rund 1,4 Milliarden Mitgliedern. Der Vatikan ist eine Wahlmonarchie: Der Papst wird von den Kardinälen auf Lebenszeit gewählt und hat die gesetzgebende, ausführende und richterliche Gewalt. Die Vatikanstadt selbst ist dabei nur das Staatsgebiet. Die Kirchenleitung, mit der andere Länder diplomatische Beziehungen unterhalten, heißt „Heiliger Stuhl“.\n\n<strong>Die Schweizergarde</strong>\nAuffällig sind die Wachen in ihren blau-gelb-roten Uniformen. Die Päpstliche Schweizergarde gibt es seit 1506, sie ist die älteste noch bestehende Armee der Welt. Heute dienen hier 135 Gardisten. Aufgenommen werden nur katholische Schweizer zwischen 19 und 30 Jahren, die mindestens 1,74 Meter groß sind und die Schweizer Rekrutenschule absolviert haben. Neue Gardisten werden jedes Jahr am 6. Mai vereidigt. Das erinnert an den 6. Mai 1527, als bei der Plünderung Roms 147 Gardisten starben, während sie den Papst verteidigten.\n\n<strong>Ein Staat mit allem, was dazugehört</strong>\nDer Vatikan hat eine eigene Flagge in Gelb und Weiß, eigene Briefmarken, eine eigene Post und eigene Euromünzen, die bei Sammlern sehr begehrt sind. Dazu kommen ein eigener Radiosender, eine Zeitung, eine Apotheke, ein Supermarkt und sogar ein kleiner Bahnhof mit einem der kürzesten Schienennetze der Welt. Eine Armee im eigentlichen Sinn gibt es nicht; um Sicherheit und Ordnung kümmern sich die Schweizergarde und die vatikanische Gendarmerie.\n\n<strong>Die Grenze zu Rom</strong>\nPasskontrollen gibt es nicht: Ihr könnt einfach über den Petersplatz in die Vatikanstadt hineinlaufen. Achtet einmal auf den Boden am Rand des Platzes: Eine Linie aus hellem Stein im Pflaster markiert die Grenze zwischen Italien und dem Vatikan. Mit einem Schritt wechselt ihr das Land.`,
+      tipp: 'Wer den Papst sehen möchte: Meist hält er mittwochs vormittags auf dem Petersplatz die Generalaudienz, und sonntags um 12 Uhr betet er vom Fenster des Apostolischen Palastes das Angelus. Für Petersdom und Vatikanische Museen gilt: Schultern und Knie bedeckt, große Rucksäcke sind nicht erlaubt. Eine Postkarte mit vatikanischer Briefmarke ist ein schönes Andenken.',
+      adresse: 'Vatikanstadt, 00120 (Zugang über den Petersplatz, Piazza San Pietro)',
+      mapsEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/vatikanstadt.mp3',
+      autor: 'EF' },
+    { id: 30, emoji: '🎨', photo: 'https://zweisackreis.github.io/kvgrom/picture/michelangelo.jpg',
+      photoCredit: 'Daniele da Volterra (zugeschrieben), Metropolitan Museum of Art, gemeinfrei, Wikimedia Commons',
+      category: 'Persönlichkeiten', title: 'Michelangelo',
+      desc: 'Bildhauer, Maler, Architekt: Michelangelo hat Rom geprägt wie kaum ein anderer. Auf eurer Fahrt begegnet ihr ihm in der Sixtinischen Kapelle, im Petersdom und auf dem Kapitol.',
+      details: `<strong>Wer war Michelangelo?</strong>\nMichelangelo Buonarroti wurde am 6. März 1475 in Caprese in der Toskana geboren und wuchs in Florenz auf. Schon als Jugendlicher lernte er bei einem Maler und durfte in den Gärten der mächtigen Familie Medici antike Skulpturen studieren. Er war Bildhauer, Maler, Architekt und Dichter zugleich und gilt neben Leonardo da Vinci und Raffael als größter Künstler der Renaissance. Er selbst sah sich vor allem als Bildhauer: Für ihn steckte die Figur schon im Marmorblock, er musste sie nur noch „befreien“.\n\n<strong>Die Pietà im Petersdom</strong>\nMit Anfang zwanzig schuf Michelangelo in Rom die Pietà: Maria hält ihren toten Sohn Jesus auf dem Schoß. Als Besucher bezweifelten, dass ein so junger Künstler das geschaffen habe, meißelte er heimlich seinen Namen in das Band über Marias Brust. Es ist das einzige Werk, das er je signiert hat. 1972 beschädigte ein Mann die Figur mit einem Hammer. Seitdem steht sie hinter Panzerglas, gleich rechts hinter dem Eingang des Petersdoms.\n\n<strong>Vom David zur Sixtinischen Kapelle</strong>\nZurück in Florenz meißelte er von 1501 bis 1504 den über fünf Meter hohen David, heute eine der berühmtesten Statuen der Welt. 1508 holte ihn Papst Julius II. nach Rom, um die Decke der Sixtinischen Kapelle auszumalen. Rund vier Jahre arbeitete er dort, meist im Stehen und mit dem Kopf im Nacken. Mehr als zwanzig Jahre später malte er an der Altarwand das Jüngste Gericht. Mehr dazu steht im Eintrag „Sixtinische Kapelle“.\n\n<strong>Der Moses mit den Hörnern</strong>\nFür das gewaltige Grabmal von Papst Julius II. schuf Michelangelo die Figur des Moses. Sie steht heute in der Kirche San Pietro in Vincoli. Auffällig sind die zwei Hörner auf dem Kopf. Sie gehen auf einen Übersetzungsfehler in der lateinischen Bibel zurück: Dort steht, das Gesicht des Moses sei „gehörnt“, gemeint war aber, dass es „strahlte“. Das Grabmal wurde nie in der geplanten Größe fertig, Michelangelo nannte es selbst die „Tragödie des Grabmals“.\n\n<strong>Michelangelo als Architekt</strong>\nIm Alter wurde Michelangelo zum Baumeister Roms. Er entwarf den Kapitolsplatz mit seinem sternförmigen Pflastermuster und übernahm 1546 die Bauleitung des Petersdoms. Die riesige Kuppel ist sein Entwurf, auch wenn sie erst nach seinem Tod vollendet wurde. Er arbeitete ohne Bezahlung, „zur Ehre Gottes“, wie er sagte.\n\n<strong>Ein schwieriger Charakter</strong>\nMichelangelo galt als eigenbrötlerisch, misstrauisch und leicht reizbar. Mit Päpsten und anderen Künstlern stritt er oft, besonders mit Raffael. Er lebte bescheiden, obwohl er sehr reich wurde. Er arbeitete bis kurz vor seinem Tod: Er starb am 18. Februar 1564 mit fast 89 Jahren in Rom. Seine Familie ließ den Leichnam heimlich nach Florenz bringen, wo er in der Kirche Santa Croce begraben liegt. Das Porträt oben wird übrigens seinem Schüler Daniele da Volterra zugeschrieben, dem „Hosenmaler“ aus der Sixtinischen Kapelle.`,
+      tipp: 'Michelangelo-Tour durch Rom: Pietà und Kuppel im Petersdom, Decke und Jüngstes Gericht in der Sixtinischen Kapelle, der Moses in San Pietro in Vincoli (nahe Kolosseum, Eintritt frei) und der Kapitolsplatz. Der Moses ist ein guter Abstecher, wenn ihr ohnehin am Kolosseum seid.',
+      adresse: 'Werke u. a. im Petersdom, in der Sixtinischen Kapelle und in San Pietro in Vincoli, Piazza di San Pietro in Vincoli 4a, 00184 Rom',
+      mapsEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/michelangelo.mp3',
+      autor: 'Klasse 10c' },
+    { id: 31, emoji: '🕯️', photo: 'https://zweisackreis.github.io/kvgrom/picture/katakomben.jpg',
+      photoCredit: 'Dnalor 01, CC BY-SA 3.0, Wikimedia Commons',
+      category: 'Antikes Rom', title: 'Katakomben',
+      desc: 'Kilometerlange Gänge tief unter der Erde: In den Katakomben an der Via Appia begruben die frühen Christen ihre Toten. Hier findet ihr Grabnischen, Wandmalereien und geheimnisvolle Zeichen.',
+      details: `<strong>Eine Stadt unter der Stadt</strong>\nUnter den Feldern und Wiesen rund um Rom liegt ein riesiges Labyrinth aus Gängen: die Katakomben. Über 60 davon sind bekannt, zusammen sind ihre Gänge weit über 100 Kilometer lang. Sie liegen oft auf mehreren Stockwerken übereinander, manche mehr als 20 Meter tief. Nur wenige Katakomben sind für Besucher geöffnet, die bekanntesten liegen an der antiken Via Appia im Süden der Stadt.\n\n<strong>Warum unter der Erde?</strong>\nNach römischem Recht durften Tote nicht innerhalb der Stadtmauern bestattet werden. Die Friedhöfe lagen deshalb draußen, entlang der großen Ausfallstraßen. Die frühen Christen wollten ihre Toten nicht verbrennen, wie es bei den Römern lange üblich war, sondern begraben, weil sie an die Auferstehung glaubten. Ab dem 2. Jahrhundert gruben sie deshalb in den weichen Tuffstein unter ihren Grundstücken immer neue Gänge. So entstand auf kleinem Raum Platz für Zehntausende Gräber.\n\n<strong>Gräber in der Wand</strong>\nDie meisten Toten wurden in einfachen Nischen bestattet, die übereinander in die Gangwände geschlagen wurden, den sogenannten Loculi. Der Leichnam wurde in ein Tuch gewickelt hineingelegt, dann wurde die Öffnung mit einer Steinplatte oder Ziegeln verschlossen. Wohlhabendere Familien ließen sich kleine Grabkammern bauen, die teilweise mit Wandmalereien geschmückt sind.\n\n<strong>Geheime Zeichen</strong>\nAn den Wänden findet ihr frühe christliche Symbole. Der Fisch steht für Jesus: Die Anfangsbuchstaben des griechischen Satzes „Jesus Christus, Gottes Sohn, Retter“ ergeben das Wort ICHTHYS, griechisch für Fisch. Der Anker steht für Hoffnung, die Taube mit dem Ölzweig für Frieden, und das Christusmonogramm aus den griechischen Buchstaben X und P für den Namen Christus. Häufig ist auch der Gute Hirte, der ein Schaf auf den Schultern trägt.\n\n<strong>Versteck vor den Verfolgern?</strong>\nOft heißt es, die Christen hätten sich in den Katakomben vor den Römern versteckt und dort heimlich gelebt. Das stimmt so nicht. Die Katakomben waren Friedhöfe, und die römischen Behörden wussten, wo sie lagen. Die Christen trafen sich dort zu Begräbnissen und zum Gedenken an die Toten, besonders an die Märtyrer, die wegen ihres Glaubens getötet worden waren.\n\n<strong>Die Katakomben des Calixtus</strong>\nDie Calixtus-Katakomben an der Via Appia gehören zu den größten und berühmtesten. Ihre Gänge sind etwa 20 Kilometer lang und liegen auf vier Ebenen. Hunderttausende Menschen wurden hier bestattet. In der „Krypta der Päpste“ liegen mehrere Päpste aus dem 3. Jahrhundert. Auch die heilige Cäcilia, die Schutzpatronin der Kirchenmusik, war hier begraben. An ihrer Stelle liegt heute eine Kopie der berühmten Marmorfigur, die sie so zeigt, wie man sie gefunden haben soll.\n\n<strong>Vergessen und wiederentdeckt</strong>\nIm frühen Mittelalter wurden die Gebeine vieler Märtyrer in Kirchen innerhalb der Stadt gebracht. Die Katakomben gerieten danach in Vergessenheit und stürzten teilweise ein. Erst im 16. Jahrhundert wurden sie wiederentdeckt. Heute kümmert sich eine Kommission des Vatikans um ihre Erhaltung.`,
+      tipp: 'Die Katakomben dürfen nur mit Führung besucht werden. Unten ist es das ganze Jahr über nur etwa 13 bis 15 Grad kalt, also eine Jacke mitnehmen, auch wenn es oben warm ist. Die Gänge sind eng und schwach beleuchtet. Bleibt immer bei eurer Gruppe! Die Calixtus-Katakomben sind mittwochs geschlossen.',
+      adresse: 'Catacombe di San Callisto, Via Appia Antica 110/126, 00179 Rom',
+      mapsEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/katakomben.mp3',
+      autor: 'Klasse 10c' },
     { id: 23, emoji: '🏛️', photo: 'https://zweisackreis.github.io/kvgrom/picture/Form.png', photoCredit: 'Klasse 7c, KvG Gymnasium Mettingen', category: 'Vatikan', title: 'Rund um den Petersplatz',
       desc: 'Der Petersplatz ist das Herz des Vatikans und einer der beeindruckendsten Plätze der Welt. Klasse 7c hat zwölf faszinierende Themen rund um den Platz erforscht — von Berninis Kolonnaden über den Obelisken bis zur Papstwahl.',
       details: `<div style="margin-bottom:14px;font-size:13px;color:var(--text2);line-height:1.6">Die Schülerinnen und Schüler der Klasse 7c haben sich intensiv mit dem Petersplatz beschäftigt. Tippt auf einen Titel, um den Beitrag zu lesen.</div>
@@ -1504,6 +1620,7 @@ function getCategoryStyle(cat) {
   if (c === 'modernes rom')      return 'background:#E6F1FB;color:#0C447C';
   if (c === 'kirchen')           return 'background:#E1F5EE;color:#085041';
   if (c === 'essen und trinken') return 'background:#EAF3DE;color:#27500A';
+  if (c === 'persönlichkeiten')  return 'background:#FBEAF0;color:#72243E';
   return 'background:var(--surface2);color:var(--text2)';
 }
 
@@ -1522,6 +1639,32 @@ function toggleAudio() {
     btn.textContent = '▶️';
   }
 }
+
+function seekSong(e) {
+  const audio = document.getElementById('start-audio');
+  const bar   = document.getElementById('song-progress-bar');
+  if (!audio || !audio.duration || !bar) return;
+  const rect = bar.getBoundingClientRect();
+  audio.currentTime = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * audio.duration;
+}
+
+// Hält die Bedienelemente auf Startseite UND Song-Seite synchron
+function syncSongPlayers() {
+  const audio = document.getElementById('start-audio');
+  if (!audio) return;
+  const fmt = t => (!t || isNaN(t)) ? '0:00' : Math.floor(t/60) + ':' + String(Math.floor(t%60)).padStart(2,'0');
+  const icon = audio.paused ? '▶️' : '⏸️';
+  ['audio-play-btn','song-play-btn'].forEach(id => { const b = document.getElementById(id); if (b) b.textContent = icon; });
+  const pct = audio.duration ? (audio.currentTime / audio.duration * 100) + '%' : '0%';
+  const f = document.getElementById('song-progress-fill'); if (f) f.style.width = pct;
+  const c = document.getElementById('song-time-cur'); if (c) c.textContent = fmt(audio.currentTime);
+  const d = document.getElementById('song-time-dur'); if (d && audio.duration) d.textContent = fmt(audio.duration);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const audio = document.getElementById('start-audio');
+  if (!audio) return;
+  ['play','pause','ended','timeupdate','loadedmetadata'].forEach(ev => audio.addEventListener(ev, syncSongPlayers));
+});
 
 function seekAudio(e) {
   const audio = document.getElementById('start-audio');
@@ -3363,9 +3506,101 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 // Abgelaufene Treffpunkte ohne Neuladen ausblenden
 setInterval(() => { try { renderTreffpunkt(); } catch(e) {} }, 60000);
 
+// ════════════════════════════════════════════
+// WETTER ROM (Open-Meteo, kostenlos, ohne API-Key; Daten CC BY 4.0)
+// ════════════════════════════════════════════
+const WETTER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=41.89&longitude=12.49'
+  + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,is_day'
+  + '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max'
+  + '&timezone=Europe%2FRome&forecast_days=3';
+
+function wetterInfo(code, tag) {
+  const c = Number(code);
+  if (c === 0) return [tag === false ? '🌙' : '☀️', 'Sonnig'];
+  if (c === 1) return [tag === false ? '🌙' : '🌤️', 'Überwiegend sonnig'];
+  if (c === 2) return ['⛅', 'Teilweise bewölkt'];
+  if (c === 3) return ['☁️', 'Bewölkt'];
+  if (c === 45 || c === 48) return ['🌫️', 'Nebel'];
+  if (c >= 51 && c <= 57) return ['🌦️', 'Nieselregen'];
+  if (c >= 61 && c <= 67) return ['🌧️', 'Regen'];
+  if (c >= 71 && c <= 77) return ['🌨️', 'Schnee'];
+  if (c >= 80 && c <= 82) return ['🌦️', 'Regenschauer'];
+  if (c >= 85 && c <= 86) return ['🌨️', 'Schneeschauer'];
+  if (c >= 95) return ['⛈️', 'Gewitter'];
+  return ['🌡️', ''];
+}
+
+function wetterTipp(d) {
+  const max = d.daily.temperature_2m_max[0], regen = d.daily.precipitation_probability_max[0], uv = d.daily.uv_index_max[0];
+  if (regen >= 60) return '☂️ Regenjacke oder Schirm einpacken!';
+  if (max >= 27) return '💧 Heiß heute: genug trinken, Kappe nicht vergessen!';
+  if (uv >= 6) return '🧴 Starke Sonne: an Sonnencreme denken!';
+  if (max <= 16) return '🧥 Eher kühl: eine Jacke mitnehmen.';
+  if (regen >= 30) return '🌂 Vielleicht ein paar Tropfen: Regenjacke schadet nicht.';
+  return '😎 Gutes Wetter zum Entdecken!';
+}
+
+function renderWetter() {
+  const box = document.getElementById('wetter-box');
+  if (!box) return;
+  let cache = null;
+  try { cache = JSON.parse(localStorage.getItem('rom-wetter') || 'null'); } catch (e) {}
+  if (!cache || !cache.data || !cache.data.current) { box.innerHTML = ''; return; }
+  const d = cache.data, cur = d.current;
+  const [ico, txt] = wetterInfo(cur.weather_code, cur.is_day === 1);
+  const stand = new Date(cache.ts);
+  const standTxt = String(stand.getHours()).padStart(2,'0') + ':' + String(stand.getMinutes()).padStart(2,'0');
+  const tage = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const next = [1, 2].map(i => {
+    const dt = new Date(d.daily.time[i] + 'T12:00:00');
+    const [ic] = wetterInfo(d.daily.weather_code[i]);
+    return `<div style="flex:1;text-align:center;background:rgba(255,255,255,.12);border-radius:10px;padding:6px 4px">
+      <div style="font-size:10px;opacity:.75">${tage[dt.getDay()]}</div>
+      <div style="font-size:18px;line-height:1.3">${ic}</div>
+      <div style="font-size:11px;font-weight:500">${Math.round(d.daily.temperature_2m_max[i])}° / ${Math.round(d.daily.temperature_2m_min[i])}°</div>
+    </div>`;
+  }).join('');
+  box.innerHTML = `
+    <div class="section-label">So wird das Wetter in Rom</div>
+    <div style="background:linear-gradient(135deg,#2f80c8 0%,#56a8e8 100%);border-radius:var(--radius);padding:16px;color:white;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-14px;font-size:96px;opacity:.15;line-height:1;pointer-events:none">${ico}</div>
+      <div style="display:flex;align-items:center;gap:14px;position:relative">
+        <div style="font-size:44px;line-height:1">${ico}</div>
+        <div style="flex:1">
+          <div style="font-size:30px;font-weight:600;line-height:1">${Math.round(cur.temperature_2m)}°C</div>
+          <div style="font-size:12px;opacity:.85;margin-top:3px">${txt} · gefühlt ${Math.round(cur.apparent_temperature)}°</div>
+        </div>
+        <div style="text-align:right;font-size:12px;line-height:1.6;opacity:.9">
+          ↑ ${Math.round(d.daily.temperature_2m_max[0])}° ↓ ${Math.round(d.daily.temperature_2m_min[0])}°<br>
+          ☔ ${d.daily.precipitation_probability_max[0] ?? 0} %<br>
+          💨 ${Math.round(cur.wind_speed_10m)} km/h
+        </div>
+      </div>
+      <div style="font-size:12px;background:rgba(0,0,0,.15);border-radius:8px;padding:7px 10px;margin-top:12px;position:relative">${wetterTipp(d)}</div>
+      <div style="display:flex;gap:8px;margin-top:10px;position:relative">${next}</div>
+      <div style="font-size:9px;opacity:.6;margin-top:8px;position:relative">Stand ${standTxt} Uhr · Wetterdaten: <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:white">Open-Meteo.com</a></div>
+    </div>`;
+}
+
+async function ladeWetter(force) {
+  try {
+    const cache = JSON.parse(localStorage.getItem('rom-wetter') || 'null');
+    if (!force && cache && Date.now() - cache.ts < 30 * 60000) { renderWetter(); return; }
+    const res = await fetch(WETTER_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.current || !data.daily) throw new Error('unvollständig');
+    localStorage.setItem('rom-wetter', JSON.stringify({ ts: Date.now(), data }));
+  } catch (e) { /* offline → letzter Stand bleibt sichtbar */ }
+  renderWetter();
+}
+ladeWetter();
+setInterval(() => ladeWetter(), 30 * 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) ladeWetter(); });
+
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261004-2055';
+const APP_VERSION = 'kvgrom-v20261005-1430';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
