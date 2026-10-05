@@ -453,6 +453,33 @@
       <a href="song.mp3" download style="display:inline-block;margin-top:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;text-decoration:none">⬇︎ Song herunterladen</a>
     </div>
 
+    <!-- Karaoke-Player -->
+    <div style="background:linear-gradient(135deg,#3b0f5c 0%,#6a1b9a 55%,#ad1457 100%);border-radius:var(--radius);padding:16px 18px;color:#fff;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(106,27,154,.3);margin:-6px 0 18px">
+      <div style="position:absolute;right:-6px;top:50%;transform:translateY(-50%);font-size:84px;opacity:.1;line-height:1;pointer-events:none">🎤</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;position:relative">
+        <span style="font-size:22px">🎤</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700;letter-spacing:.02em">Karaoke-Version</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:1px">Nur die Musik, ihr singt selbst! Text steht unten.</div>
+        </div>
+        <a href="audio/song_karaoke.mp3" download style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.9);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;text-decoration:none;white-space:nowrap">⬇︎</a>
+      </div>
+      <audio id="karaoke-audio" src="audio/song_karaoke.mp3" preload="none" style="display:none"></audio>
+      <div style="display:flex;align-items:center;gap:12px;position:relative">
+        <button id="karaoke-play-btn" onclick="toggleKaraoke()"
+          style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#ffd54f,#ffb300);border:none;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 12px rgba(255,193,7,.45)">▶️</button>
+        <div style="flex:1">
+          <div id="karaoke-progress-bar" onclick="seekKaraoke(event)" style="height:5px;background:rgba(255,255,255,.18);border-radius:3px;cursor:pointer">
+            <div id="karaoke-progress-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#ffd54f,#ffb300);border-radius:3px;transition:width .2s linear"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px">
+            <span id="karaoke-time-cur" style="font-size:11px;color:rgba(255,255,255,.55)">0:00</span>
+            <span id="karaoke-time-dur" style="font-size:11px;color:rgba(255,255,255,.55)">–:––</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="song-parts">
       <div class="song-part">
         <div class="song-label">Strophe 1</div>
@@ -1401,7 +1428,10 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
       adresse: 'Vatikanstadt, 00120 (Zugang über den Petersplatz, Piazza San Pietro)',
       mapsEmbed: '',
       audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/vatikanstadt.mp3',
-      autor: 'EF' },
+      audio1Label: 'Version 1 · EF',
+      audioEmbed2: 'https://zweisackreis.github.io/kvgrom/audio/vatikanstadt2.mp3',
+      audio2Label: 'von der Klasse 10c',
+      autor: 'EF & Klasse 10c' },
     { id: 30, emoji: '🎨', photo: 'https://zweisackreis.github.io/kvgrom/picture/michelangelo.jpg',
       photoCredit: 'Daniele da Volterra (zugeschrieben), Metropolitan Museum of Art, gemeinfrei, Wikimedia Commons',
       category: 'Persönlichkeiten', title: 'Michelangelo',
@@ -1422,6 +1452,16 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
       mapsEmbed: '',
       audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/katakomben.mp3',
       autor: 'Klasse 10c' },
+    { id: 32, emoji: '⛪', photo: 'https://zweisackreis.github.io/kvgrom/picture/montecassino.jpg',
+      photoCredit: 'Ra Boe / Wikipedia, CC BY-SA 3.0 de, Wikimedia Commons',
+      category: 'Ausflüge', title: 'Abtei Montecassino',
+      desc: 'Das Mutterkloster der Benediktiner hoch über Cassino: gegründet um 529, viermal zerstört, 1944 im Zweiten Weltkrieg vollständig zerbombt und danach originalgetreu wieder aufgebaut.',
+      details: `<strong>Ein Kloster auf dem Berg</strong>\nEtwa 130 Kilometer südöstlich von Rom thront auf einem 516 Meter hohen Felsen über der Stadt Cassino die Abtei Montecassino. Schon von der Autobahn zwischen Rom und Neapel sieht man das riesige weiße Kloster. Von oben habt ihr einen weiten Blick über das Liri-Tal und die Berge ringsum.\n\n<strong>Benedikt und „Bete und arbeite“</strong>\nUm 529 gründete der Mönch Benedikt von Nursia hier ein Kloster, an der Stelle eines alten Apollo-Tempels. Für seine Mönche schrieb er eine Ordnung, die Benediktsregel. Sie verbindet Gebet, Arbeit, Lernen und Gemeinschaft und wird oft mit „Ora et labora“ zusammengefasst: „Bete und arbeite“. Montecassino wurde so zum Mutterkloster des Benediktinerordens, der sich über ganz Europa ausbreitete. Benediktinerklöster bewahrten im Mittelalter antike Schriften auf und schrieben sie ab. Ohne sie wären viele Texte der Römer verloren. 1964 ernannte Papst Paul VI. Benedikt zum Schutzpatron Europas.\n\n<strong>Viermal zerstört</strong>\nKaum ein Ort wurde so oft zerstört und wieder aufgebaut. 577 verwüsteten die Langobarden das Kloster, 883 plünderten es Sarazenen und töteten den Abt. 1349 brachte ein schweres Erdbeben fast alle Gebäude zum Einsturz. Die schlimmste Zerstörung kam jedoch im Zweiten Weltkrieg.\n\n<strong>Die Schlacht um Monte Cassino 1944</strong>\nIm Winter 1943/44 verlief hier die „Gustav-Linie“, eine deutsche Verteidigungsstellung quer durch Italien, die den Vormarsch der Alliierten auf Rom aufhalten sollte. Die Alliierten vermuteten deutsche Soldaten im Kloster. Am 15. Februar 1944 warfen amerikanische Flugzeuge in drei Stunden Hunderte Tonnen Bomben auf die Abtei. Bis auf die Krypta wurde alles zerstört, etwa 250 Menschen starben, vor allem Zivilisten, die dort Schutz gesucht hatten. Deutsche Soldaten waren vorher nicht im Kloster gewesen. Nach der Zerstörung verschanzten sie sich in den Ruinen. Erst im Mai 1944 eroberten polnische Truppen den Berg. Insgesamt starben in den monatelangen Kämpfen Zehntausende Soldaten aus vielen Ländern.\n\n<strong>Gerettete Schätze</strong>\nWenige Monate vor der Bombardierung hatte der deutsche Offizier Julius Schlegel gemeinsam mit den Mönchen die wertvolle Bibliothek, Archive und Kunstschätze des Klosters in rund 100 Lastwagenladungen nach Rom bringen lassen, in die Engelsburg und in den Vatikan. Auch die alten Baupläne blieben so erhalten.\n\n<strong>Wiederaufbau: „Wo es stand und wie es war“</strong>\nNach dem Krieg wurde die Abtei nach dem Motto „Dove era e com’era“ („Wo es stand und wie es war“) originalgetreu wieder aufgebaut. 1964 weihte Papst Paul VI. die neue Basilika. Heute leben wieder Benediktinermönche hier. Unterhalb des Klosters liegen Soldatenfriedhöfe, darunter der polnische Friedhof direkt am Hang. Sie erinnern an die vielen Toten der Schlacht.`,
+      tipp: 'Montecassino ist ein Kloster, in dem Mönche leben. Schultern und Knie müssen bedeckt sein, bitte leise sein. Die Straße hinauf hat viele Serpentinen, wer im Bus schnell übel wird, setzt sich besser nach vorn. Oben unbedingt den Blick vom Kreuzgang ins Tal genießen und an die Soldatenfriedhöfe denken: Hier lässt sich Geschichte begreifen, die nur gut 80 Jahre zurückliegt.',
+      adresse: 'Abbazia di Montecassino, Via Montecassino, 03043 Cassino (FR)',
+      mapsEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/montecassino.mp3',
+      autor: 'EF' },
     { id: 23, emoji: '🏛️', photo: 'https://zweisackreis.github.io/kvgrom/picture/Form.png', photoCredit: 'Klasse 7c, KvG Gymnasium Mettingen', category: 'Vatikan', title: 'Rund um den Petersplatz',
       desc: 'Der Petersplatz ist das Herz des Vatikans und einer der beeindruckendsten Plätze der Welt. Klasse 7c hat zwölf faszinierende Themen rund um den Platz erforscht — von Berninis Kolonnaden über den Obelisken bis zur Papstwahl.',
       details: `<div style="margin-bottom:14px;font-size:13px;color:var(--text2);line-height:1.6">Die Schülerinnen und Schüler der Klasse 7c haben sich intensiv mit dem Petersplatz beschäftigt. Tippt auf einen Titel, um den Beitrag zu lesen.</div>
@@ -1660,10 +1700,39 @@ function syncSongPlayers() {
   const c = document.getElementById('song-time-cur'); if (c) c.textContent = fmt(audio.currentTime);
   const d = document.getElementById('song-time-dur'); if (d && audio.duration) d.textContent = fmt(audio.duration);
 }
+// ── Karaoke-Version (eigener Player auf der Song-Seite) ──
+function toggleKaraoke() {
+  const k = document.getElementById('karaoke-audio');
+  if (!k) return;
+  if (k.paused) k.play().catch(() => {}); else k.pause();
+}
+function seekKaraoke(e) {
+  const k = document.getElementById('karaoke-audio');
+  const bar = document.getElementById('karaoke-progress-bar');
+  if (!k || !k.duration || !bar) return;
+  const rect = bar.getBoundingClientRect();
+  k.currentTime = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * k.duration;
+}
+function syncKaraoke() {
+  const k = document.getElementById('karaoke-audio');
+  if (!k) return;
+  const fmt = t => (!t || isNaN(t)) ? '0:00' : Math.floor(t/60) + ':' + String(Math.floor(t%60)).padStart(2,'0');
+  const b = document.getElementById('karaoke-play-btn'); if (b) b.textContent = k.paused ? '▶️' : '⏸️';
+  const f = document.getElementById('karaoke-progress-fill'); if (f) f.style.width = k.duration ? (k.currentTime / k.duration * 100) + '%' : '0%';
+  const c = document.getElementById('karaoke-time-cur'); if (c) c.textContent = fmt(k.currentTime);
+  const d = document.getElementById('karaoke-time-dur'); if (d && k.duration) d.textContent = fmt(k.duration);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const audio = document.getElementById('start-audio');
-  if (!audio) return;
-  ['play','pause','ended','timeupdate','loadedmetadata'].forEach(ev => audio.addEventListener(ev, syncSongPlayers));
+  const kara  = document.getElementById('karaoke-audio');
+  if (audio) ['play','pause','ended','timeupdate','loadedmetadata'].forEach(ev => audio.addEventListener(ev, syncSongPlayers));
+  if (kara)  ['play','pause','ended','timeupdate','loadedmetadata'].forEach(ev => kara.addEventListener(ev, syncKaraoke));
+  // Nie beide Versionen gleichzeitig abspielen
+  if (audio && kara) {
+    audio.addEventListener('play', () => { if (!kara.paused) kara.pause(); });
+    kara.addEventListener('play',  () => { if (!audio.paused) audio.pause(); });
+  }
 });
 
 function seekAudio(e) {
@@ -2634,6 +2703,11 @@ if ('speechSynthesis' in window) {
 // ════════════════════════════════════════════
 // DETAIL VIEW
 // ════════════════════════════════════════════
+// Nur ein Audioguide gleichzeitig auf der Detailseite
+function pauseOtherDetailAudio(el) {
+  document.querySelectorAll('#detail-content audio').forEach(a => { if (a !== el && !a.paused) a.pause(); });
+}
+
 function openDetail(id) {
   const g = data.guides.find(x=>x.id===id);
   if (!g) return;
@@ -2652,14 +2726,28 @@ function openDetail(id) {
           <span style="font-size:22px">🎧</span>
           <div>
             <div style="font-size:13px;font-weight:700;color:#fff;letter-spacing:.03em">Audioguide</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:1px">${g.title}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:1px">${g.audio1Label || g.title}</div>
           </div>
           <a href="${g.audioEmbed}" download style="margin-left:auto;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:6px 12px;color:#fff;font-size:12px;font-weight:600;text-decoration:none;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">⬇︎ Download</a>
         </div>
-        <audio controls src="${g.audioEmbed}" preload="none"
+        <audio controls src="${g.audioEmbed}" preload="none" onplay="pauseOtherDetailAudio(this)"
           style="width:100%;height:40px;border-radius:8px;outline:none;accent-color:#e94560;display:block">
         </audio>
-      </div>` : g.audioEmbed ? `
+      </div>
+      ${g.audioEmbed2 ? `
+      <div style="background:linear-gradient(135deg,#0b3b36 0%,#0f5c52 50%,#17806f 100%);border-radius:16px;padding:18px 16px 14px;margin:-4px 0 16px;box-shadow:0 4px 20px rgba(15,92,82,.3)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:22px">🎙️</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#fff;letter-spacing:.03em">Audioguide · Version 2</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:1px">${g.audio2Label || g.title}</div>
+          </div>
+          <a href="${g.audioEmbed2}" download style="margin-left:auto;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:6px 12px;color:#fff;font-size:12px;font-weight:600;text-decoration:none">⬇︎ Download</a>
+        </div>
+        <audio controls src="${g.audioEmbed2}" preload="none" onplay="pauseOtherDetailAudio(this)"
+          style="width:100%;height:40px;border-radius:8px;outline:none;accent-color:#2ec4a6;display:block">
+        </audio>
+      </div>` : ''}` : g.audioEmbed ? `
       <div style="border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:12px;background:var(--surface2)">
         <iframe src="${g.audioEmbed}" width="100%" height="80" style="border:0;display:block" allow="autoplay" loading="lazy"></iframe>
       </div>` : ''}
@@ -3600,7 +3688,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) lade
 
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261005-1430';
+const APP_VERSION = 'kvgrom-v20261005-1730';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
