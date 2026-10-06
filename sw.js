@@ -1,5 +1,5 @@
 // !! CACHE-VERSION — automatisch bei jedem Build aktualisiert !!
-const CACHE = 'kvgrom-v20261006-0805';
+const CACHE = 'kvgrom-v20261006-1255';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-fahrt.jpeg', './logo-schule.png', './hero-bg.jpg', './song.mp3'];
 const AUDIO_PREFIX = './audio/';
 
