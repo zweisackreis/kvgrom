@@ -165,6 +165,11 @@
     body.dark .song-part.refrain .song-lines { color:#f6d5dc; }
     body.dark .song-part.refrain .song-label { color:#ff8fa3; }
 
+    /* MEINE INFOS */
+    .mi-input::placeholder { color: rgba(0,0,0,.28); font-weight: 500; }
+    #mi-notiz::placeholder { color: var(--text3); font-weight: 400; }
+    body.dark .mi-input::placeholder { color: rgba(0,0,0,.35); }
+
     /* KARTE */
     .map-link { display: block; width: 100%; background: var(--text); color: white; border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; text-decoration: none; margin-bottom: 10px; }
     .sight-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; margin: 0 6px 8px 0; text-decoration: none; color: var(--text); }
@@ -290,6 +295,26 @@
     <!-- TREFFPUNKT -->
     <div id="treffpunkt-box" style="margin-bottom:4px;position:relative;z-index:10"></div>
     <div id="notif-start-box" style="margin-bottom:4px;position:relative;z-index:10"></div>
+
+    <!-- MEINE INFOS (lokal gespeichert) -->
+    <div class="section-label">Meine Infos</div>
+    <div class="card" style="padding:14px 16px;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label style="display:block;background:#FDF3E3;border-radius:12px;padding:10px 12px;cursor:text">
+          <div style="font-size:11px;font-weight:600;color:#8a5a0b;letter-spacing:.04em">🚌 MEIN BUS</div>
+          <input id="mi-bus" class="mi-input" inputmode="numeric" maxlength="4" placeholder="Nr. eintragen"
+            style="width:100%;border:none;background:transparent;font-size:26px;font-weight:700;color:#5c3b06;padding:2px 0 0;outline:none;font-family:inherit">
+        </label>
+        <label style="display:block;background:#E6F1FB;border-radius:12px;padding:10px 12px;cursor:text">
+          <div style="font-size:11px;font-weight:600;color:#0C447C;letter-spacing:.04em">🏠 MEIN BUNGALOW</div>
+          <input id="mi-haus" class="mi-input" maxlength="8" placeholder="Nr. eintragen"
+            style="width:100%;border:none;background:transparent;font-size:26px;font-weight:700;color:#0a3360;padding:2px 0 0;outline:none;font-family:inherit">
+        </label>
+      </div>
+      <input id="mi-notiz" class="mi-input" maxlength="80" placeholder="✏️ Eigene Notiz, z. B. Zimmerpartner oder Sitzplatz"
+        style="width:100%;margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);font-size:13px;color:var(--text);padding:9px 12px;outline:none;font-family:inherit">
+      <div id="mi-status" style="font-size:11px;color:var(--text3);margin-top:6px;min-height:14px">Wird nur auf diesem Handy gespeichert.</div>
+    </div>
 
     <!-- HEUTE IM PROGRAMM -->
     <div id="heute-box" style="margin-bottom:4px"></div>
@@ -762,6 +787,20 @@
         </div>
         <button onclick="switchPage('benachrichtigungen')" style="font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer">Öffnen</button>
       </div>
+    </div>
+
+    <!-- Dokumente -->
+    <div class="section-label">Dokumente</div>
+    <div class="card" style="padding:0">
+      <a href="pdf/rundbrief.pdf" target="_blank" rel="noopener" download
+         style="padding:14px 18px;display:flex;align-items:center;gap:12px;text-decoration:none">
+        <span style="font-size:22px">📄</span>
+        <div style="flex:1">
+          <div style="font-size:14px;color:var(--text)">Rundbrief zur Fahrt</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:1px">Abschließender Rundbrief als PDF</div>
+        </div>
+        <span style="font-size:12px;font-weight:600;color:var(--accent);border:1.5px solid var(--accent);border-radius:20px;padding:5px 12px;white-space:nowrap">⬇︎ PDF</span>
+      </a>
     </div>
 
     <!-- App-Info -->
@@ -2244,9 +2283,9 @@ function renderHeute() {
 // ════════════════════════════════════════════
 const FAQ = [
   { q: 'Müssen die Kinder Brotdosen mitnehmen, um sich vor Ort die Lunchpakete zu packen? Stellt Höffmann alternativ Tüten bereit?',
-    a: 'Bei der letzten Fahrt wurden Papiertüten bereitgestellt. Wir gehen davon aus, dass es dieses Mal auch so ist. Natürlich ist es allein aus Umweltgründen sinnvoll, eine Brotdose dabeizuhaben.' },
-  { q: 'Die Kopie des Ausweises bzw. Reisepasses geben die Kinder zusammen mit dem Anmeldebogen im Umschlag bei Höffmann ab. Müssen sie das Original in Rom den ganzen Tag über dabeihaben?',
-    a: 'In der Regel reicht es, die Kopie des Ausweises dabeizuhaben. Die Betreuer*innen im Bus werden Ihre Kinder aber noch einmal dazu informieren.' },
+    a: 'Für die Lunchpakete stehen morgens bei den Brötchenkörben Brötchentüten zur Verfügung. Alternativ oder zusätzlich können Sie Ihrem Kind auch eine Brotdose mitgeben. Das ist sicherlich auch aus Umweltgründen sinnvoll.' },
+  { q: 'Was kommt in den Umschlag mit den Papieren, und müssen die Kinder ihren Ausweis in Rom dabeihaben?',
+    a: 'Der Umschlag wird mit dem <strong>Namen</strong> des Schülers bzw. der Schülerin beschriftet, gerne zusätzlich mit der <strong>Busnummer</strong>. Hinein kommen:<ul style="margin:6px 0 8px;padding-left:20px"><li>die Kopie des Personalausweises bzw. Reisepasses</li><li>die Krankenkassenkarte (nicht bei Privatversicherten)</li><li>der Impfausweis (eine Kopie reicht)</li><li>der Teilnehmerbogen</li></ul>Den Teilnehmerbogen finden Sie im abschließenden Rundbrief unter „Papiere“. Die Umschläge werden während der Fahrt von den Busbegleiter*innen eingesammelt.<br><br>Wichtig: In Italien besteht <strong>Ausweispflicht</strong>. Die Schülerinnen und Schüler sollten deshalb bei allen Ausflügen ihren <strong>Original-Ausweis</strong> dabeihaben.' },
   { q: 'Die Kinder kennen ihre Busnummer von den Klassenlehrer*innen. Woher weiß ich, wo der Bus steht?',
     a: 'Alle 11 Busse halten auf den Busparkplätzen vor der Schule, gegebenenfalls auch an der KvG-Halle. Der richtige Bus ist also leicht zu finden.' },
   { q: 'Darf ich jederzeit den Pool benutzen?',
@@ -2255,6 +2294,10 @@ const FAQ = [
     a: 'Die Busse fahren weitgehend vom Busparkplatz vor dem vorderen Schulhof ab. Damit die Abreise problemlos vonstattengeht, parken Sie bitte <strong>nicht</strong> auf den Schulparkplätzen, sondern nutzen Sie die Parkmöglichkeiten an den Sportanlagen. Sinnvoll ist es auch, Fahrgemeinschaften zu bilden, um das Verkehrsaufkommen so gering wie möglich zu halten.' },
   { q: 'Wie funktionieren die Mitteilungen?',
     a: 'Die App verschickt keine klassischen Push-Mitteilungen. Wenn die App aber geöffnet ist oder im Hintergrund läuft, bekommst du bei neuen Treffpunkten und Nachrichten eine Benachrichtigung aufs Handy. Dafür musst du Benachrichtigungen einmal in den <strong>Einstellungen</strong> der App aktivieren (iPhone: App vorher über „Teilen → Zum Home-Bildschirm“ installieren). Alle Mitteilungen findest du außerdem jederzeit unter der Glocke 🔔 oben rechts.' },
+  { q: 'Wie sieht es mit Spielen und Bällen aus? Gibt es die vor Ort?',
+    a: 'Vor Ort könnt ihr zum Beispiel ein Fußballfeld nutzen. Um Bälle müsst ihr euch allerdings selbst kümmern, und das Gleiche gilt für Spiele. Nehmt also ruhig etwas mit, womit ihr euch die Zeit vertreiben könnt. Sprecht am besten auch in der Klasse ab, ob ihr etwas aus der Spielekiste mitnehmt.' },
+  { q: 'Ich habe den Rundbrief nicht mehr. Kann ich ihn irgendwo einsehen?',
+    a: 'Ja, den Rundbrief gibt es hier noch einmal als PDF zum Herunterladen:<br><a href="pdf/rundbrief.pdf" target="_blank" rel="noopener" download style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:9px 16px;border-radius:20px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;text-decoration:none">📄 Rundbrief herunterladen (PDF)</a>' },
 ];
 
 function renderFaq() {
@@ -3686,9 +3729,35 @@ ladeWetter();
 setInterval(() => ladeWetter(), 30 * 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) ladeWetter(); });
 
+// ════════════════════════════════════════════
+// MEINE INFOS (Bus, Bungalow, Notiz) — nur lokal gespeichert
+// ════════════════════════════════════════════
+function initMeineInfos() {
+  const felder = { 'mi-bus': 'rom-mi-bus', 'mi-haus': 'rom-mi-haus', 'mi-notiz': 'rom-mi-notiz' };
+  let timer = null;
+  Object.entries(felder).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    try { el.value = localStorage.getItem(key) || ''; } catch (e) {}
+    el.addEventListener('input', () => {
+      try { localStorage.setItem(key, el.value.trim()); } catch (e) {}
+      const st = document.getElementById('mi-status');
+      if (st) {
+        st.textContent = '✓ Gespeichert';
+        st.style.color = 'var(--green)';
+        clearTimeout(timer);
+        timer = setTimeout(() => { st.textContent = 'Wird nur auf diesem Handy gespeichert.'; st.style.color = 'var(--text3)'; }, 1500);
+      }
+    });
+    // Enter schließt die Tastatur
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') el.blur(); });
+  });
+}
+document.addEventListener('DOMContentLoaded', initMeineInfos);
+
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261005-1730';
+const APP_VERSION = 'kvgrom-v20261006-0805';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
