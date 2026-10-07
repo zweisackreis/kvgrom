@@ -1426,7 +1426,7 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
       mapsEmbed: '',
       audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/vatikanischemuseen.mp3',
       autor: 'Q2' },
-    { id: 27, emoji: '🎨', photo: 'https://zweisackreis.github.io/kvgrom/picture/sixtinischekapelle.jpg',
+    { id: 27, emoji: '🎨', photo: 'https://zweisackreis.github.io/kvgrom/audio/sixtinischekapelle.jpg',
       photoCredit: 'Antoine Taveneaux, CC BY-SA 3.0, Wikimedia Commons',
       category: 'Vatikan', title: 'Sixtinische Kapelle',
       desc: 'In der Sixtinischen Kapelle im Vatikan wählen die Kardinäle den Papst, weltberühmt ist sie für Michelangelos Deckenfresken und sein Jüngstes Gericht. Unser Audioguide führt in sieben kurzen Tracks (zusammen etwa 6 Minuten) durch Raum, Seitenwände, Decke und Altarwand.',
@@ -1434,7 +1434,7 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
       tipp: 'Schultern und Knie müssen bedeckt sein. In der Kapelle sind Fotos, Videos und lautes Sprechen verboten, deshalb den Audioguide über Kopfhörer hören und Track 1 schon vor dem Eingang. An den Seitenwänden gibt es Bänke.',
       adresse: 'Sixtinische Kapelle, 00120 Vatikanstadt. Zugang über den Eingang der Vatikanischen Museen, Viale Vaticano, 00165 Rom, Italien',
       mapsEmbed: '',
-      audioEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/sixtinischekapelle.mp3',
       autor: 'Q2' },
     { id: 28, emoji: '⚽', photo: 'https://zweisackreis.github.io/kvgrom/picture/olympiastadion.jpg',
       photoCredit: 'Messapi, CC BY 4.0, Wikimedia Commons',
@@ -1623,7 +1623,7 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
       tipp: `Die Galleria Borghese ist von Dienstag bis Sonntag geöffnet, montags ist sie geschlossen. Der Eintritt ist nur mit Reservierung in festen Zeitfenstern von etwa zwei Stunden möglich — bucht das Ticket am besten mehrere Wochen vorher online über die offizielle Website. Taschen und Rucksäcke müssen an der Garderobe abgegeben werden. Der Park selbst ist frei zugänglich und ganzjährig geöffnet, besonders schön am frühen Vormittag oder späten Nachmittag. Weil er so groß ist, lohnt es sich, ein Fahrrad oder eine Kutsche zu mieten.`,
       adresse: 'Galleria Borghese, Piazzale Scipione Borghese 5, 00197 Rom',
       mapsEmbed: '',
-      audioEmbed: '',
+      audioEmbed: 'https://zweisackreis.github.io/kvgrom/audio/borghese.mp3',
       autor: 'Q2' },
     { id: 26, emoji: '⛲', photo: 'https://zweisackreis.github.io/kvgrom/picture/villadeste.jpg', photoCredit: 'Karelj, CC BY-SA 3.0, Wikimedia Commons', category: 'Ausflüge', title: `Villa d'Este`,
       desc: `Hunderte Brunnen, rauschende Wasserspiele und ein UNESCO-Welterbe-Garten — die Villa d'Este in Tivoli, 30 km östlich von Rom, ist eine der schönsten Gartenanlagen der Welt.`,
@@ -1855,7 +1855,7 @@ function renderGuides() {
         <div class="guide-card">
           <div class="guide-img-wrap" onclick="openDetail(${g.id})">
             ${g.photo
-              ? `<img src="${g.photo}" alt="${g.title}">`
+              ? `<img onerror="this.style.display='none'" src="${g.photo}" alt="${g.title}">`
               : `<div class="guide-img-emoji">${g.emoji}</div>`}
           </div>
           <div class="guide-body" onclick="openDetail(${g.id})">
@@ -2762,7 +2762,7 @@ function openDetail(id) {
   document.getElementById('detail-nav-title').textContent = g.title;
   document.getElementById('detail-content').innerHTML = `
     ${g.photo
-      ? `<img src="${g.photo}" alt="${g.title}" style="width:100%;height:220px;object-fit:cover;border-radius:var(--radius);margin-bottom:${g.photoCredit ? '4px' : '16px'}">
+      ? `<img onerror="this.style.display='none'" src="${g.photo}" alt="${g.title}" style="width:100%;height:220px;object-fit:cover;border-radius:var(--radius);margin-bottom:${g.photoCredit ? '4px' : '16px'}">
          ${g.photoCredit ? `<div style="font-size:10px;color:var(--text3);margin-bottom:16px;padding:0 2px">© ${g.photoCredit}</div>` : ''}`
       : `<div style="font-size:60px;margin-bottom:16px;text-align:center">${g.emoji}</div>`}
     <div style="display:inline-block;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:10px;${getCategoryStyle(g.category)}">${g.category}</div>
@@ -3780,7 +3780,7 @@ document.addEventListener('DOMContentLoaded', initMeineInfos);
 
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261007-1215';
+const APP_VERSION = 'kvgrom-v20261007-1225';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
