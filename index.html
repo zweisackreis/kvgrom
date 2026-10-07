@@ -893,24 +893,12 @@
     <div id="adminMenu" style="display:none">
       <div class="sheet-title">Was möchtest du bearbeiten?</div>
       <div class="admin-grid">
-        <button onclick="showForm('trip')">✈️<br><strong>Reiseinfos</strong><br><span style="color:var(--text2);font-size:11px">Datum, Klasse</span></button>
-        <button onclick="showForm('guide')">🏛️<br><strong>Reiseführer</strong><br><span style="color:var(--text2);font-size:11px">+ Foto möglich</span></button>
-        <button onclick="showForm('zeitplan')">📅<br><strong>Zeitplan</strong><br><span style="color:var(--text2);font-size:11px">Programmpunkt</span></button>
-        <button onclick="showForm('teacher')">👤<br><strong>Kontakt</strong><br><span style="color:var(--text2);font-size:11px">Lehrkraft</span></button>
-        <button onclick="showForm('hotel')">🏨<br><strong>Unterkunft</strong><br><span style="color:var(--text2);font-size:11px">Hotel</span></button>
-        <button onclick="showForm('rule')">📋<br><strong>Regel</strong><br><span style="color:var(--text2);font-size:11px">Verhaltensregel</span></button>
-        <button onclick="showForm('pack')">🎒<br><strong>Packliste</strong><br><span style="color:var(--text2);font-size:11px">Gegenstand</span></button>
-        <button onclick="showForm('sight')">🗺️<br><strong>Sehenswürdigkeit</strong><br><span style="color:var(--text2);font-size:11px">Karte</span></button>
-        <button onclick="showForm('poll')">📊<br><strong>Abstimmung</strong><br><span style="color:var(--text2);font-size:11px">Neue Umfrage</span></button>
-        <button onclick="showForm('forms')">🔗<br><strong>Formular-Links</strong><br><span style="color:var(--text2);font-size:11px">Google Forms</span></button>
-        <button onclick="showForm('push')">🔔<br><strong>Mitteilung senden</strong><br><span style="color:var(--text2);font-size:11px">An alle Schüler</span></button>
+        <button onclick="showForm('push')">🔔<br><strong>Mitteilung senden</strong><br><span style="color:var(--text2);font-size:11px">An alle oder eine Klasse</span></button>
         <button onclick="showForm('treffpunkt')">📍<br><strong>Treffpunkt</strong><br><span style="color:var(--text2);font-size:11px">Setzen / löschen</span></button>
+        <button onclick="showForm('delmsg')">🗑️<br><strong>Mitteilung löschen</strong><br><span style="color:var(--text2);font-size:11px">Auf allen Geräten</span></button>
+        <button onclick="closeAdminOverlay();switchPage('kontakte')">📞<br><strong>Kontakte</strong><br><span style="color:var(--text2);font-size:11px">Lehrkräfte anrufen</span></button>
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:4px">
-        <button onclick="showForm('delete')" style="width:100%;padding:12px 14px;border:1.5px solid #fcd5d0;border-radius:10px;background:#fdf3f2;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left;color:#9b2a1a">
-          🗑️ <strong>Einträge löschen</strong>
-        </button>
-      </div>
+      <p style="font-size:11px;color:var(--text3);line-height:1.5;margin:12px 2px 4px">Alle Aktionen hier wirken sofort auf allen Handys. Inhaltliche Änderungen (Programm, Kontakte, Reiseführer …) bitte an Herrn Musli melden.</p>
       <button class="btn-cancel" onclick="closeAdminOverlay()">Schließen</button>
     </div>
 
@@ -950,7 +938,7 @@ let data = JSON.parse(localStorage.getItem('rom-app-data') || 'null') || {
       tipp: 'Am besten vor 8 Uhr morgens besuchen', adresse: 'Piazza di Trevi, 00187 Rom', mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.2!2d12.4833!3d41.9009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f6054f697cc81%3A0x47e06d174de03b0f!2sTrevi-Brunnen!5e0!3m2!1sde!2sde!4v1700000000002!5m2!1sde!2sde', autor: 'Frau Müller' }
   ],
   zeitplan: [{"tag": "Tag 1 — Fr. 09.10. (Anreise)", "eintraege": [{"time": "14:30", "label": "Beladen der Busse", "sub": "Bitte an den Sportstätten parken!", "highlight": false}, {"time": "15:00", "label": "Reisesegen & Abfahrt", "sub": "", "highlight": true}]}, {"tag": "Tag 2 — Sa. 10.10. (Ankunft)", "eintraege": [{"time": "", "label": "Ankunft in Rom", "sub": "", "highlight": true}, {"time": "", "label": "Imbiss & Einquartierung", "sub": "", "highlight": false}, {"time": "", "label": "Erkundung des Platzes", "sub": "", "highlight": false}, {"time": "ab 17:00", "label": "Abendessen", "sub": "", "highlight": false}, {"time": "", "label": "Infoveranstaltung", "sub": "", "highlight": false}, {"time": "", "label": "Gottesdienst", "sub": "", "highlight": true}]}, {"tag": "Tag 3 — So. 11.10.", "eintraege": [{"time": "ab 7:30", "label": "Frühstück", "sub": "Abfahrt: 9:30 Uhr", "highlight": false}, {"time": "", "label": "Jgg. 5–7: Stadtrundgang", "sub": "Trevi-Brunnen · Pantheon · Piazza Navona · Engelsbrücke · Engelsburg · Petersplatz (Außenbesichtigungen)", "highlight": true}, {"time": "", "label": "Jgg. 8–Q2: Kolosseum & Forum Romanum", "sub": "anschl. St. Paul vor den Mauern", "highlight": true}, {"time": "15:00–17:00", "label": "Individuelle Rückfahrten", "sub": "", "highlight": false}, {"time": "ab 17:30", "label": "Abendessen", "sub": "", "highlight": false}, {"time": "Abends", "label": "Lichterfahrt / Trastevere", "sub": "Nur Oberstufe", "highlight": false}]}, {"tag": "Tag 4 — Mo. 12.10.", "eintraege": [{"time": "ab 7:00", "label": "Frühstück", "sub": "Abfahrt: 9:00 Uhr", "highlight": false}, {"time": "", "label": "Besichtigung Petersdom", "sub": "ggf. Kuppelbesteigung", "highlight": true}, {"time": "", "label": "Jgg. 5–7: Kolosseum & Forum Romanum", "sub": "", "highlight": true}, {"time": "", "label": "Jgg. 8–Q2: Stadtrundgang", "sub": "Trevi-Brunnen · Pantheon · Piazza Navona · Engelsbrücke · Engelsburg · Petersplatz (Außenbesichtigungen)", "highlight": true}, {"time": "15:00–17:00", "label": "Individuelle Rückfahrten", "sub": "", "highlight": false}, {"time": "ab 17:30", "label": "Abendessen", "sub": "", "highlight": false}]}, {"tag": "Tag 5 — Di. 13.10. (Tagesausflüge)", "eintraege": [{"time": "ab 7:00", "label": "Frühstück", "sub": "Individuelle Abfahrten", "highlight": false}, {"time": "", "label": "Jgg. 5–7: Ostia Antica", "sub": "", "highlight": true}, {"time": "", "label": "Jgg. 8–Q2: Montecassino & Pompeji", "sub": "", "highlight": true}, {"time": "", "label": "Individuelle Rückfahrten", "sub": "", "highlight": false}, {"time": "ab 17:30", "label": "Abendessen", "sub": "", "highlight": false}]}, {"tag": "Tag 6 — Mi. 14.10.", "eintraege": [{"time": "ab 4:30", "label": "Frühstück", "sub": "Abfahrt: 6:00 Uhr", "highlight": false}, {"time": "", "label": "Heilige Messe auf dem Petersplatz", "sub": "", "highlight": true}, {"time": "", "label": "Domitilla-Katakomben", "sub": "Anschließendes Programm (1)", "highlight": false}, {"time": "", "label": "Vatikanische Museen", "sub": "Anschließendes Programm (2)", "highlight": false}, {"time": "", "label": "Park der Villa Borghese", "sub": "Anschließendes Programm (3)", "highlight": false}, {"time": "", "label": "Individuelle Rückfahrten", "sub": "", "highlight": false}, {"time": "ab 17:30", "label": "Abendessen", "sub": "", "highlight": false}, {"time": "Abends", "label": "Abschlussabend", "sub": "", "highlight": true}]}, {"tag": "Tag 7 — Do. 15.10. (Abreise)", "eintraege": [{"time": "7:30–9:30", "label": "Frühstück", "sub": "", "highlight": false}, {"time": "10:00", "label": "Busse beladen", "sub": "", "highlight": false}, {"time": "10:30", "label": "Rückfahrt", "sub": "", "highlight": true}]}, {"tag": "Tag 8 — Fr. 16.10. (Ankunft)", "eintraege": [{"time": "", "label": "Rückkehr in die Heimat", "sub": "", "highlight": true}]}],
-  teachers: [{"name": "Johannes Beerlink", "role": "Lehrkraft", "tel": "+4915679829406"}, {"name": "Kerstin Holtkamp", "role": "Lehrkraft", "tel": "+4915679829405"}, {"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Florian Mulder", "role": "Lehrkraft", "tel": "+4915679232250"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Eva Oltmann", "role": "Lehrkraft", "tel": "+4915679606657"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Frau Rolfes-Mittelberg", "role": "Krankenschwester", "tel": "+4915679265444"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}],
+  teachers: [{"name": "Johannes Beerlink", "role": "Lehrkraft", "tel": "+4915679829406"}, {"name": "Kerstin Holtkamp", "role": "Lehrkraft", "tel": "+4915679829405"}, {"name": "Nicole Huesmann", "role": "Lehrkraft", "tel": "+4915679436534"}, {"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Florian Mulder", "role": "Lehrkraft", "tel": "+4915679232250"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Eva Oltmann", "role": "Lehrkraft", "tel": "+4915679606657"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Frau Rolfes-Mittelberg", "role": "Krankenschwester", "tel": "+4915679265444"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Julia Stöckel", "role": "Lehrkraft", "tel": "+491626771755"}, {"name": "Anja Telljohann", "role": "Lehrkraft", "tel": "+4915679169499"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}],
   pack: [
     'Personalausweis & Kopie (oder Kinderreisepass)',
     'Europäische Krankenversicherungskarte (EHIC)',
@@ -1016,7 +1004,7 @@ function save() { localStorage.setItem('rom-app-data', JSON.stringify(data)); }
   // ══════════════════════════════════════════════════════════
 
   // Lehrkräfte
-  data.teachers = [{"name": "Johannes Beerlink", "role": "Lehrkraft", "tel": "+4915679829406"}, {"name": "Kerstin Holtkamp", "role": "Lehrkraft", "tel": "+4915679829405"}, {"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Florian Mulder", "role": "Lehrkraft", "tel": "+4915679232250"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Eva Oltmann", "role": "Lehrkraft", "tel": "+4915679606657"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Frau Rolfes-Mittelberg", "role": "Krankenschwester", "tel": "+4915679265444"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}];
+  data.teachers = [{"name": "Johannes Beerlink", "role": "Lehrkraft", "tel": "+4915679829406"}, {"name": "Kerstin Holtkamp", "role": "Lehrkraft", "tel": "+4915679829405"}, {"name": "Nicole Huesmann", "role": "Lehrkraft", "tel": "+4915679436534"}, {"name": "Linda Klüner", "role": "Lehrkraft", "tel": "+4915679653775"}, {"name": "Anja Lenzen", "role": "Lehrkraft", "tel": "+4915679604111"}, {"name": "Ina Lucas", "role": "Lehrkraft", "tel": "+4915679830008"}, {"name": "Niklas Markus", "role": "Lehrkraft", "tel": "+4915679616653"}, {"name": "Natascha Meyer zu Bergsten", "role": "Lehrkraft", "tel": "+4915679275102"}, {"name": "Manuel Misera", "role": "Lehrkraft", "tel": "+4915679583201"}, {"name": "Florian Mulder", "role": "Lehrkraft", "tel": "+4915679232250"}, {"name": "Sebastian Musli", "role": "Lehrkraft / Notfallkontakt", "tel": "+4915679829890"}, {"name": "Eva Oltmann", "role": "Lehrkraft", "tel": "+4915679606657"}, {"name": "Ann-Kathrin Pottmeier", "role": "Lehrkraft", "tel": "+4915679829410"}, {"name": "Melanie Puchalla", "role": "Lehrkraft", "tel": "+4915679828915"}, {"name": "Malte Rohlmann", "role": "Lehrkraft", "tel": "+4915679829376"}, {"name": "Frau Rolfes-Mittelberg", "role": "Krankenschwester", "tel": "+4915679265444"}, {"name": "Saskia Rotthaus", "role": "Lehrkraft", "tel": "+4915679828059"}, {"name": "Nicole Schulte", "role": "Lehrkraft", "tel": "+4915679282337"}, {"name": "Julia Stöckel", "role": "Lehrkraft", "tel": "+491626771755"}, {"name": "Anja Telljohann", "role": "Lehrkraft", "tel": "+4915679169499"}, {"name": "Silke Weglage", "role": "Lehrkraft", "tel": "+4915679829409"}, {"name": "Maike Zumwalde", "role": "Lehrkraft", "tel": "+4915679021763"}];
 
   // Regeln
   data.rules = [
@@ -2167,6 +2155,21 @@ function saveTreffpunkt(aktiv) {
   }
 }
 
+function deleteMitteilung(id, nid) {
+  if (!confirm('Diese Mitteilung wirklich für ALLE löschen?')) return;
+  const lokal = () => {
+    data.notifications = (data.notifications || []).filter(n => notifId(n) !== nid);
+    save(); renderNotifications(); renderNotifBanner(); showForm('delmsg');
+  };
+  if (fbDb && id) {
+    fbDb.collection('mitteilungen').doc(String(id)).delete()
+      .then(() => { setTimeout(() => showForm('delmsg'), 300); })
+      .catch(() => alert('Löschen fehlgeschlagen. Bitte Internetverbindung prüfen und erneut versuchen.'));
+  } else {
+    lokal();
+  }
+}
+
 function deleteTreffpunkt(id) {
   if (!confirm('Treffpunkt wirklich löschen?')) return;
   const numId = Number(id);
@@ -2955,9 +2958,9 @@ function showForm(type) {
       <button class="btn-primary" onclick="saveTeacher()">Speichern</button>`,
 
     hotel: `<div class="sheet-title">🏨 Unterkunft</div>
-      <div class="input-group"><label>Hotelname</label><input id="f-hname" value="${data.hotel.name}"></div>
-      <div class="input-group"><label>Adresse</label><input id="f-haddr" value="${data.hotel.adresse}"></div>
-      <div class="input-group"><label>Telefonnummer</label><input id="f-htel" value="${data.hotel.tel}" type="tel"></div>
+      <div class="input-group"><label>Hotelname</label><input id="f-hname" value="${(data.hotel||{}).name || ''}"></div>
+      <div class="input-group"><label>Adresse</label><input id="f-haddr" value="${(data.hotel||{}).adresse || ''}"></div>
+      <div class="input-group"><label>Telefonnummer</label><input id="f-htel" value="${(data.hotel||{}).tel || ''}" type="tel"></div>
       <button class="btn-primary" onclick="saveHotel()">Speichern</button>`,
 
     rule: `<div class="sheet-title">📋 Regel</div>
@@ -3052,6 +3055,17 @@ function showForm(type) {
         💡 Die Mitteilung erscheint bei Schülern der gewählten Klasse. Beim Öffnen der App haben alle ihre Klasse angegeben.
       </div>`,
 
+    delmsg: `<div class="sheet-title">🗑️ Mitteilung löschen</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Gelöschte Mitteilungen verschwinden auf allen Geräten.</div>
+      ${(data.notifications||[]).length ? (data.notifications||[]).slice().reverse().map(n => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.title || ''}</div>
+            <div style="font-size:11px;color:var(--text3)">${n.time || ''}${n.klasse && n.klasse !== 'alle' ? ' · ' + n.klasse : ' · an alle'}</div>
+          </div>
+          <button data-msgid="${n.id || ''}" data-msgnid="${notifId(n)}" style="background:#fdf3f2;border:1.5px solid #fcd5d0;color:#9b2a1a;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;flex-shrink:0">Löschen</button>
+        </div>`).join('') : '<div style="font-size:13px;color:var(--text3);padding:8px 0 14px">Keine Mitteilungen vorhanden.</div>'}`,
+
     delete: `<div class="sheet-title">🗑️ Eintrag löschen</div>
       <div class="input-group">
         <label>Bereich</label>
@@ -3071,6 +3085,13 @@ function showForm(type) {
   };
 
   area.innerHTML = (forms[type] || '') + `<button class="btn-cancel" onclick="showMenu()">← Zurück</button>`;
+
+  // Event-Listener für Mitteilung-Löschen-Buttons
+  area.querySelectorAll('button[data-msgnid]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      deleteMitteilung(this.dataset.msgid, this.dataset.msgnid);
+    });
+  });
 
   // Event-Listener für Treffpunkt-Löschen-Buttons
   area.querySelectorAll('button[data-delid]').forEach(btn => {
@@ -3759,7 +3780,7 @@ document.addEventListener('DOMContentLoaded', initMeineInfos);
 
 // ── Service Worker Update-Erkennung ──
 // ── VERSION TAG (wird bei jedem Build automatisch aktualisiert) ──
-const APP_VERSION = 'kvgrom-v20261006-1255';
+const APP_VERSION = 'kvgrom-v20261007-1215';
 
 let newWorker;
 if ('serviceWorker' in navigator) {
